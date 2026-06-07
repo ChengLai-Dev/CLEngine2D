@@ -1,0 +1,40 @@
+# Build
+build/
+out/
+
+# IDE
+.opencode/
+.vs/
+.idea/
+*.user
+*.suo
+*.sln.docstates
+.vscode/
+
+# CMake
+CMakeUserPresets.json
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# Compiled
+*.obj
+*.exe
+*.pdb
+*.ilk
+*.lib
+*.dll
+*.exp
+*.dylib
+*.so
+*.a
+*.o
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Misc
+*.log
+*.tmp

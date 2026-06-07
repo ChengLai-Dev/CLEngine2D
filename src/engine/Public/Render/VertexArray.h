@@ -1,0 +1,25 @@
+#pragma once
+
+#include <vector>
+
+class VertexBuffer;
+class IndexBuffer;
+
+class VertexArray {
+public:
+    VertexArray();
+    ~VertexArray();
+
+    void Bind() const;
+    void Unbind() const;
+
+    void AddVertexBuffer(VertexBuffer* vb);
+    void SetIndexBuffer(IndexBuffer* ib);
+
+    IndexBuffer* GetIndexBuffer() const { return m_indexBuffer; }
+
+private:
+    unsigned int m_rendererID;
+    std::vector<VertexBuffer*> m_vertexBuffers;
+    IndexBuffer* m_indexBuffer;
+};
