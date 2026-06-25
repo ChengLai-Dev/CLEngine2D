@@ -12,5 +12,5 @@ public:
     unsigned int GetRendererID() const { return m_rendererID; }
 
 private:
-    unsigned int m_rendererID;
+    unsigned int m_rendererID = 0;
 };

@@ -1,4 +1,5 @@
 #include "Platform/Window.h"
+#include "Utils.h"
 
 #include "Logger.h"
 
@@ -6,8 +7,7 @@
 #include <format>
 
 Window::Window(const std::string& title, int width, int height)
-    : m_window(nullptr)
-    , m_title(title)
+    : m_title(title)
     , m_width(width)
     , m_height(height)
 {
@@ -21,14 +21,23 @@ Window::~Window() {
 void Window::Init() {
     Logger::Info(std::format("Creating window: {} ({}x{})", m_title, m_width, m_height));
 
+    if (!glfwInit()) {
+        Logger::Fatal("Failed to initialize GLFW");
+        return;
+    }
+
     glfwSetErrorCallback([](int error, const char* desc) {
         Logger::Error(std::format("GLFW Error ({}): {}", error, desc));
     });
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+
+    if (IS_DEBUG) {
+        glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+    }
 
     m_window = glfwCreateWindow(m_width, m_height, m_title.c_str(), nullptr, nullptr);
     if (!m_window) {
@@ -50,6 +59,7 @@ void Window::Shutdown() {
         glfwDestroyWindow(m_window);
         m_window = nullptr;
     }
+    glfwTerminate();
 }
 
 void Window::OnUpdate() {
@@ -64,6 +74,14 @@ bool Window::ShouldClose() const {
 int Window::GetWidth() const { return m_width; }
 int Window::GetHeight() const { return m_height; }
 GLFWwindow* Window::GetNativeWindow() const { return m_window; }
+
+void* Window::GetProcAddress(const char* name) {
+    return reinterpret_cast<void*>(glfwGetProcAddress(name));
+}
+
+double Window::GetTime() {
+    return glfwGetTime();
+}
 
 void Window::WindowResizeCallback(GLFWwindow* window, int width, int height) {
     Window* self = static_cast<Window*>(glfwGetWindowUserPointer(window));

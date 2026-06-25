@@ -15,7 +15,7 @@
 - **窗口/上下文**: GLFW
 - **构建系统**: CMake
 - **音频**: OpenAL Soft / miniaudio
-- **脚本**: 待定（Lua / 原生）
+- **脚本**: Python 3.14（pybind11 绑定 C++ API）
 
 ## 学习路线
 
@@ -40,3 +40,11 @@ cmake --build build
 ```
 
 可执行文件在 `build/src/sandbox/Release/sandbox.exe`（或 `Debug/`）。
+
+### Python 业务脚本
+
+Python 业务层依赖安装在 `scripts/` 目录下：
+
+```bash
+pip install -r scripts/requirements.txt
+```

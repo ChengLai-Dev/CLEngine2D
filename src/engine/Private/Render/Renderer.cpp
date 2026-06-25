@@ -5,10 +5,41 @@
 #include "Render/IndexBuffer.h"
 #include "Render/Texture.h"
 #include "Render/OrthographicCamera.h"
+#include "Platform/Window.h"
+#include "Utils.h"
 #include "Logger.h"
 
 #include <glad/glad.h>
 #include <format>
+
+bool Renderer::InitGL() {
+    if (!gladLoadGLLoader((GLADloadproc)Window::GetProcAddress)) {
+        Logger::Fatal("Failed to initialize Glad");
+        return false;
+    }
+
+    Logger::Info(std::format("OpenGL {}.{} loaded", GLVersion.major, GLVersion.minor));
+    Logger::Info("Renderer: " + std::string((const char*)glGetString(GL_RENDERER)));
+    Logger::Info("Vendor: " + std::string((const char*)glGetString(GL_VENDOR)));
+    Logger::Info("GLSL Version: " + std::string((const char*)glGetString(GL_SHADING_LANGUAGE_VERSION)));
+
+    if (IS_DEBUG) {
+        if (GLAD_GL_VERSION_4_3 || GLAD_GL_KHR_debug) {
+            glEnable(GL_DEBUG_OUTPUT);
+            glDebugMessageCallback([](GLenum source, GLenum type, GLuint id,
+                                      GLenum severity, GLsizei length,
+                                      const GLchar* message, const void* userParam) {
+                Logger::Error(std::format("[GL] {}", message));
+                __debugbreak();
+            }, nullptr);
+            Logger::Info("GL debug output enabled");
+        } else {
+            Logger::Warn("GL debug output not available");
+        }
+    }
+
+    return true;
+}
 
 Renderer::Renderer(unsigned int initialQuadCapacity)
     : m_maxQuads(initialQuadCapacity)
@@ -18,9 +49,7 @@ Renderer::Renderer(unsigned int initialQuadCapacity)
     , m_vertexArray(nullptr)
     , m_vertexBuffer(nullptr)
     , m_indexBuffer(nullptr)
-    , m_quadCount(0)
-    , m_textureSlotCount(0) {
-    m_textureSlots.fill(nullptr);
+{
 }
 
 Renderer::~Renderer() {

@@ -24,5 +24,5 @@ private:
     Mat4 m_projectionMatrix;
     Mat4 m_viewMatrix;
     Vec3 m_position;
-    float m_rotation;
+    float m_rotation = 0.0f;
 };

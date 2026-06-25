@@ -35,6 +35,11 @@ Makefile
 Thumbs.db
 Desktop.ini
 
+# Project
+docs/
+resume_templates/
+log.txt
+
 # Misc
 *.log
 *.tmp

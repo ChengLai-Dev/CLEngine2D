@@ -16,6 +16,9 @@ public:
     int GetHeight() const;
     GLFWwindow* GetNativeWindow() const;
 
+    static void* GetProcAddress(const char* name);
+    static double GetTime();
+
 private:
     void Init();
     void Shutdown();
@@ -24,7 +27,7 @@ private:
     static void WindowCloseCallback(GLFWwindow* window);
     static void WindowFocusCallback(GLFWwindow* window, int focused);
 
-    GLFWwindow* m_window;
+    GLFWwindow* m_window = nullptr;
     std::string m_title;
     int m_width;
     int m_height;

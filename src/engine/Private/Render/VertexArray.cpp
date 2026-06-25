@@ -4,9 +4,7 @@
 
 #include <glad/glad.h>
 
-VertexArray::VertexArray()
-    : m_rendererID(0)
-    , m_indexBuffer(nullptr) {
+VertexArray::VertexArray() {
     glGenVertexArrays(1, &m_rendererID);
 }
 

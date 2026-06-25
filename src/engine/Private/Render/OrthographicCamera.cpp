@@ -2,7 +2,7 @@
 
 OrthographicCamera::OrthographicCamera(float left, float right, float bottom, float top)
     : m_position(Vec3(0.0f, 0.0f, 0.0f))
-    , m_rotation(0.0f) {
+{
     SetProjection(left, right, bottom, top);
 }
 

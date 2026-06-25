@@ -11,6 +11,6 @@ public:
     unsigned int GetCount() const { return m_count; }
 
 private:
-    unsigned int m_rendererID;
+    unsigned int m_rendererID = 0;
     unsigned int m_count;
 };

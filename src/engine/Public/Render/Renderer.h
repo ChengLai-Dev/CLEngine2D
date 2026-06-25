@@ -15,15 +15,17 @@ class Texture;
 class OrthographicCamera;
 
 struct QuadVertex {
-    float Position[3];
-    float TexCoord[2];
-    float TexIndex;
-    float Color[4];
+    float Position[3] = {};
+    float TexCoord[2] = {};
+    float TexIndex = 0.0f;
+    float Color[4] = {};
 };
 
 class Renderer {
 public:
     static const unsigned int MAX_TEXTURE_SLOTS = 16;
+
+    static bool InitGL();
 
     Renderer(unsigned int initialQuadCapacity = 1000);
     ~Renderer();
@@ -55,8 +57,8 @@ private:
     std::unique_ptr<IndexBuffer> m_indexBuffer;
 
     std::vector<QuadVertex> m_quadVertexBuffer;
-    unsigned int m_quadCount;
+    unsigned int m_quadCount = 0;
 
-    std::array<Texture*, MAX_TEXTURE_SLOTS> m_textureSlots;
-    unsigned int m_textureSlotCount;
+    std::array<Texture*, MAX_TEXTURE_SLOTS> m_textureSlots = {};
+    unsigned int m_textureSlotCount = 0;
 };

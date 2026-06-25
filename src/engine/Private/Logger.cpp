@@ -10,6 +10,10 @@ LogLevel Logger::s_minDumpLogLevel = LogLevel::Warn;
 std::FILE* Logger::s_dumpFile = nullptr;
 
 void Logger::Init() {
+    if (!IS_DEBUG) {
+        s_minLogLevel = LogLevel::Warn;
+    }
+
     HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
     DWORD mode = 0;
     GetConsoleMode(handle, &mode);

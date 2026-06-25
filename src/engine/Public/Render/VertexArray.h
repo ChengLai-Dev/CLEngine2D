@@ -19,7 +19,7 @@ public:
     IndexBuffer* GetIndexBuffer() const { return m_indexBuffer; }
 
 private:
-    unsigned int m_rendererID;
+    unsigned int m_rendererID = 0;
     std::vector<VertexBuffer*> m_vertexBuffers;
-    IndexBuffer* m_indexBuffer;
+    IndexBuffer* m_indexBuffer = nullptr;
 };

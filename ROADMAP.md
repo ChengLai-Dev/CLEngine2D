@@ -1,8 +1,8 @@
-# TinyEngine 开发路线图
+# CLEngine2D 开发路线图
 
 ## 概述
 
-整个引擎分为 **6 个阶段**，每个阶段都有明确的目标、交付物和关键技术点。建议按顺序推进，每个阶段完成后再进入下一个。
+整个引擎分为 **7 个阶段**，每个阶段都有明确的目标、交付物和关键技术点。建议按顺序推进，每个阶段完成后再进入下一个。
 
 ---
 
@@ -229,7 +229,62 @@ src/engine/Private/
 ├── ParticleSystem.cpp
 ├── Physics2D.cpp
 ├── Animator.cpp
-└── TiledMap.cpp
+    └── TiledMap.cpp
+```
+
+---
+
+## 阶段七：Python 脚本集成
+
+**目标**：C++ 引擎核心功能齐备后，接入 pybind11，将关键 API 暴露给 Python，实现 Python 驱动的游戏业务层。性能敏感的算法模块（物理、寻路、粒子更新等）继续保留 C++ 实现，Python 仅调用入口函数。
+
+### 任务
+
+- [ ] 集成 pybind11（CMake FetchContent）
+- [ ] 暴露核心 C++ API：
+  - Application（生命周期、帧回调注册）
+  - Renderer（提交 Sprite、清屏）
+  - Input（按键/鼠标查询）
+  - Scene / SpriteComponent（场景管理与游戏对象操作）
+  - Timer（帧率、delta time）
+  - Math（Vec3、Mat4 基础运算）
+- [ ] 实现嵌入模式：C++ 主循环每帧回调 Python 的 `on_update(dt)` / `on_render()`
+- [ ] 创建 `scripts/` 目录结构
+- [ ] 编写 `scripts/main.py` 入口脚本，展示 Python 中创建实体、处理输入、切换场景
+- [ ] 新增 `src/engine/PythonBind/` 绑定模块目录
+- [ ] 补充构建说明：`pip install -r scripts/requirements.txt`
+
+### 关键技术点
+
+- pybind11 的 `PYBIND11_MODULE` 宏和 `.def()` 链式绑定
+- 嵌入模式：C++ 为骨架跑主循环，每帧回调 Python 执行业务逻辑
+- 跨语言对象生命周期管理（`py::keep_alive`，确保 C++ 对象在 Python 侧存活）
+- 大计算量模块（碰撞检测、A* 寻路、粒子更新）保留 C++ 完整实现，Python 只调顶层入口
+- 每帧 Python → C++ 跨语言调用控制在几百次以内，开销可忽略（单次 ≈ 100-300ns）
+
+### 交付物
+
+```
+src/engine/
+├── PythonBind/                 # pybind11 绑定代码（新增）
+│   ├── PyEngine.cpp            # 模块入口
+│   ├── BindApp.cpp/h
+│   ├── BindRenderer.cpp/h
+│   ├── BindInput.cpp/h
+│   ├── BindScene.cpp/h
+│   └── BindMath.cpp/h
+scripts/                        # Python 业务脚本（新增）
+├── main.py                     # 入口
+├── requirements.txt
+├── game/
+│   ├── player.py
+│   └── enemy.py
+├── scenes/
+│   ├── menu_scene.py
+│   └── game_scene.py
+└── components/
+    ├── sprite_animator.py
+    └── ai_controller.py
 ```
 
 ---
@@ -251,7 +306,20 @@ src/
 │   │   ├── Audio/
 │   │   ├── Math/
 │   │   └── Components/
+│   ├── PythonBind/               # pybind11 绑定层（阶段七新增）
+│   │   ├── PyEngine.cpp
+│   │   ├── BindApp.cpp/h
+│   │   ├── BindRenderer.cpp/h
+│   │   ├── BindInput.cpp/h
+│   │   ├── BindScene.cpp/h
+│   │   └── BindMath.cpp/h
 │   └── CMakeLists.txt
+├── scripts/                      # Python 业务脚本（阶段七新增）
+│   ├── main.py                   # Python 入口
+│   ├── requirements.txt
+│   ├── game/
+│   ├── scenes/
+│   └── components/
 ├── sandbox/                      # 测试/示例项目
 │   ├── CMakeLists.txt
 │   └── main.cpp

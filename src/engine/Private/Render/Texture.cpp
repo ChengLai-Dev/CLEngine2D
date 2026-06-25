@@ -6,8 +6,7 @@
 #include <format>
 
 Texture::Texture(const std::string& filepath)
-    : m_rendererID(0)
-    , m_width(0)
+    : m_width(0)
     , m_height(0)
     , m_channels(0) {
     stbi_set_flip_vertically_on_load(1);

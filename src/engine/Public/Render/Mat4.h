@@ -4,7 +4,7 @@
 #include <cmath>
 
 struct Mat4 {
-    float m[4][4];
+    float m[4][4] = {};
 
     Mat4() {
         for (int col = 0; col < 4; ++col)
