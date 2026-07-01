@@ -26,6 +26,10 @@ private:
     static void WindowResizeCallback(GLFWwindow* window, int width, int height);
     static void WindowCloseCallback(GLFWwindow* window);
     static void WindowFocusCallback(GLFWwindow* window, int focused);
+    static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+    static void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+    static void CursorPosCallback(GLFWwindow* window, double x, double y);
+    static void ScrollCallback(GLFWwindow* window, double xOffset, double yOffset);
 
     GLFWwindow* m_window = nullptr;
     std::string m_title;

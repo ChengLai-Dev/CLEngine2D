@@ -1,4 +1,6 @@
 #include <Application.h>
+#include <Input.h>
+#include <InputCodes.h>
 #include <Platform/Window.h>
 #include <Logger.h>
 #include <Timer.h>
@@ -8,6 +10,7 @@
 #include <Render/RenderCommand.h>
 #include <Render/OrthographicCamera.h>
 #include <Render/Texture.h>
+#include <Audio/AudioEngine.h>
 
 #include <memory>
 #include <glad/glad.h>
@@ -36,14 +39,28 @@ public:
     void OnUpdate(float deltaTime) override {
         m_elapsed += deltaTime;
 
-        auto* sprite = GetSprite(1);
-        if (sprite) {
-            sprite->Rotation += deltaTime * 60.0f;
+        if (m_rotateRed) {
+            auto* redSprite = GetSprite(1);
+            if (redSprite) {
+                redSprite->Rotation += deltaTime * 60.0f;
+            }
+        }
+
+        auto* playerSprite = GetSprite(0);
+        if (playerSprite && m_moveDir.LengthSq() > 0.0f) {
+            Vec3 move = m_moveDir * m_speed * deltaTime;
+            playerSprite->Position = playerSprite->Position + move;
         }
     }
 
+    void SetMoveDir(const Vec3& dir) { m_moveDir = dir; }
+    void ToggleRotation() { m_rotateRed = !m_rotateRed; }
+
 private:
     float m_elapsed = 0.0f;
+    Vec3 m_moveDir = Vec3(0.0f, 0.0f, 0.0f);
+    float m_speed = 5.0f;
+    bool m_rotateRed = true;
 };
 
 class Sandbox : public Application {
@@ -60,11 +77,17 @@ protected:
         m_renderer->Init();
 
         auto& sceneManager = SceneManager::GetInstance();
-        sceneManager.PushScene(std::unique_ptr<Scene>(new GameScene()));
+        m_scene = new GameScene();
+        sceneManager.PushScene(std::unique_ptr<Scene>(m_scene));
+
+        Logger::Info("Controls: WASD/Arrows to move, Space to toggle rotation, Esc to quit");
+        Logger::Info("Audio engine ready - place .wav files in assets/audio/ and use AudioEngine::GetInstance().LoadSound()");
     }
 
     void OnUpdate(float deltaTime) override {
         m_timer.TickFrame();
+
+        HandleInput();
 
         auto* scene = SceneManager::GetInstance().GetCurrentScene();
         if (scene) {
@@ -72,9 +95,12 @@ protected:
         }
 
         if (m_fpsUpdateTimer >= 0.25f) {
+            auto mousePos = Input::GetMousePosition();
             std::string title = std::string(TITLE)
                 + " [FPS: " + std::to_string(static_cast<int>(m_timer.GetFPS()))
-                + ", Frame: " + std::to_string(m_timer.GetFrameTime() * 1000.0f).substr(0, 5) + "ms]";
+                + ", Mouse: " + std::to_string(static_cast<int>(mousePos.first))
+                + "," + std::to_string(static_cast<int>(mousePos.second))
+                + "]";
             glfwSetWindowTitle(GetWindow()->GetNativeWindow(), title.c_str());
             m_fpsUpdateTimer = 0.0f;
         }
@@ -102,9 +128,40 @@ protected:
     }
 
 private:
+    void HandleInput() {
+        if (Input::IsKeyPressed(KeyCode::Escape)) {
+            glfwSetWindowShouldClose(GetWindow()->GetNativeWindow(), GLFW_TRUE);
+        }
+
+        if (Input::IsMouseButtonPressed(MouseCode::ButtonLeft)) {
+            m_scene->ToggleRotation();
+        }
+
+        Vec3 moveDir(0.0f, 0.0f, 0.0f);
+        if (Input::IsKeyDown(KeyCode::W) || Input::IsKeyDown(KeyCode::Up)) {
+            moveDir.y += 1.0f;
+        }
+        if (Input::IsKeyDown(KeyCode::S) || Input::IsKeyDown(KeyCode::Down)) {
+            moveDir.y -= 1.0f;
+        }
+        if (Input::IsKeyDown(KeyCode::A) || Input::IsKeyDown(KeyCode::Left)) {
+            moveDir.x -= 1.0f;
+        }
+        if (Input::IsKeyDown(KeyCode::D) || Input::IsKeyDown(KeyCode::Right)) {
+            moveDir.x += 1.0f;
+        }
+
+        if (moveDir.LengthSq() > 0.0f) {
+            m_scene->SetMoveDir(moveDir.Normalized());
+        } else {
+            m_scene->SetMoveDir(Vec3(0.0f, 0.0f, 0.0f));
+        }
+    }
+
     Timer m_timer;
     std::unique_ptr<OrthographicCamera> m_camera;
     std::unique_ptr<Renderer> m_renderer;
+    GameScene* m_scene = nullptr;
     float m_fpsUpdateTimer = 0.0f;
 };
 

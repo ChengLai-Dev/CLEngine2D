@@ -1,4 +1,5 @@
 #include "Platform/Window.h"
+#include "Input.h"
 #include "Utils.h"
 
 #include "Logger.h"
@@ -52,6 +53,10 @@ void Window::Init() {
     glfwSetWindowSizeCallback(m_window, WindowResizeCallback);
     glfwSetWindowCloseCallback(m_window, WindowCloseCallback);
     glfwSetWindowFocusCallback(m_window, WindowFocusCallback);
+    glfwSetKeyCallback(m_window, KeyCallback);
+    glfwSetMouseButtonCallback(m_window, MouseButtonCallback);
+    glfwSetCursorPosCallback(m_window, CursorPosCallback);
+    glfwSetScrollCallback(m_window, ScrollCallback);
 }
 
 void Window::Shutdown() {
@@ -100,4 +105,20 @@ void Window::WindowFocusCallback(GLFWwindow* /*window*/, int focused) {
         Logger::Debug("Window focused");
     else
         Logger::Debug("Window unfocused");
+}
+
+void Window::KeyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, int /*mods*/) {
+    Input::OnKeyEvent(key, action);
+}
+
+void Window::MouseButtonCallback(GLFWwindow* /*window*/, int button, int action, int /*mods*/) {
+    Input::OnMouseButtonEvent(button, action);
+}
+
+void Window::CursorPosCallback(GLFWwindow* /*window*/, double x, double y) {
+    Input::OnMouseMoveEvent(x, y);
+}
+
+void Window::ScrollCallback(GLFWwindow* /*window*/, double xOffset, double yOffset) {
+    Input::OnScrollEvent(xOffset, yOffset);
 }

@@ -37,6 +37,13 @@ add_library(engine STATIC
     Private/Scene.cpp
     Public/Components/SpriteComponent.h
     Private/Components/SpriteComponent.cpp
+    Public/InputCodes.h
+    Public/Input.h
+    Private/Input.cpp
+    Public/Audio/AudioEngine.h
+    Public/Audio/Sound.h
+    Private/Audio/AudioEngine.cpp
+    Private/Audio/Sound.cpp
 )
 
 target_include_directories(engine PUBLIC
@@ -45,6 +52,7 @@ target_include_directories(engine PUBLIC
 
 target_include_directories(engine PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/Private
+    ${CMAKE_SOURCE_DIR}/third_party/miniaudio
 )
 
 target_link_libraries(engine PUBLIC glfw glad stb_image)

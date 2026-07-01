@@ -1,7 +1,9 @@
 #include "Application.h"
+#include "Input.h"
 #include "Logger.h"
 #include "Platform/Window.h"
 #include "Render/Renderer.h"
+#include "Audio/AudioEngine.h"
 
 Application::Application() {
     Logger::Init();
@@ -13,6 +15,8 @@ Application::Application() {
         Logger::Fatal("Failed to initialize OpenGL");
         return;
     }
+
+    AudioEngine::GetInstance().Init();
 }
 
 Application::~Application() {
@@ -29,10 +33,12 @@ void Application::Run() {
         double currentTime = Window::GetTime();
         float deltaTime = static_cast<float>(currentTime - lastTime);
 
+        Input::Update();
         OnUpdate(deltaTime);
         OnRender();
 
         m_window->OnUpdate();
+        lastTime = currentTime;
     }
 
     OnShutdown();
