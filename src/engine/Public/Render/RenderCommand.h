@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glad/glad.h>
+
 struct Mat4;
 
 class RenderCommand {
@@ -9,5 +11,5 @@ public:
     static void SetViewport(int x, int y, int width, int height);
     static void SetDepthTest(bool enabled);
     static void SetBlend(bool enabled);
-    static void SetBlendFunc(unsigned int sfactor, unsigned int dfactor);
+    static void SetBlendFunc(GLenum sfactor, GLenum dfactor);
 };

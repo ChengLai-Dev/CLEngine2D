@@ -1,6 +1,7 @@
 #include "Render/VertexArray.h"
 #include "Render/VertexBuffer.h"
 #include "Render/IndexBuffer.h"
+#include "Render/BufferLayout.h"
 
 #include <glad/glad.h>
 
@@ -26,30 +27,26 @@ void VertexArray::AddVertexBuffer(VertexBuffer* vb) {
     glBindVertexArray(m_rendererID);
     vb->Bind();
 
-    unsigned int index = 0;
-    unsigned int offset = 0;
+    const BufferLayout& layout = vb->GetLayout();
+    unsigned int attribIndex = 0;
+    for (const auto& element : layout.GetElements()) {
+        unsigned int comps = ShaderDataTypeComponentCount(element.Type);
+        unsigned int slotCount = 1;
+        if (element.Type == ShaderDataType::Mat3 || element.Type == ShaderDataType::Mat4)
+            slotCount = comps;
 
-    glEnableVertexAttribArray(index);
-    glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, 10 * sizeof(float),
-        reinterpret_cast<const void*>(static_cast<size_t>(offset)));
-    offset += 3 * sizeof(float);
-    ++index;
+        GLenum glType = ShaderDataTypeToGLType(element.Type);
+        unsigned int bytesPerSlot = element.Size / comps;
 
-    glEnableVertexAttribArray(index);
-    glVertexAttribPointer(index, 2, GL_FLOAT, GL_FALSE, 10 * sizeof(float),
-        reinterpret_cast<const void*>(static_cast<size_t>(offset)));
-    offset += 2 * sizeof(float);
-    ++index;
-
-    glEnableVertexAttribArray(index);
-    glVertexAttribPointer(index, 1, GL_FLOAT, GL_FALSE, 10 * sizeof(float),
-        reinterpret_cast<const void*>(static_cast<size_t>(offset)));
-    offset += 1 * sizeof(float);
-    ++index;
-
-    glEnableVertexAttribArray(index);
-    glVertexAttribPointer(index, 4, GL_FLOAT, GL_FALSE, 10 * sizeof(float),
-        reinterpret_cast<const void*>(static_cast<size_t>(offset)));
+        for (unsigned int slot = 0; slot < slotCount; ++slot) {
+            glEnableVertexAttribArray(attribIndex);
+            glVertexAttribPointer(attribIndex, static_cast<int>(comps), glType,
+                element.Normalized ? GL_TRUE : GL_FALSE,
+                static_cast<int>(layout.GetStride()),
+                reinterpret_cast<const void*>(static_cast<uintptr_t>(element.Offset + slot * bytesPerSlot)));
+            ++attribIndex;
+        }
+    }
 
     glBindVertexArray(0);
 }

@@ -19,6 +19,7 @@ public:
 
     static void SetDumpPath(const std::string& path);
     static void SetMinDumpLogLevel(LogLevel level);
+    static void SetMinStackTraceLogLevel(LogLevel level);
 
     static void Trace(const std::string& msg);
     static void Debug(const std::string& msg);
@@ -32,5 +33,6 @@ private:
     static const char* LevelPrefix(LogLevel level);
     static LogLevel s_minLogLevel;
     static LogLevel s_minDumpLogLevel;
+    static LogLevel s_minStackTraceLogLevel;
     static std::FILE* s_dumpFile;
 };

@@ -27,6 +27,6 @@ void RenderCommand::SetBlend(bool enabled) {
         glDisable(GL_BLEND);
 }
 
-void RenderCommand::SetBlendFunc(unsigned int sfactor, unsigned int dfactor) {
+void RenderCommand::SetBlendFunc(GLenum sfactor, GLenum dfactor) {
     glBlendFunc(sfactor, dfactor);
 }

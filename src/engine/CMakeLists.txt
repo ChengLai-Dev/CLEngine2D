@@ -7,8 +7,12 @@ add_library(engine STATIC
     Public/Platform/Window.h
     Private/Platform/Window.cpp
     Private/Utils.cpp
-    Public/Render/Vec3.h
-    Public/Render/Mat4.h
+    Public/Math/Vec2.h
+    Public/Math/Vec3.h
+    Public/Math/Vec4.h
+    Public/Math/Mat4.h
+    Public/Math/Transform.h
+    Public/Math/Math.h
     Public/Render/Shader.h
     Private/Render/Shader.cpp
     Public/Render/VertexBuffer.h
@@ -25,6 +29,14 @@ add_library(engine STATIC
     Private/Render/OrthographicCamera.cpp
     Public/Render/Renderer.h
     Private/Render/Renderer.cpp
+    Public/Timer.h
+    Private/Timer.cpp
+    Public/AssetManager.h
+    Private/AssetManager.cpp
+    Public/Scene.h
+    Private/Scene.cpp
+    Public/Components/SpriteComponent.h
+    Private/Components/SpriteComponent.cpp
 )
 
 target_include_directories(engine PUBLIC

@@ -1,9 +1,8 @@
 #include "Render/OrthographicCamera.h"
 
-OrthographicCamera::OrthographicCamera(float left, float right, float bottom, float top)
-    : m_position(Vec3(0.0f, 0.0f, 0.0f))
-{
+OrthographicCamera::OrthographicCamera(float left, float right, float bottom, float top) {
     SetProjection(left, right, bottom, top);
+    RecalculateViewMatrix();
 }
 
 void OrthographicCamera::SetProjection(float left, float right, float bottom, float top) {

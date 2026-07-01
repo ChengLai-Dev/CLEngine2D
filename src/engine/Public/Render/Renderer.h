@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Vec3.h"
-#include "Mat4.h"
+#include "Math/Vec3.h"
+#include "Math/Mat4.h"
 
 #include <memory>
 #include <vector>
@@ -51,14 +51,16 @@ private:
     unsigned int m_maxVertices;
     unsigned int m_maxIndices;
 
-    std::unique_ptr<Shader> m_shader;
-    std::unique_ptr<VertexArray> m_vertexArray;
-    std::unique_ptr<VertexBuffer> m_vertexBuffer;
-    std::unique_ptr<IndexBuffer> m_indexBuffer;
+    std::unique_ptr<Shader> m_shader = nullptr;
+    std::unique_ptr<VertexArray> m_vertexArray = nullptr;
+    std::unique_ptr<VertexBuffer> m_vertexBuffer = nullptr;
+    std::unique_ptr<IndexBuffer> m_indexBuffer = nullptr;
 
     std::vector<QuadVertex> m_quadVertexBuffer;
     unsigned int m_quadCount = 0;
 
     std::array<Texture*, MAX_TEXTURE_SLOTS> m_textureSlots = {};
     unsigned int m_textureSlotCount = 0;
+
+    std::unique_ptr<Texture> m_whiteTexture = nullptr;
 };

@@ -3,9 +3,7 @@
 #include "Platform/Window.h"
 #include "Render/Renderer.h"
 
-Application::Application()
-    : m_window(nullptr)
-{
+Application::Application() {
     Logger::Init();
     Logger::Info("CLEngine2D v0.1.0 initializing...");
 

@@ -1,5 +1,8 @@
 #pragma once
 
+#include <glad/glad.h>
+#include "BufferLayout.h"
+
 class VertexBuffer {
 public:
     VertexBuffer(const void* data, unsigned int size);
@@ -9,8 +12,12 @@ public:
     void Unbind() const;
     void SetData(const void* data, unsigned int size);
 
-    unsigned int GetRendererID() const { return m_rendererID; }
+    void SetLayout(const BufferLayout& layout) { m_layout = layout; }
+    const BufferLayout& GetLayout() const { return m_layout; }
+
+    GLuint GetRendererID() const { return m_rendererID; }
 
 private:
-    unsigned int m_rendererID = 0;
+    GLuint m_rendererID = 0;
+    BufferLayout m_layout;
 };

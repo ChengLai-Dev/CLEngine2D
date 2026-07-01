@@ -5,6 +5,7 @@
 #include "Render/IndexBuffer.h"
 #include "Render/Texture.h"
 #include "Render/OrthographicCamera.h"
+#include "Render/BufferLayout.h"
 #include "Platform/Window.h"
 #include "Utils.h"
 #include "Logger.h"
@@ -19,9 +20,9 @@ bool Renderer::InitGL() {
     }
 
     Logger::Info(std::format("OpenGL {}.{} loaded", GLVersion.major, GLVersion.minor));
-    Logger::Info("Renderer: " + std::string((const char*)glGetString(GL_RENDERER)));
-    Logger::Info("Vendor: " + std::string((const char*)glGetString(GL_VENDOR)));
-    Logger::Info("GLSL Version: " + std::string((const char*)glGetString(GL_SHADING_LANGUAGE_VERSION)));
+    Logger::Info(std::format("Renderer: {}", (const char*)glGetString(GL_RENDERER)));
+    Logger::Info(std::format("Vendor: {}", (const char*)glGetString(GL_VENDOR)));
+    Logger::Info(std::format("GLSL Version: {}", (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION)));
 
     if (IS_DEBUG) {
         if (GLAD_GL_VERSION_4_3 || GLAD_GL_KHR_debug) {
@@ -29,8 +30,20 @@ bool Renderer::InitGL() {
             glDebugMessageCallback([](GLenum source, GLenum type, GLuint id,
                                       GLenum severity, GLsizei length,
                                       const GLchar* message, const void* userParam) {
-                Logger::Error(std::format("[GL] {}", message));
-                __debugbreak();
+                if (severity == GL_DEBUG_SEVERITY_HIGH) {
+                    if (type == GL_DEBUG_TYPE_ERROR) {
+                        Logger::Error(std::format("[GL] {}", message));
+                        __debugbreak();
+                    } else {
+                        Logger::Warn(std::format("[GL] {}", message));
+                    }
+                } else if (severity == GL_DEBUG_SEVERITY_MEDIUM) {
+                    Logger::Warn(std::format("[GL] {}", message));
+                } else if (severity == GL_DEBUG_SEVERITY_LOW) {
+                    Logger::Info(std::format("[GL] {}", message));
+                } else {
+                    Logger::Debug(std::format("[GL] {}", message));
+                }
             }, nullptr);
             Logger::Info("GL debug output enabled");
         } else {
@@ -44,12 +57,7 @@ bool Renderer::InitGL() {
 Renderer::Renderer(unsigned int initialQuadCapacity)
     : m_maxQuads(initialQuadCapacity)
     , m_maxVertices(initialQuadCapacity * 4)
-    , m_maxIndices(initialQuadCapacity * 6)
-    , m_shader(nullptr)
-    , m_vertexArray(nullptr)
-    , m_vertexBuffer(nullptr)
-    , m_indexBuffer(nullptr)
-{
+    , m_maxIndices(initialQuadCapacity * 6) {
 }
 
 Renderer::~Renderer() {
@@ -59,6 +67,13 @@ Renderer::~Renderer() {
 void Renderer::Init() {
     Logger::Info("Initializing renderer...");
 
+    m_quadVertexBuffer.resize(m_maxVertices);
+    CreateBuffers();
+
+    unsigned char whitePixel[4] = { 255, 255, 255, 255 };
+    m_whiteTexture = std::unique_ptr<Texture>(new Texture(1, 1, whitePixel));
+
+    m_vertexArray->Bind();
     m_shader = std::unique_ptr<Shader>(new Shader("assets/shaders/Texture.glsl"));
     m_shader->Bind();
 
@@ -68,15 +83,20 @@ void Renderer::Init() {
     }
     m_shader->SetIntArray("u_Textures", samplers, MAX_TEXTURE_SLOTS);
 
-    m_quadVertexBuffer.resize(m_maxVertices);
-    CreateBuffers();
-
     Logger::Info("Renderer initialized");
 }
 
 void Renderer::CreateBuffers() {
     m_vertexArray = std::unique_ptr<VertexArray>(new VertexArray());
     m_vertexBuffer = std::unique_ptr<VertexBuffer>(new VertexBuffer(nullptr, m_maxVertices * sizeof(QuadVertex)));
+
+    BufferLayout quadLayout = {
+        { ShaderDataType::Float3, "a_Position" },
+        { ShaderDataType::Float2, "a_TexCoord" },
+        { ShaderDataType::Float,  "a_TexIndex" },
+        { ShaderDataType::Float4, "a_Color" }
+    };
+    m_vertexBuffer->SetLayout(quadLayout);
 
     std::vector<unsigned int> indices(m_maxIndices);
     unsigned int offset = 0;
@@ -97,6 +117,7 @@ void Renderer::CreateBuffers() {
 }
 
 void Renderer::Shutdown() {
+    m_whiteTexture.reset();
     m_shader.reset();
     m_vertexArray.reset();
     m_vertexBuffer.reset();
@@ -118,13 +139,16 @@ void Renderer::DrawQuad(const Vec3& position, const Vec3& size, float rotation,
                         Texture* texture, const float color[4],
                         float texOffsetX, float texOffsetY,
                         float texScaleX, float texScaleY) {
-    // 当前批次写满了 → 先画出去，清空，继续写
     if (m_quadCount >= m_maxQuads) {
         Flush();
     }
 
+    if (!texture) {
+        texture = m_whiteTexture.get();
+    }
+
     unsigned int texIndex = 0;
-    if (texture) {
+    {
         bool found = false;
         for (unsigned int i = 0; i < m_textureSlotCount; ++i) {
             if (m_textureSlots[i] == texture) {

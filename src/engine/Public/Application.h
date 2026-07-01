@@ -20,5 +20,5 @@ protected:
     Window* GetWindow() const { return m_window.get(); }
 
 private:
-    std::unique_ptr<Window> m_window;
+    std::unique_ptr<Window> m_window = nullptr;
 };

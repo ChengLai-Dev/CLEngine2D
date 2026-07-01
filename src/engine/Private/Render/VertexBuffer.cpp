@@ -4,7 +4,7 @@
 VertexBuffer::VertexBuffer(const void* data, unsigned int size) {
     glGenBuffers(1, &m_rendererID);
     glBindBuffer(GL_ARRAY_BUFFER, m_rendererID);
-    glBufferData(GL_ARRAY_BUFFER, static_cast<long long>(size), data, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, static_cast<long long>(size), data, GL_STREAM_DRAW);
 }
 
 VertexBuffer::~VertexBuffer() {

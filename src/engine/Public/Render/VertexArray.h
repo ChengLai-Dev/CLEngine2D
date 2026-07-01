@@ -1,5 +1,6 @@
 #pragma once
 
+#include <glad/glad.h>
 #include <vector>
 
 class VertexBuffer;
@@ -19,7 +20,7 @@ public:
     IndexBuffer* GetIndexBuffer() const { return m_indexBuffer; }
 
 private:
-    unsigned int m_rendererID = 0;
+    GLuint m_rendererID = 0;
     std::vector<VertexBuffer*> m_vertexBuffers;
     IndexBuffer* m_indexBuffer = nullptr;
 };

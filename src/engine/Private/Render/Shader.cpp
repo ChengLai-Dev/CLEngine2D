@@ -1,16 +1,17 @@
 #include "Render/Shader.h"
-#include "Render/Mat4.h"
+#include "Math/Mat4.h"
 #include "Logger.h"
 
 #include <glad/glad.h>
 #include <fstream>
 #include <sstream>
+#include <format>
 #include <vector>
 
 static std::string ReadFile(const std::string& filepath) {
     std::ifstream stream(filepath, std::ios::in | std::ios::binary);
     if (!stream) {
-        Logger::Error("Failed to open shader file: " + filepath);
+        Logger::Error(std::format("Failed to open shader file: {}", filepath));
         return "";
     }
     std::stringstream ss;
@@ -74,8 +75,8 @@ void Shader::SetIntArray(const std::string& name, const int* values, unsigned in
     glUniform1iv(GetUniformLocation(name), static_cast<int>(count), values);
 }
 
-unsigned int Shader::CompileShader(unsigned int type, const std::string& source) {
-    unsigned int id = glCreateShader(type);
+GLuint Shader::CompileShader(GLenum type, const std::string& source) {
+    GLuint id = glCreateShader(type);
     const char* src = source.c_str();
     glShaderSource(id, 1, &src, nullptr);
     glCompileShader(id);
@@ -89,8 +90,7 @@ unsigned int Shader::CompileShader(unsigned int type, const std::string& source)
         glGetShaderInfoLog(id, length, &length, message.data());
 
         const char* typeName = (type == GL_VERTEX_SHADER) ? "vertex" : "fragment";
-        Logger::Error(std::string("Shader compilation failed (") + typeName + "): " + message.data());
-
+        Logger::Error(std::format("Shader compilation failed ({}): {}", typeName, message.data()));
         glDeleteShader(id);
         return 0;
     }
@@ -98,10 +98,10 @@ unsigned int Shader::CompileShader(unsigned int type, const std::string& source)
     return id;
 }
 
-unsigned int Shader::CreateProgram(const std::string& vertexSrc, const std::string& fragmentSrc) {
-    unsigned int program = glCreateProgram();
-    unsigned int vs = CompileShader(GL_VERTEX_SHADER, vertexSrc);
-    unsigned int fs = CompileShader(GL_FRAGMENT_SHADER, fragmentSrc);
+GLuint Shader::CreateProgram(const std::string& vertexSrc, const std::string& fragmentSrc) {
+    GLuint program = glCreateProgram();
+    GLuint vs = CompileShader(GL_VERTEX_SHADER, vertexSrc);
+    GLuint fs = CompileShader(GL_FRAGMENT_SHADER, fragmentSrc);
 
     glAttachShader(program, vs);
     glAttachShader(program, fs);
@@ -118,7 +118,7 @@ unsigned int Shader::CreateProgram(const std::string& vertexSrc, const std::stri
         glGetProgramiv(program, GL_INFO_LOG_LENGTH, &length);
         std::vector<char> message(static_cast<size_t>(length));
         glGetProgramInfoLog(program, length, &length, message.data());
-        Logger::Error("Shader linking failed: " + std::string(message.data()));
+        Logger::Error(std::format("Shader linking failed: {}", message.data()));
         glDeleteProgram(program);
         return 0;
     }
@@ -134,7 +134,7 @@ int Shader::GetUniformLocation(const std::string& name) {
 
     int location = glGetUniformLocation(m_rendererID, name.c_str());
     if (location == -1) {
-        Logger::Warn("Uniform '" + name + "' not found in shader");
+        Logger::Warn(std::format("Uniform '{}' not found in shader", name));
     }
     m_uniformLocationCache[name] = location;
     return location;

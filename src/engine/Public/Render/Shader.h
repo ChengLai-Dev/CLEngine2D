@@ -1,5 +1,6 @@
 #pragma once
 
+#include <glad/glad.h>
 #include <string>
 #include <unordered_map>
 
@@ -19,10 +20,10 @@ public:
     void SetIntArray(const std::string& name, const int* values, unsigned int count);
 
 private:
-    unsigned int m_rendererID;
+    GLuint m_rendererID;
     std::unordered_map<std::string, int> m_uniformLocationCache;
 
-    unsigned int CompileShader(unsigned int type, const std::string& source);
-    unsigned int CreateProgram(const std::string& vertexSrc, const std::string& fragmentSrc);
+    GLuint CompileShader(GLenum type, const std::string& source);
+    GLuint CreateProgram(const std::string& vertexSrc, const std::string& fragmentSrc);
     int GetUniformLocation(const std::string& name);
 };

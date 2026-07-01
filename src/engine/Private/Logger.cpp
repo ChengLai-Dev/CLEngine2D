@@ -3,10 +3,12 @@
 
 #include <format>
 #include <cstdio>
+#include <stacktrace>
 #include <Windows.h>
 
 LogLevel Logger::s_minLogLevel = LogLevel::Trace;
-LogLevel Logger::s_minDumpLogLevel = LogLevel::Warn;
+LogLevel Logger::s_minDumpLogLevel = LogLevel::Info;
+LogLevel Logger::s_minStackTraceLogLevel = LogLevel::Warn;
 std::FILE* Logger::s_dumpFile = nullptr;
 
 void Logger::Init() {
@@ -41,6 +43,10 @@ void Logger::SetMinDumpLogLevel(LogLevel level) {
     s_minDumpLogLevel = level;
 }
 
+void Logger::SetMinStackTraceLogLevel(LogLevel level) {
+    s_minStackTraceLogLevel = level;
+}
+
 const char* Logger::LevelPrefix(LogLevel level) {
     switch (level) {
         case LogLevel::Trace: return "[TRACE]";
@@ -62,6 +68,14 @@ void Logger::Fatal(const std::string& msg) { Log(LogLevel::Fatal, msg); }
 
 void Logger::Log(LogLevel level, const std::string& msg) {
     std::string text = std::format("{} {} {}", Utils::CurrentTimeString(), LevelPrefix(level), msg);
+
+    if (level >= s_minStackTraceLogLevel) {
+        text = std::format("-----------TraceBack Begin-----------\n"
+                           "{}\n"
+                           "StackTrace:\n"
+                           "{}\n"
+                           "-----------TraceBack End-------------", text, std::stacktrace::current());
+    }
 
     if (level >= s_minLogLevel) {
         const char* color = "";
