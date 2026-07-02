@@ -9,6 +9,8 @@ struct Vec3 {
 
     Vec3() = default;
 
+    Vec3(float s) : x(s), y(s), z(s) {}
+
     Vec3(float x, float y, float z) : x(x), y(y), z(z) {}
 
     Vec3 operator+(const Vec3& rhs) const

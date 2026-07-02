@@ -30,3 +30,14 @@ void RenderCommand::SetBlend(bool enabled) {
 void RenderCommand::SetBlendFunc(GLenum sfactor, GLenum dfactor) {
     glBlendFunc(sfactor, dfactor);
 }
+
+void RenderCommand::SetScissor(bool enabled) {
+    if (enabled)
+        glEnable(GL_SCISSOR_TEST);
+    else
+        glDisable(GL_SCISSOR_TEST);
+}
+
+void RenderCommand::SetScissorRect(int x, int y, int width, int height) {
+    glScissor(x, y, width, height);
+}

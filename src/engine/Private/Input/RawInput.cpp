@@ -1,73 +1,73 @@
-#include "Input.h"
+#include "Input/RawInput.h"
 #include <GLFW/glfw3.h>
 
-Input::InputState Input::s_state;
-bool Input::s_gamepadConnected[Input::GAMEPAD_COUNT] = {};
+RawInput::InputState RawInput::s_state;
+bool RawInput::s_gamepadConnected[RawInput::GAMEPAD_COUNT] = {};
 
-bool Input::IsKeyDown(KeyCode key) {
-    auto idx = static_cast<uint16_t>(key);
+bool RawInput::IsKeyDown(KeyCode key) {
+    uint16_t idx = static_cast<uint16_t>(key);
     if (idx >= KEY_COUNT) return false;
-    auto state = s_state.keyStates[idx];
+    KeyState state = s_state.keyStates[idx];
     return state == KeyState::Pressed || state == KeyState::Held;
 }
 
-bool Input::IsKeyPressed(KeyCode key) {
-    auto idx = static_cast<uint16_t>(key);
+bool RawInput::IsKeyPressed(KeyCode key) {
+    uint16_t idx = static_cast<uint16_t>(key);
     if (idx >= KEY_COUNT) return false;
     return s_state.keyStates[idx] == KeyState::Pressed;
 }
 
-bool Input::IsKeyReleased(KeyCode key) {
-    auto idx = static_cast<uint16_t>(key);
+bool RawInput::IsKeyReleased(KeyCode key) {
+    uint16_t idx = static_cast<uint16_t>(key);
     if (idx >= KEY_COUNT) return false;
     return s_state.keyStates[idx] == KeyState::Released;
 }
 
-bool Input::IsMouseButtonDown(MouseCode button) {
-    auto idx = static_cast<uint16_t>(button);
+bool RawInput::IsMouseButtonDown(MouseCode button) {
+    uint16_t idx = static_cast<uint16_t>(button);
     if (idx >= MOUSE_COUNT) return false;
-    auto state = s_state.mouseStates[idx];
+    KeyState state = s_state.mouseStates[idx];
     return state == KeyState::Pressed || state == KeyState::Held;
 }
 
-bool Input::IsMouseButtonPressed(MouseCode button) {
-    auto idx = static_cast<uint16_t>(button);
+bool RawInput::IsMouseButtonPressed(MouseCode button) {
+    uint16_t idx = static_cast<uint16_t>(button);
     if (idx >= MOUSE_COUNT) return false;
     return s_state.mouseStates[idx] == KeyState::Pressed;
 }
 
-bool Input::IsMouseButtonReleased(MouseCode button) {
-    auto idx = static_cast<uint16_t>(button);
+bool RawInput::IsMouseButtonReleased(MouseCode button) {
+    uint16_t idx = static_cast<uint16_t>(button);
     if (idx >= MOUSE_COUNT) return false;
     return s_state.mouseStates[idx] == KeyState::Released;
 }
 
-float Input::GetMouseX() {
+float RawInput::GetMouseX() {
     return static_cast<float>(s_state.mouseX);
 }
 
-float Input::GetMouseY() {
+float RawInput::GetMouseY() {
     return static_cast<float>(s_state.mouseY);
 }
 
-std::pair<float, float> Input::GetMousePosition() {
+std::pair<float, float> RawInput::GetMousePosition() {
     return { static_cast<float>(s_state.mouseX), static_cast<float>(s_state.mouseY) };
 }
 
-float Input::GetScrollDeltaX() {
+float RawInput::GetScrollDeltaX() {
     return static_cast<float>(s_state.scrollX);
 }
 
-float Input::GetScrollDeltaY() {
+float RawInput::GetScrollDeltaY() {
     return static_cast<float>(s_state.scrollY);
 }
 
-bool Input::IsGamepadConnected(int gamepadIndex) {
+bool RawInput::IsGamepadConnected(int gamepadIndex) {
     if (gamepadIndex < 0 || gamepadIndex >= GAMEPAD_COUNT) return false;
     return s_gamepadConnected[gamepadIndex];
 }
 
-float Input::GetGamepadAxis(GamepadAxis axis, int gamepadIndex) {
+float RawInput::GetGamepadAxis(GamepadAxis axis, int gamepadIndex) {
     if (gamepadIndex < 0 || gamepadIndex >= GAMEPAD_COUNT) return false;
     if (!s_gamepadConnected[gamepadIndex]) return 0.0f;
 
@@ -81,7 +81,7 @@ float Input::GetGamepadAxis(GamepadAxis axis, int gamepadIndex) {
     return 0.0f;
 }
 
-bool Input::IsGamepadButtonDown(GamepadButton button, int gamepadIndex) {
+bool RawInput::IsGamepadButtonDown(GamepadButton button, int gamepadIndex) {
     if (gamepadIndex < 0 || gamepadIndex >= GAMEPAD_COUNT) return false;
     if (!s_gamepadConnected[gamepadIndex]) return false;
 
@@ -93,11 +93,11 @@ bool Input::IsGamepadButtonDown(GamepadButton button, int gamepadIndex) {
     return false;
 }
 
-bool Input::IsGamepadButtonPressed(GamepadButton button, int gamepadIndex) {
+bool RawInput::IsGamepadButtonPressed(GamepadButton button, int gamepadIndex) {
     return IsGamepadButtonDown(button, gamepadIndex);
 }
 
-void Input::OnKeyEvent(int glfwKey, int action) {
+void RawInput::OnKeyEvent(int glfwKey, int action) {
     if (glfwKey < 0 || glfwKey >= KEY_COUNT) return;
 
     switch (action) {
@@ -118,7 +118,7 @@ void Input::OnKeyEvent(int glfwKey, int action) {
     }
 }
 
-void Input::OnMouseButtonEvent(int glfwButton, int action) {
+void RawInput::OnMouseButtonEvent(int glfwButton, int action) {
     if (glfwButton < 0 || glfwButton >= MOUSE_COUNT) return;
 
     switch (action) {
@@ -139,17 +139,17 @@ void Input::OnMouseButtonEvent(int glfwButton, int action) {
     }
 }
 
-void Input::OnMouseMoveEvent(double x, double y) {
+void RawInput::OnMouseMoveEvent(double x, double y) {
     s_state.mouseX = x;
     s_state.mouseY = y;
 }
 
-void Input::OnScrollEvent(double xOffset, double yOffset) {
+void RawInput::OnScrollEvent(double xOffset, double yOffset) {
     s_state.scrollX += xOffset;
     s_state.scrollY += yOffset;
 }
 
-void Input::Update() {
+void RawInput::Update() {
     for (int i = 0; i < KEY_COUNT; ++i) {
         switch (s_state.keyStates[i]) {
             case KeyState::Pressed:

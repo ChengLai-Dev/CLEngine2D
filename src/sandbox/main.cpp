@@ -1,16 +1,27 @@
 #include <Application.h>
-#include <Input.h>
-#include <InputCodes.h>
+#include <Input/RawInput.h>
+#include <Input/InputAction.h>
+#include <Input/InputMappingContext.h>
+#include <Input/InputSystem.h>
+#include <Input/InputCodes.h>
 #include <Platform/Window.h>
 #include <Logger.h>
 #include <Timer.h>
 #include <AssetManager.h>
 #include <Scene.h>
+#include <SceneGraph/Sprite.h>
+#include <SceneGraph/Widget.h>
+#include <SceneGraph/Button.h>
+#include <SceneGraph/Label.h>
+#include <SceneGraph/CanvasPanel.h>
+#include <SceneGraph/UISystem.h>
 #include <Render/Renderer.h>
 #include <Render/RenderCommand.h>
 #include <Render/OrthographicCamera.h>
 #include <Render/Texture.h>
 #include <Audio/AudioEngine.h>
+
+#include "UIDemoScene.h"
 
 #include <memory>
 #include <glad/glad.h>
@@ -21,35 +32,28 @@ static const char* TITLE = "CLEngine2D - Sandbox";
 class GameScene : public Scene {
 public:
     GameScene() {
-        auto& assets = AssetManager::GetInstance();
-        auto texture = assets.LoadTexture("assets/textures/checkerboard.png");
+        AssetManager& assets = AssetManager::GetInstance();
+        std::shared_ptr<Texture> texture = assets.LoadTexture("assets/textures/checkerboard.png");
 
         float white[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
         float red[4] = { 1.0f, 0.2f, 0.2f, 1.0f };
         float blue[4] = { 0.2f, 0.4f, 1.0f, 1.0f };
 
-        AddSprite(Vec3(0.0f, 0.0f, 0.0f), Vec3(2.0f, 2.0f, 1.0f),
-                  0.0f, texture, white);
-        AddSprite(Vec3(3.0f, 0.0f, 0.0f), Vec3(2.0f, 2.0f, 1.0f),
-                  0.0f, nullptr, red);
-        AddSprite(Vec3(-3.0f, 0.0f, 0.0f), Vec3(2.0f, 2.0f, 1.0f),
-                  0.0f, nullptr, blue);
+        m_playerSprite = CreateSprite(Vec3(0.0f, 0.0f, 0.0f), Vec2(2.0f, 2.0f), texture, white);
+        m_redSprite = CreateSprite(Vec3(3.0f, 0.0f, 0.0f), Vec2(2.0f, 2.0f), nullptr, red);
+        m_blueSprite = CreateSprite(Vec3(-3.0f, 0.0f, 0.0f), Vec2(2.0f, 2.0f), nullptr, blue);
     }
 
     void OnUpdate(float deltaTime) override {
         m_elapsed += deltaTime;
 
-        if (m_rotateRed) {
-            auto* redSprite = GetSprite(1);
-            if (redSprite) {
-                redSprite->Rotation += deltaTime * 60.0f;
-            }
+        if (m_rotateRed && m_redSprite) {
+            m_redSprite->SetRotationZ(m_redSprite->GetRotationZ() + deltaTime * 60.0f);
         }
 
-        auto* playerSprite = GetSprite(0);
-        if (playerSprite && m_moveDir.LengthSq() > 0.0f) {
-            Vec3 move = m_moveDir * m_speed * deltaTime;
-            playerSprite->Position = playerSprite->Position + move;
+        if (m_playerSprite && m_moveDir.LengthSq() > 0.0f) {
+            Vec3 newPos = m_playerSprite->GetPosition() + m_moveDir * m_speed * deltaTime;
+            m_playerSprite->SetPosition(newPos);
         }
     }
 
@@ -61,6 +65,10 @@ private:
     Vec3 m_moveDir = Vec3(0.0f, 0.0f, 0.0f);
     float m_speed = 5.0f;
     bool m_rotateRed = true;
+
+    Sprite* m_playerSprite = nullptr;
+    Sprite* m_redSprite = nullptr;
+    Sprite* m_blueSprite = nullptr;
 };
 
 class Sandbox : public Application {
@@ -73,29 +81,62 @@ protected:
         RenderCommand::SetBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         m_camera = std::unique_ptr<OrthographicCamera>(new OrthographicCamera(-16.0f, 16.0f, -9.0f, 9.0f));
+        m_uiCamera = std::unique_ptr<OrthographicCamera>(
+            new OrthographicCamera(0.0f, 1280.0f, 720.0f, 0.0f)
+        );
         m_renderer = std::unique_ptr<Renderer>(new Renderer());
         m_renderer->Init();
 
-        auto& sceneManager = SceneManager::GetInstance();
+        SceneManager& sceneManager = SceneManager::GetInstance();
         m_scene = new GameScene();
         sceneManager.PushScene(std::unique_ptr<Scene>(m_scene));
 
-        Logger::Info("Controls: WASD/Arrows to move, Space to toggle rotation, Esc to quit");
+        m_uiScene = std::make_unique<UIDemoScene>();
+
+        m_defaultContext.MapKey(&m_quitAction, KeyCode::Escape);
+        m_quitAction.OnStarted([this](const InputActionValue&) {
+            glfwSetWindowShouldClose(GetWindow()->GetNativeWindow(), GLFW_TRUE);
+        });
+
+        m_defaultContext.MapMouse(&m_toggleAction, MouseCode::ButtonLeft);
+        m_toggleAction.OnStarted([this](const InputActionValue&) {
+            m_scene->ToggleRotation();
+        });
+
+        m_defaultContext.MapKey(&mMoveAction, KeyCode::W, Vec2(0.0f, 1.0f));
+        m_defaultContext.MapKey(&mMoveAction, KeyCode::S, Vec2(0.0f, -1.0f));
+        m_defaultContext.MapKey(&mMoveAction, KeyCode::D, Vec2(1.0f, 0.0f));
+        m_defaultContext.MapKey(&mMoveAction, KeyCode::A, Vec2(-1.0f, 0.0f));
+        m_defaultContext.MapKey(&mMoveAction, KeyCode::Up, Vec2(0.0f, 1.0f));
+        m_defaultContext.MapKey(&mMoveAction, KeyCode::Down, Vec2(0.0f, -1.0f));
+        m_defaultContext.MapKey(&mMoveAction, KeyCode::Right, Vec2(1.0f, 0.0f));
+        m_defaultContext.MapKey(&mMoveAction, KeyCode::Left, Vec2(-1.0f, 0.0f));
+
+        InputSystem::GetInstance().AddContext(&m_defaultContext, 0);
+        mMoveAction.OnTriggered([this](const InputActionValue& val) {
+            Vec2 dir = val.GetVec2();
+            m_scene->SetMoveDir(dir.LengthSq() > 0.0f
+                ? Vec3(dir.Normalized().x, dir.Normalized().y, 0.0f)
+                : Vec3(0.0f, 0.0f, 0.0f));
+        });
+        mMoveAction.OnCompleted([this](const InputActionValue&) {
+            m_scene->SetMoveDir(Vec3(0.0f, 0.0f, 0.0f));
+        });
+
+        Logger::Info("Controls: WASD/Arrows to move, Left Click to toggle rotation, Esc to quit");
         Logger::Info("Audio engine ready - place .wav files in assets/audio/ and use AudioEngine::GetInstance().LoadSound()");
     }
 
     void OnUpdate(float deltaTime) override {
         m_timer.TickFrame();
 
-        HandleInput();
-
-        auto* scene = SceneManager::GetInstance().GetCurrentScene();
+        Scene* scene = SceneManager::GetInstance().GetCurrentScene();
         if (scene) {
             scene->OnUpdate(deltaTime);
         }
 
         if (m_fpsUpdateTimer >= 0.25f) {
-            auto mousePos = Input::GetMousePosition();
+            std::pair<float, float> mousePos = RawInput::GetMousePosition();
             std::string title = std::string(TITLE)
                 + " [FPS: " + std::to_string(static_cast<int>(m_timer.GetFPS()))
                 + ", Mouse: " + std::to_string(static_cast<int>(mousePos.first))
@@ -112,56 +153,41 @@ protected:
 
         m_renderer->BeginScene(*m_camera);
 
-        auto* scene = SceneManager::GetInstance().GetCurrentScene();
+        Scene* scene = SceneManager::GetInstance().GetCurrentScene();
         if (scene) {
             scene->OnRender(*m_renderer);
         }
 
+        m_renderer->EndScene();
+
+        m_renderer->BeginScene(*m_uiCamera);
+        if (m_uiScene) {
+            m_uiScene->OnRender(*m_renderer);
+        }
         m_renderer->EndScene();
     }
 
     void OnShutdown() override {
         Logger::Info("Sandbox shutting down");
         SceneManager::GetInstance().PopScene();
+        m_uiScene.reset();
         m_renderer.reset();
         m_camera.reset();
+        m_uiCamera.reset();
     }
 
 private:
-    void HandleInput() {
-        if (Input::IsKeyPressed(KeyCode::Escape)) {
-            glfwSetWindowShouldClose(GetWindow()->GetNativeWindow(), GLFW_TRUE);
-        }
-
-        if (Input::IsMouseButtonPressed(MouseCode::ButtonLeft)) {
-            m_scene->ToggleRotation();
-        }
-
-        Vec3 moveDir(0.0f, 0.0f, 0.0f);
-        if (Input::IsKeyDown(KeyCode::W) || Input::IsKeyDown(KeyCode::Up)) {
-            moveDir.y += 1.0f;
-        }
-        if (Input::IsKeyDown(KeyCode::S) || Input::IsKeyDown(KeyCode::Down)) {
-            moveDir.y -= 1.0f;
-        }
-        if (Input::IsKeyDown(KeyCode::A) || Input::IsKeyDown(KeyCode::Left)) {
-            moveDir.x -= 1.0f;
-        }
-        if (Input::IsKeyDown(KeyCode::D) || Input::IsKeyDown(KeyCode::Right)) {
-            moveDir.x += 1.0f;
-        }
-
-        if (moveDir.LengthSq() > 0.0f) {
-            m_scene->SetMoveDir(moveDir.Normalized());
-        } else {
-            m_scene->SetMoveDir(Vec3(0.0f, 0.0f, 0.0f));
-        }
-    }
+    InputAction m_quitAction;
+    InputAction m_toggleAction;
+    InputAction mMoveAction;
+    InputMappingContext m_defaultContext;
 
     Timer m_timer;
     std::unique_ptr<OrthographicCamera> m_camera;
+    std::unique_ptr<OrthographicCamera> m_uiCamera;
     std::unique_ptr<Renderer> m_renderer;
     GameScene* m_scene = nullptr;
+    std::unique_ptr<UIDemoScene> m_uiScene;
     float m_fpsUpdateTimer = 0.0f;
 };
 

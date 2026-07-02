@@ -8,6 +8,8 @@ struct Vec4 {
 
     Vec4() = default;
 
+    Vec4(float s) : x(s), y(s), z(s), w(s) {}
+
     Vec4(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {}
 
     Vec4 operator+(const Vec4& rhs) const

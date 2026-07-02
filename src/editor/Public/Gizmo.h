@@ -1,0 +1,52 @@
+#pragma once
+
+#include <Math/Vec2.h>
+#include <Math/Mat4.h>
+
+class Renderer;
+class OrthographicCamera;
+class Node;
+class Widget;
+
+enum class GizmoMode { NONE, TRANSLATE, SCALE, ROTATE };
+
+struct GizmoHandle {
+    enum Type { TOP_LEFT, TOP_CENTER, TOP_RIGHT, MIDDLE_LEFT,
+                MIDDLE_RIGHT, BOTTOM_LEFT, BOTTOM_CENTER, BOTTOM_RIGHT,
+                ROTATION, NONE };
+};
+
+class Gizmo {
+public:
+    Gizmo();
+    ~Gizmo();
+
+    void SetTarget(Node* target);
+    Node* GetTarget() const;
+
+    void SetMode(GizmoMode mode);
+    GizmoMode GetMode() const;
+
+    GizmoHandle::Type HitTestHandle(const Vec3& worldPoint) const;
+
+    void BeginDrag(GizmoHandle::Type handle, const Vec3& worldStart);
+    void Drag(const Vec3& worldCurrent);
+    void EndDrag();
+
+    void Draw(Renderer& renderer, const OrthographicCamera& camera);
+
+    bool IsDragging() const;
+
+private:
+    struct DragState {
+        GizmoHandle::Type handle = GizmoHandle::NONE;
+        Vec3 startPos;
+        Vec2 startSize;
+        Vec3 startScale;
+        Vec3 dragOffset;
+    };
+
+    Node* m_target = nullptr;
+    GizmoMode m_mode = GizmoMode::TRANSLATE;
+    DragState m_drag;
+};

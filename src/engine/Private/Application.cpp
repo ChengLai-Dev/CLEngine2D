@@ -1,5 +1,5 @@
 #include "Application.h"
-#include "Input.h"
+#include "Input/InputSystem.h"
 #include "Logger.h"
 #include "Platform/Window.h"
 #include "Render/Renderer.h"
@@ -33,11 +33,10 @@ void Application::Run() {
         double currentTime = Window::GetTime();
         float deltaTime = static_cast<float>(currentTime - lastTime);
 
-        Input::Update();
+        m_window->OnUpdate();
+        InputSystem::GetInstance().Update();
         OnUpdate(deltaTime);
         OnRender();
-
-        m_window->OnUpdate();
         lastTime = currentTime;
     }
 

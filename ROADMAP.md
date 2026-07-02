@@ -2,7 +2,7 @@
 
 ## 概述
 
-整个引擎分为 **7 个阶段**，每个阶段都有明确的目标、交付物和关键技术点。建议按顺序推进，每个阶段完成后再进入下一个。
+整个引擎分为 **9 个阶段**，每个阶段都有明确的目标、交付物和关键技术点。建议按顺序推进，每个阶段完成后再进入下一个。
 
 ## 当前完成进度总览
 
@@ -11,16 +11,14 @@
 阶段二 渲染核心      ████████████████████ 100% ✅
 阶段三 数学库        ████████████████████ 100% ✅
 阶段四 资产与场景    ████████████████████ 100% ✅
-阶段五 输入与音频    ░░░░░░░░░░░░░░░░░░░░   0% ❌
-阶段六 2D 游戏能力   ░░░░░░░░░░░░░░░░░░░░   0% ❌
-阶段七 Python 脚本   ░░░░░░░░░░░░░░░░░░░░   0% ❌
+阶段五 输入与音频    ████████████████████ 100% ✅
+阶段六 场景图系统    ████████████████████ 100% ✅
+阶段七 UI 编辑器     ████████████████████ 100% ✅
+阶段八 2D 游戏能力   ░░░░░░░░░░░░░░░░░░░░   0% ❌
+阶段九 Python 脚本   ░░░░░░░░░░░░░░░░░░░░   0% ❌
 ───────────────────────────────────────────
-整体项目完成度                          ~57%
+整体项目完成度                          ~78%
 ```
-
-> **代码量统计**：引擎自编码 1,780 行（.h 872 + .cpp 908），着色器 37 行，第三方库 ~45,000+ 行。
->
-> **代码特点**：所有已实现功能均为完整可编译代码，无 TODO、无 stub、无骨架代码。RAII 管理所有 OpenGL 资源，批处理渲染器完整支持精灵批量绘制。
 
 ---
 
@@ -160,7 +158,6 @@ src/engine/Public/Math/
 
 - [x] `TextureManager`（缓存已加载纹理，防止重复加载）
 - [x] `ShaderManager`（同上）
-- [x] 简单的 `Sprite` 组件（位置、旋转、缩放、纹理）
 - [x] `Scene` 类（管理一组 Sprite 的更新和渲染）
 - [x] 支持场景切换（`PushScene` / `PopScene`）
 - [x] 添加 `Timer` 工具（帧率统计、性能打点）
@@ -179,13 +176,13 @@ src/engine/Public/
 ├── Scene.h
 ├── Timer.h
 └── Components/
-    └── SpriteComponent.h
+    └── SpriteComponent.h           ← 已废弃，由 SceneGraph/ 替代
 src/engine/Private/
 ├── AssetManager.cpp
 ├── Scene.cpp
 ├── Timer.cpp
 └── Components/
-    └── SpriteComponent.cpp
+    └── SpriteComponent.cpp         ← 已删除
 ```
 
 ---
@@ -196,29 +193,42 @@ src/engine/Private/
 
 ### 任务
 
-- [ ] `Input` 单例（查询按键状态：`IsKeyDown`、`IsMouseButtonPressed`）
-- [ ] 键盘、鼠标、手柄回调封装
-- [ ] 集成 miniaudio（单头文件，无依赖）
-- [ ] `AudioSource` / `Sound` 封装（加载 wav，播放，音量控制）
-- [ ] 简单的 2D 音频衰减（距离衰减）
+- [x] `InputCodes` 自定义键码/鼠标码/手柄码枚举（与 GLFW 值对齐，不暴露 GLFW 头文件）
+- [x] `RawInput` 底层轮询层（`IsKeyDown/Pressed/Released`、鼠标位置滚轮、手柄轴/按钮）
+- [x] `InputAction` 输入动作（值轴 + `OnStarted/OnTriggered/OnCompleted` 回调）
+- [x] `InputMappingContext` 映射上下文（将按键/鼠标绑定到 `InputAction`，支持缩放系数）
+- [x] `InputSystem` 单例（管理多个 `InputMappingContext`，按优先级排序，每帧汇总分发）
+- [x] 集成 miniaudio（单头文件 v0.11.25，无额外依赖）
+- [x] `AudioEngine` 单例（初始化/关闭 miniaudio 引擎、加载音效、设置听者位置）
+- [x] `Sound` 音效对象（`Play/Stop/Pause/Resume`、音量/循环/位置、距离衰减参数）
+- [x] 2D 音频衰减（`MinDistance` / `MaxDistance` / `Rolloff`）
 
 ### 关键技术点
 
-- GLFW 回调注册 vs 轮询
-- 键码映射抽象（不直接暴露 GLFW 键码）
-- miniaudio 的设备初始化和资源管理
+- GLFW 回调注册 vs 轮询（`RawInput` 使用 GLFW 回调+每帧 `glfwPollEvents`）
+- 键码映射抽象（`InputCodes.h` 自定义枚举，不直接暴露 GLFW 键码）
+- 输入架构模式：`RawInput` → `InputAction` / `InputMappingContext` → `InputSystem`（类似 UE 的 Enhanced Input）
+- miniaudio 的设备初始化和资源管理（`ma_engine` / `ma_sound`）
 
 ### 交付物
 
 ```
 src/engine/Public/
-├── Input.h
-├── InputCodes.h          # 自定义键码枚举
+├── Input/
+│   ├── InputCodes.h           # 键码/鼠标码/手柄码枚举
+│   ├── RawInput.h             # 底层轮询层
+│   ├── InputAction.h          # 输入动作（轴值 + 事件回调）
+│   ├── InputMappingContext.h  # 映射上下文（按键→动作绑定）
+│   └── InputSystem.h          # 输入系统单例
 └── Audio/
-    ├── Sound.h
-    └── AudioEngine.h
+    ├── Sound.h                # 音效播放控制
+    └── AudioEngine.h          # 音频引擎单例
 src/engine/Private/
-├── Input.cpp
+├── Input/
+│   ├── RawInput.cpp
+│   ├── InputAction.cpp
+│   ├── InputMappingContext.cpp
+│   └── InputSystem.cpp
 └── Audio/
     ├── Sound.cpp
     └── AudioEngine.cpp
@@ -226,7 +236,124 @@ src/engine/Private/
 
 ---
 
-## 阶段六：完整 2D 游戏能力
+## 阶段六：场景图系统
+
+**目标**：建立层次化场景图架构，为 UI 编辑器和 3D 扩展做准备。
+
+### 任务
+
+- [x] `Node` 基类（场景图节点：Vec3 变换 / Euler 旋转 / 锚点 / 层级 / 可见性级联）
+- [x] `Sprite` 节点（继承 Node，纹理渲染，游戏 + UI 共享）
+- [x] `Scene` 重构（从 `vector<SpriteComponent>` 迁移到 `Node` 树递归遍历）
+- [x] `Renderer` 支持 `Mat4` 变换绘制（`DrawQuad(Mat4, Vec2, ...)`）
+- [ ] `Widget` 基类（交互、触摸、焦点，UI 编辑器基础）
+- [ ] `CanvasPanel` 容器（锚点布局系统，类似 UE UMG）
+- [ ] 九宫格缩放支持（`Scale9Sprite`）
+- [ ] UI 编辑器序列化格式（JSON / 二进制）
+
+### 关键技术点
+
+- 变换层级与脏标记传播（MarkDirty 递归）
+- 锚点归一化 + ContentSize 的局部变换矩阵推导
+- ZOrder 排序（负值在自身前绘制，同 Cocos visit 遍历顺序）
+- 不透明度级联（parentOpacity * childOpacity）
+- 游戏场景与 UI 场景分离渲染（两个 pass 合成）
+
+### 交付物
+
+```
+src/engine/Public/SceneGraph/
+├── Node.h                # 场景图基类
+└── Sprite.h              # 纹理精灵节点
+src/engine/Private/SceneGraph/
+├── Node.cpp
+└── Sprite.cpp
+src/engine/Public/
+├── Scene.h               # 重构：持有 root Node 树
+└── ...
+
+src/engine/Private/
+├── Scene.cpp             # 重构：递归 Visit 遍历
+└── ...
+```
+
+---
+
+## 阶段七：UI 编辑器
+
+**目标**：构建可视化 UI 编辑系统，类似 Cocos Studio 或 UE UMG。
+
+### 任务
+
+- [x] 完整 Widget 控件库（Widget 基类、Button、Image、Label）
+- [x] `Layout` 容器（VBox、HBox、Grid）
+- [x] `CanvasPanel` 锚点布局容器
+- [x] `Scale9Sprite` 九宫格缩放精灵
+- [x] `UISystem` 触摸事件分发系统
+- [x] UI 场景独立渲染 Pass（sandbox 双 Pass 演示）
+- [x] 编辑器工程 `src/editor/`
+- [x] CanvasView 画布视图（网格/滚轮缩放/平移/视口裁剪）
+- [x] Gizmo 拖拽手柄（8 控制点 + 选择框）
+- [x] PropertyPanel 属性面板
+- [x] WidgetTreePanel 层级树面板
+- [x] Toolbar 控件工具栏
+- [x] 运行时 UI 序列化/反序列化（JSON）
+- [x] UndoRedo 撤销/重做栈
+
+### 关键技术点
+
+- 编辑器与运行时共享同一套 Widget 类
+- 序列化为 JSON / FlatBuffers（类似 Cocos .csb 格式）
+- 屏幕空间与游戏世界空间转换
+- DPI 缩放适配
+
+### 交付物
+
+```
+src/engine/Public/SceneGraph/    (运行时控件库)
+├── Widget.h                     Widget 基类（交互/焦点/HitTest）
+├── Button.h                     交互按钮（三状态/点击回调）
+├── Label.h                      文本控件
+├── Image.h                      图片控件（含九宫格缩放）
+├── Layout.h                     自动布局容器（VBox/HBox/Grid）
+├── CanvasPanel.h                锚点布局容器（类似 UE UMG）
+├── Scale9Sprite.h               九宫格缩放精灵
+└── UISystem.h                   触摸事件分发系统
+src/engine/Private/SceneGraph/
+├── Widget.cpp
+├── Button.cpp
+├── Label.cpp
+├── Image.cpp
+├── Layout.cpp
+├── CanvasPanel.cpp
+├── Scale9Sprite.cpp
+└── UISystem.cpp
+src/editor/                      # 独立编辑器工程
+├── CMakeLists.txt
+├── main.cpp                     编辑器入口
+├── Public/                      公开 API 头文件
+│   ├── EditorApp.h              编辑器主程序（Application 子类）
+│   ├── CanvasView.h             画布视图（网格/缩放/平移/裁剪）
+│   ├── PropertyPanel.h          属性面板
+│   ├── WidgetTreePanel.h        层级树面板
+│   ├── Toolbar.h                控件工具栏
+│   ├── Gizmo.h                  拖拽手柄（8 控制点 + 选择框）
+│   ├── Serializer.h             JSON 序列化/反序列化
+│   └── UndoRedo.h               撤销/重做栈
+└── Private/                     内部实现
+    ├── EditorApp.cpp
+    ├── CanvasView.cpp
+    ├── PropertyPanel.cpp
+    ├── WidgetTreePanel.cpp
+    ├── Toolbar.cpp
+    ├── Gizmo.cpp
+    ├── Serializer.cpp
+    └── UndoRedo.cpp
+```
+
+---
+
+## 阶段八：完整 2D 游戏能力
 
 **目标**：具备构建一个小游戏的全部能力。
 
@@ -259,7 +386,7 @@ src/engine/Private/
 
 ---
 
-## 阶段七：Python 脚本集成
+## 阶段九：Python 脚本集成
 
 **目标**：C++ 引擎核心功能齐备后，接入 pybind11，将关键 API 暴露给 Python，实现 Python 驱动的游戏业务层。性能敏感的算法模块（物理、寻路、粒子更新等）继续保留 C++ 实现，Python 仅调用入口函数。
 
@@ -322,19 +449,21 @@ src/
 │   ├── Public/                   # 公开 API 头文件
 │   │   ├── Platform/             # 公开的平台抽象
 │   │   ├── Render/               # 渲染子系统
-│   │   ├── Audio/                # 音频子系统 ❌ 未实现
+│   │   ├── Audio/                # 音频子系统 ✅
+│   │   ├── Input/                # 输入子系统 ✅
 │   │   ├── Math/                 # 数学库 ✅
-│   │   ├── Components/           # 组件定义 ✅
+│   │   ├── SceneGraph/           # 场景图系统（Node / Sprite / Widget...）✅
+│   │   ├── Components/           # 组件定义（已废弃）
 │   │   ├── AssetManager.h        # 资源缓存 ✅
 │   │   ├── Scene.h               # 场景管理 ✅
 │   │   └── Timer.h               # 性能计时 ✅
 │   ├── Private/                  # 内部实现（.cpp + 内部头文件）
 │   │   ├── Platform/
 │   │   ├── Render/
-│   │   ├── Audio/                ❌ 未实现
-│   │   ├── Math/                 ❌ 未实现
-│   │   └── Components/           ✅
-│   ├── PythonBind/               # pybind11 绑定层（阶段七新增）
+│   │   ├── Audio/                ✅
+│   │   ├── Input/                ✅
+│   │   └── SceneGraph/           ✅
+│   ├── PythonBind/               # pybind11 绑定层（阶段九新增）
 │   │   ├── PyEngine.cpp
 │   │   ├── BindApp.cpp/h
 │   │   ├── BindRenderer.cpp/h
@@ -342,17 +471,39 @@ src/
 │   │   ├── BindScene.cpp/h
 │   │   └── BindMath.cpp/h
 │   └── CMakeLists.txt
-├── scripts/                      # Python 业务脚本（阶段七新增）
+├── scripts/                      # Python 业务脚本（阶段九新增）
 │   ├── main.py                   # Python 入口
 │   ├── requirements.txt
 │   ├── game/
 │   ├── scenes/
 │   └── components/
+├── editor/                       # UI 编辑器 ✅
+│   ├── CMakeLists.txt
+│   ├── main.cpp                  编辑器入口
+│   ├── Public/                   公开 API 头文件
+│   │   ├── EditorApp.h
+│   │   ├── CanvasView.h
+│   │   ├── PropertyPanel.h
+│   │   ├── WidgetTreePanel.h
+│   │   ├── Toolbar.h
+│   │   ├── Gizmo.h
+│   │   ├── Serializer.h
+│   │   └── UndoRedo.h
+│   └── Private/                  内部实现
+│       ├── EditorApp.cpp
+│       ├── CanvasView.cpp
+│       ├── PropertyPanel.cpp
+│       ├── WidgetTreePanel.cpp
+│       ├── Toolbar.cpp
+│       ├── Gizmo.cpp
+│       ├── Serializer.cpp
+│       └── UndoRedo.cpp
 ├── sandbox/                      # 测试/示例项目
 │   ├── CMakeLists.txt
 │   └── main.cpp
 └── third_party/                  # 第三方库
     ├── glad/
     ├── glfw/
-    └── stb_image/
+    ├── stb_image/
+    └── miniaudio/
 ```

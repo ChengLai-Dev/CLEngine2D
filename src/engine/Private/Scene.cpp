@@ -1,56 +1,63 @@
 #include "Scene.h"
+#include "SceneGraph/Node.h"
+#include "SceneGraph/Sprite.h"
+#include "Render/Texture.h"
 #include "Render/Renderer.h"
 #include "Logger.h"
 
 #include <format>
 
+Scene::Scene()
+    : m_root(std::make_unique<Node>()) {
+}
+
+Scene::~Scene() = default;
+
+Node* Scene::GetRoot() const {
+    return m_root.get();
+}
+
+void Scene::SetRoot(std::unique_ptr<Node> root) {
+    m_root = std::move(root);
+}
+
+Sprite* Scene::CreateSprite(const Vec3& position, const Vec2& size,
+                            std::shared_ptr<Texture> texture,
+                            const float color[4],
+                            Node* parent) {
+    auto sprite = std::make_unique<Sprite>();
+    sprite->SetPosition(position);
+    sprite->SetContentSize(size);
+    sprite->SetTexture(std::move(texture));
+    if (color) {
+        sprite->SetColor(Vec4(color[0], color[1], color[2], color[3]));
+    }
+
+    Sprite* raw = sprite.get();
+
+    Node* attachTo = parent ? parent : m_root.get();
+    attachTo->AddChild(std::move(sprite));
+
+    return raw;
+}
+
+void Scene::RemoveAllChildren() {
+    while (m_root->GetChildCount() > 0) {
+        m_root->RemoveChild(m_root->GetChild(0));
+    }
+}
+
 void Scene::OnUpdate(float deltaTime) {
-    (void)deltaTime;
+    if (m_root) {
+        m_root->OnUpdate(deltaTime);
+    }
 }
 
 void Scene::OnRender(Renderer& renderer) {
-    for (const auto& sprite : m_sprites) {
-        renderer.DrawQuad(sprite.Position, sprite.Size, sprite.Rotation,
-                          sprite.Texture.get(), sprite.Color,
-                          sprite.TexOffsetX, sprite.TexOffsetY,
-                          sprite.TexScaleX, sprite.TexScaleY);
+    if (m_root) {
+        Mat4 identity = Mat4::Identity();
+        m_root->Visit(renderer, identity, 1.0f);
     }
-}
-
-SpriteComponent& Scene::AddSprite(const Vec3& position, const Vec3& size,
-                                   float rotation, std::shared_ptr<Texture> texture,
-                                   const float color[4],
-                                   float texOffsetX, float texOffsetY,
-                                   float texScaleX, float texScaleY) {
-    SpriteComponent sprite;
-    sprite.Position = position;
-    sprite.Size = size;
-    sprite.Rotation = rotation;
-    sprite.Texture = std::move(texture);
-    sprite.Color[0] = color[0];
-    sprite.Color[1] = color[1];
-    sprite.Color[2] = color[2];
-    sprite.Color[3] = color[3];
-    sprite.TexOffsetX = texOffsetX;
-    sprite.TexOffsetY = texOffsetY;
-    sprite.TexScaleX = texScaleX;
-    sprite.TexScaleY = texScaleY;
-    m_sprites.push_back(std::move(sprite));
-    return m_sprites.back();
-}
-
-void Scene::RemoveSprite(size_t index) {
-    if (index < m_sprites.size()) {
-        m_sprites.erase(m_sprites.begin() + static_cast<ptrdiff_t>(index));
-    }
-}
-
-void Scene::ClearSprites() {
-    m_sprites.clear();
-}
-
-SpriteComponent* Scene::GetSprite(size_t index) {
-    return (index < m_sprites.size()) ? &m_sprites[index] : nullptr;
 }
 
 SceneManager& SceneManager::GetInstance() {

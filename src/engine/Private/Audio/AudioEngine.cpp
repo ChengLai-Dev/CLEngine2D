@@ -55,7 +55,7 @@ std::shared_ptr<Sound> AudioEngine::LoadSound(const std::string& filepath) {
         return nullptr;
     }
 
-    auto sound = std::shared_ptr<Sound>(new Sound(m_engine));
+    std::shared_ptr<Sound> sound(new Sound(m_engine));
     if (!sound->Load(filepath)) {
         Logger::Error(std::format("Failed to load sound: {}", filepath));
         return nullptr;

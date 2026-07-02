@@ -15,6 +15,7 @@ public:
     int GetWidth() const;
     int GetHeight() const;
     GLFWwindow* GetNativeWindow() const;
+    void SetTitle(const std::string& title);
 
     static void* GetProcAddress(const char* name);
     static double GetTime();

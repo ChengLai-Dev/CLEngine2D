@@ -26,3 +26,6 @@ add_subdirectory(src/engine)
 # Sandbox (startup project)
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT sandbox)
 add_subdirectory(src/sandbox)
+
+# UI Editor
+add_subdirectory(src/editor)

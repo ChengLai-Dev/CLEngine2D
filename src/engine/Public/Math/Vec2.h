@@ -8,6 +8,8 @@ struct Vec2 {
 
     Vec2() = default;
 
+    Vec2(float s) : x(s), y(s) {}
+
     Vec2(float x, float y) : x(x), y(y) {}
 
     Vec2 operator+(const Vec2& rhs) const

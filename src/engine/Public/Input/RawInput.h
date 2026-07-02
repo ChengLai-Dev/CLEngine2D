@@ -1,9 +1,9 @@
 #pragma once
 
-#include "InputCodes.h"
+#include "Input/InputCodes.h"
 #include <utility>
 
-class Input {
+class RawInput {
 public:
     enum class KeyState { None, Pressed, Held, Released };
 

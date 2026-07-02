@@ -29,7 +29,7 @@ void VertexArray::AddVertexBuffer(VertexBuffer* vb) {
 
     const BufferLayout& layout = vb->GetLayout();
     unsigned int attribIndex = 0;
-    for (const auto& element : layout.GetElements()) {
+    for (const BufferElement& element : layout.GetElements()) {
         unsigned int comps = ShaderDataTypeComponentCount(element.Type);
         unsigned int slotCount = 1;
         if (element.Type == ShaderDataType::Mat3 || element.Type == ShaderDataType::Mat4)

@@ -12,4 +12,6 @@ public:
     static void SetDepthTest(bool enabled);
     static void SetBlend(bool enabled);
     static void SetBlendFunc(GLenum sfactor, GLenum dfactor);
+    static void SetScissor(bool enabled);
+    static void SetScissorRect(int x, int y, int width, int height);
 };

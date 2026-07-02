@@ -1,5 +1,5 @@
 #include "Platform/Window.h"
-#include "Input.h"
+#include "Input/RawInput.h"
 #include "Utils.h"
 
 #include "Logger.h"
@@ -107,18 +107,23 @@ void Window::WindowFocusCallback(GLFWwindow* /*window*/, int focused) {
         Logger::Debug("Window unfocused");
 }
 
+void Window::SetTitle(const std::string& title) {
+    m_title = title;
+    glfwSetWindowTitle(m_window, title.c_str());
+}
+
 void Window::KeyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, int /*mods*/) {
-    Input::OnKeyEvent(key, action);
+    RawInput::OnKeyEvent(key, action);
 }
 
 void Window::MouseButtonCallback(GLFWwindow* /*window*/, int button, int action, int /*mods*/) {
-    Input::OnMouseButtonEvent(button, action);
+    RawInput::OnMouseButtonEvent(button, action);
 }
 
 void Window::CursorPosCallback(GLFWwindow* /*window*/, double x, double y) {
-    Input::OnMouseMoveEvent(x, y);
+    RawInput::OnMouseMoveEvent(x, y);
 }
 
 void Window::ScrollCallback(GLFWwindow* /*window*/, double xOffset, double yOffset) {
-    Input::OnScrollEvent(xOffset, yOffset);
+    RawInput::OnScrollEvent(xOffset, yOffset);
 }

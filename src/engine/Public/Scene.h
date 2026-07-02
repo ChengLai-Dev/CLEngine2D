@@ -1,33 +1,35 @@
 #pragma once
 
-#include "Components/SpriteComponent.h"
+#include "Math/Vec2.h"
 #include "Math/Vec3.h"
 #include <memory>
 #include <vector>
 
+class Node;
+class Sprite;
 class Renderer;
+class Texture;
 
 class Scene {
 public:
-    Scene() = default;
-    virtual ~Scene() = default;
+    Scene();
+    virtual ~Scene();
 
     virtual void OnUpdate(float deltaTime);
     virtual void OnRender(Renderer& renderer);
 
-    SpriteComponent& AddSprite(const Vec3& position, const Vec3& size,
-                               float rotation, std::shared_ptr<Texture> texture,
-                               const float color[4],
-                               float texOffsetX = 0.0f, float texOffsetY = 0.0f,
-                               float texScaleX = 1.0f, float texScaleY = 1.0f);
+    Node* GetRoot() const;
+    void SetRoot(std::unique_ptr<Node> root);
 
-    void RemoveSprite(size_t index);
-    void ClearSprites();
-    size_t GetSpriteCount() const { return m_sprites.size(); }
-    SpriteComponent* GetSprite(size_t index);
+    Sprite* CreateSprite(const Vec3& position, const Vec2& size,
+                         std::shared_ptr<Texture> texture,
+                         const float color[4] = nullptr,
+                         Node* parent = nullptr);
+
+    void RemoveAllChildren();
 
 private:
-    std::vector<SpriteComponent> m_sprites;
+    std::unique_ptr<Node> m_root;
 };
 
 class SceneManager {

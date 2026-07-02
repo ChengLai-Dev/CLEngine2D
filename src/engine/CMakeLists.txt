@@ -35,15 +35,39 @@ add_library(engine STATIC
     Private/AssetManager.cpp
     Public/Scene.h
     Private/Scene.cpp
-    Public/Components/SpriteComponent.h
-    Private/Components/SpriteComponent.cpp
-    Public/InputCodes.h
-    Public/Input.h
-    Private/Input.cpp
+    Public/Input/InputCodes.h
+    Public/Input/RawInput.h
+    Public/Input/InputAction.h
+    Public/Input/InputSystem.h
+    Public/Input/InputMappingContext.h
+    Private/Input/RawInput.cpp
+    Private/Input/InputAction.cpp
+    Private/Input/InputSystem.cpp
+    Private/Input/InputMappingContext.cpp
     Public/Audio/AudioEngine.h
     Public/Audio/Sound.h
     Private/Audio/AudioEngine.cpp
     Private/Audio/Sound.cpp
+    Public/SceneGraph/Node.h
+    Private/SceneGraph/Node.cpp
+    Public/SceneGraph/Sprite.h
+    Private/SceneGraph/Sprite.cpp
+    Public/SceneGraph/Widget.h
+    Private/SceneGraph/Widget.cpp
+    Public/SceneGraph/Image.h
+    Private/SceneGraph/Image.cpp
+    Public/SceneGraph/Label.h
+    Private/SceneGraph/Label.cpp
+    Public/SceneGraph/Button.h
+    Private/SceneGraph/Button.cpp
+    Public/SceneGraph/Scale9Sprite.h
+    Private/SceneGraph/Scale9Sprite.cpp
+    Public/SceneGraph/CanvasPanel.h
+    Private/SceneGraph/CanvasPanel.cpp
+    Public/SceneGraph/Layout.h
+    Private/SceneGraph/Layout.cpp
+    Public/SceneGraph/UISystem.h
+    Private/SceneGraph/UISystem.cpp
 )
 
 target_include_directories(engine PUBLIC

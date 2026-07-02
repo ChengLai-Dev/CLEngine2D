@@ -103,7 +103,7 @@ public:
 private:
     void CalculateOffsetsAndStride() {
         m_stride = 0;
-        for (auto& element : m_elements) {
+        for (BufferElement& element : m_elements) {
             element.Offset = m_stride;
             m_stride += element.Size;
         }

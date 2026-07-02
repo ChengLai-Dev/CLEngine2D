@@ -20,7 +20,7 @@ std::shared_ptr<Texture> AssetManager::LoadTexture(const std::string& filepath) 
         return it->second;
     }
 
-    auto texture = std::make_shared<Texture>(filepath);
+    std::shared_ptr<Texture> texture = std::make_shared<Texture>(filepath);
     m_textures[filepath] = texture;
     Logger::Debug(std::format("AssetManager: cached texture '{}'", filepath));
     return texture;
@@ -54,7 +54,7 @@ std::shared_ptr<Shader> AssetManager::LoadShader(const std::string& filepath) {
         return it->second;
     }
 
-    auto shader = std::make_shared<Shader>(filepath);
+    std::shared_ptr<Shader> shader = std::make_shared<Shader>(filepath);
     m_shaders[filepath] = shader;
     Logger::Debug(std::format("AssetManager: cached shader '{}'", filepath));
     return shader;

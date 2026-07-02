@@ -139,6 +139,21 @@ void Renderer::DrawQuad(const Vec3& position, const Vec3& size, float rotation,
                         Texture* texture, const float color[4],
                         float texOffsetX, float texOffsetY,
                         float texScaleX, float texScaleY) {
+    Mat4 transform =
+        Mat4::Translate(position) *
+        Mat4::RotateZ(rotation) *
+        Mat4::Scale(size);
+
+    DrawQuad(transform, Vec2(size.x, size.y),
+             texture, color,
+             texOffsetX, texOffsetY,
+             texScaleX, texScaleY);
+}
+
+void Renderer::DrawQuad(const Mat4& worldTransform, const Vec2& contentSize,
+                        Texture* texture, const float color[4],
+                        float texOffsetX, float texOffsetY,
+                        float texScaleX, float texScaleY) {
     if (m_quadCount >= m_maxQuads) {
         Flush();
     }
@@ -166,19 +181,19 @@ void Renderer::DrawQuad(const Vec3& position, const Vec3& size, float rotation,
         }
     }
 
-    float halfW = size.x * 0.5f;
-    float halfH = size.y * 0.5f;
+    float halfW = contentSize.x * 0.5f;
+    float halfH = contentSize.y * 0.5f;
 
-    float cosR = cosf(rotation);
-    float sinR = sinf(rotation);
+    Vec3 localVerts[4] = {
+        Vec3(-halfW, -halfH, 0.0f),
+        Vec3( halfW, -halfH, 0.0f),
+        Vec3( halfW,  halfH, 0.0f),
+        Vec3(-halfW,  halfH, 0.0f)
+    };
 
-    float x[4], y[4];
-    float localX[4] = { -halfW,  halfW,  halfW, -halfW };
-    float localY[4] = { -halfH, -halfH,  halfH,  halfH };
-
+    Vec3 worldVerts[4];
     for (int i = 0; i < 4; ++i) {
-        x[i] = localX[i] * cosR - localY[i] * sinR + position.x;
-        y[i] = localX[i] * sinR + localY[i] * cosR + position.y;
+        worldVerts[i] = worldTransform.TransformPoint(localVerts[i]);
     }
 
     float uvs[4][2] = {
@@ -190,9 +205,9 @@ void Renderer::DrawQuad(const Vec3& position, const Vec3& size, float rotation,
 
     unsigned int start = m_quadCount * 4;
     for (unsigned int i = 0; i < 4; ++i) {
-        m_quadVertexBuffer[start + i].Position[0] = x[i];
-        m_quadVertexBuffer[start + i].Position[1] = y[i];
-        m_quadVertexBuffer[start + i].Position[2] = 0.0f;
+        m_quadVertexBuffer[start + i].Position[0] = worldVerts[i].x;
+        m_quadVertexBuffer[start + i].Position[1] = worldVerts[i].y;
+        m_quadVertexBuffer[start + i].Position[2] = worldVerts[i].z;
         m_quadVertexBuffer[start + i].TexCoord[0] = uvs[i][0];
         m_quadVertexBuffer[start + i].TexCoord[1] = uvs[i][1];
         m_quadVertexBuffer[start + i].TexIndex = static_cast<float>(texIndex);
@@ -208,16 +223,13 @@ void Renderer::DrawQuad(const Vec3& position, const Vec3& size, float rotation,
 void Renderer::Flush() {
     if (m_quadCount == 0) return;
 
-    // CPU 内存 → 上传到 GPU 显存
     unsigned int dataSize = m_quadCount * 4 * sizeof(QuadVertex);
     m_vertexBuffer->SetData(m_quadVertexBuffer.data(), dataSize);
 
-    // 绑定所有用到的纹理
     for (unsigned int i = 0; i < m_textureSlotCount; ++i) {
         m_textureSlots[i]->Bind(i);
     }
 
-    // 执行绘制
     m_vertexArray->Bind();
     unsigned int indexCount = m_quadCount * 6;
     glDrawElements(GL_TRIANGLES, static_cast<int>(indexCount), GL_UNSIGNED_INT, nullptr);
