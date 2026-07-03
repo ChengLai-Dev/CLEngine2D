@@ -14,10 +14,10 @@
 阶段五 输入与音频    ████████████████████ 100% ✅
 阶段六 场景图系统    ████████████████████ 100% ✅
 阶段七 UI 编辑器     ████████████████████ 100% ✅
-阶段八 2D 游戏能力   ░░░░░░░░░░░░░░░░░░░░   0% ❌
+阶段八 2D 游戏能力   ████████████████████ 100% ✅
 阶段九 Python 脚本   ░░░░░░░░░░░░░░░░░░░░   0% ❌
 ───────────────────────────────────────────
-整体项目完成度                          ~78%
+整体项目完成度                          ~89%
 ```
 
 ---
@@ -359,13 +359,13 @@ src/editor/                      # 独立编辑器工程
 
 ### 任务
 
-- [ ] `TextRenderer`（使用 FreeType 渲染 TrueType 字体）
-- [ ] 粒子系统（`ParticleEmitter`，支持自定义生命周期/颜色/速度）
-- [ ] 2D 碰撞检测（AABB、Circle，碰撞响应弹开）
-- [ ] 图层渲染（Layer / Z-order）
-- [ ] Camera 控制器（跟随目标、平滑插值）
-- [ ] 动画系统（SpriteSheet 帧动画）
-- [ ] `TiledMap` 支持（解析 .tmx 文件或自定义格式）
+- [x] `TextRenderer`（使用 stb_truetype 渲染 TrueType 字体）
+- [x] 粒子系统（`ParticleEmitter`，支持自定义生命周期/颜色/速度）
+- [x] 2D 碰撞检测（AABB、Circle，碰撞响应弹开）
+- [x] 图层渲染（Layer / Z-order）
+- [x] Camera 控制器（跟随目标、平滑插值）
+- [x] 动画系统（SpriteSheet 帧动画）
+- [x] `TiledMap` 支持（自定义文本格式）
 
 ### 交付物
 
@@ -374,14 +374,18 @@ src/engine/Public/
 ├── TextRenderer.h
 ├── ParticleSystem.h
 ├── Physics2D.h
+├── CameraController.h
 ├── Animator.h
 └── TiledMap.h
 src/engine/Private/
 ├── TextRenderer.cpp
 ├── ParticleSystem.cpp
 ├── Physics2D.cpp
+├── CameraController.cpp
 ├── Animator.cpp
-    └── TiledMap.cpp
+└── TiledMap.cpp
+third_party/stb_truetype/
+└── stb_truetype.h
 ```
 
 ---
@@ -454,6 +458,12 @@ src/
 │   │   ├── Math/                 # 数学库 ✅
 │   │   ├── SceneGraph/           # 场景图系统（Node / Sprite / Widget...）✅
 │   │   ├── Components/           # 组件定义（已废弃）
+│   │   ├── TextRenderer.h        # 字体渲染 ✅
+│   │   ├── ParticleSystem.h      # 粒子系统 ✅
+│   │   ├── Physics2D.h           # 2D 碰撞检测 ✅
+│   │   ├── CameraController.h    # 相机控制器 ✅
+│   │   ├── Animator.h            # 帧动画 ✅
+│   │   ├── TiledMap.h            # 瓦片地图 ✅
 │   │   ├── AssetManager.h        # 资源缓存 ✅
 │   │   ├── Scene.h               # 场景管理 ✅
 │   │   └── Timer.h               # 性能计时 ✅
@@ -462,7 +472,13 @@ src/
 │   │   ├── Render/
 │   │   ├── Audio/                ✅
 │   │   ├── Input/                ✅
-│   │   └── SceneGraph/           ✅
+│   │   ├── SceneGraph/           ✅
+│   │   ├── TextRenderer.cpp      ✅
+│   │   ├── ParticleSystem.cpp    ✅
+│   │   ├── Physics2D.cpp         ✅
+│   │   ├── CameraController.cpp  ✅
+│   │   ├── Animator.cpp          ✅
+│   │   └── TiledMap.cpp          ✅
 │   ├── PythonBind/               # pybind11 绑定层（阶段九新增）
 │   │   ├── PyEngine.cpp
 │   │   ├── BindApp.cpp/h

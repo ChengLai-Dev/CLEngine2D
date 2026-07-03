@@ -358,12 +358,12 @@ JsonValue Serializer::SerializeNode(Node* node) {
     json.Set("visible", JsonValue(node->IsVisible()));
     json.Set("zOrder", JsonValue(node->GetZOrder()));
 
-    if (auto* widget = dynamic_cast<Widget*>(node)) {
+    if (Widget* widget = dynamic_cast<Widget*>(node)) {
         json.Set("enabled", JsonValue(widget->IsEnabled()));
         json.Set("touchEnabled", JsonValue(widget->IsTouchEnabled()));
     }
 
-    auto* canvasPanel = dynamic_cast<CanvasPanel*>(node);
+    CanvasPanel* canvasPanel = dynamic_cast<CanvasPanel*>(node);
     if (canvasPanel && node->GetChildCount() > 0) {
         JsonValue childrenJson;
         for (size_t i = 0; i < node->GetChildCount(); ++i) {
@@ -447,7 +447,7 @@ Node* Serializer::DeserializeNode(const JsonValue& json) {
     node->SetVisible(json.Get("visible").AsBool());
     node->SetZOrder(json.Get("zOrder").AsInt());
 
-    auto* widget = dynamic_cast<Widget*>(node.get());
+    Widget* widget = dynamic_cast<Widget*>(node.get());
     if (widget) {
         widget->SetEnabled(json.Get("enabled").AsBool());
         widget->SetTouchEnabled(json.Get("touchEnabled").AsBool());
@@ -455,9 +455,9 @@ Node* Serializer::DeserializeNode(const JsonValue& json) {
 
     if (json.Get("children").GetType() == JsonValue::Type::Array) {
         const auto& childrenArr = json.Get("children").GetArray();
-        auto* canvasPanel = dynamic_cast<CanvasPanel*>(node.get());
+        CanvasPanel* canvasPanel = dynamic_cast<CanvasPanel*>(node.get());
 
-        for (const auto& childJson : childrenArr) {
+        for (const JsonValue& childJson : childrenArr) {
             Node* child = DeserializeNode(childJson);
 
             if (canvasPanel && childJson.Get("anchor").GetType() != JsonValue::Type::Null) {
@@ -469,7 +469,7 @@ Node* Serializer::DeserializeNode(const JsonValue& json) {
                 anchorData.Position = DeserializeVec2(anchorJson.Get("position"));
                 anchorData.Size = DeserializeVec2(anchorJson.Get("size"));
 
-                auto* childWidget = dynamic_cast<Widget*>(child);
+                Widget* childWidget = dynamic_cast<Widget*>(child);
                 if (childWidget) {
                     canvasPanel->AddChildWithAnchor(
                         std::unique_ptr<Widget>(static_cast<Widget*>(child)), anchorData);

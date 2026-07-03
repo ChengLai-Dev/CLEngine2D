@@ -23,3 +23,4 @@ target_include_directories(editor PRIVATE
 )
 
 target_link_libraries(editor PRIVATE engine)
+target_copy_assets(editor)

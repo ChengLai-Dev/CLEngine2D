@@ -18,6 +18,15 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 add_subdirectory(third_party/glfw)
 
+# Helper: copy assets to a target's output directory
+function(target_copy_assets target_name)
+    add_custom_command(TARGET ${target_name} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_SOURCE_DIR}/assets"
+        "$<TARGET_FILE_DIR:${target_name}>/assets"
+    )
+endfunction()
+
 # Libraries
 add_subdirectory(third_party/glad)
 add_subdirectory(third_party/stb_image)
@@ -29,3 +38,6 @@ add_subdirectory(src/sandbox)
 
 # UI Editor
 add_subdirectory(src/editor)
+
+# Font Debug Tool
+add_subdirectory(src/font_debug)

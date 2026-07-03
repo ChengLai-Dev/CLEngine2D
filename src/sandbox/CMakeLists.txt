@@ -4,3 +4,4 @@ add_executable(sandbox
     UIDemoScene.cpp
 )
 target_link_libraries(sandbox PRIVATE engine)
+target_copy_assets(sandbox)

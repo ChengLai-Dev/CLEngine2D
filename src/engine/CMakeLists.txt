@@ -68,6 +68,18 @@ add_library(engine STATIC
     Private/SceneGraph/Layout.cpp
     Public/SceneGraph/UISystem.h
     Private/SceneGraph/UISystem.cpp
+    Public/TextRenderer.h
+    Private/TextRenderer.cpp
+    Public/ParticleSystem.h
+    Private/ParticleSystem.cpp
+    Public/Physics2D.h
+    Private/Physics2D.cpp
+    Public/CameraController.h
+    Private/CameraController.cpp
+    Public/Animator.h
+    Private/Animator.cpp
+    Public/TiledMap.h
+    Private/TiledMap.cpp
 )
 
 target_include_directories(engine PUBLIC
@@ -77,6 +89,7 @@ target_include_directories(engine PUBLIC
 target_include_directories(engine PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/Private
     ${CMAKE_SOURCE_DIR}/third_party/miniaudio
+    ${CMAKE_SOURCE_DIR}/third_party/stb_truetype
 )
 
 target_link_libraries(engine PUBLIC glfw glad stb_image)
