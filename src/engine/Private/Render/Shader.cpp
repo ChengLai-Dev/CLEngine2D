@@ -5,13 +5,12 @@
 #include <glad/glad.h>
 #include <fstream>
 #include <sstream>
-#include <format>
 #include <vector>
 
 static std::string ReadFile(const std::string& filepath) {
     std::ifstream stream(filepath, std::ios::in | std::ios::binary);
     if (!stream) {
-        Logger::Error(std::format("Failed to open shader file: {}", filepath));
+        Logger::Error("Failed to open shader file: {}", filepath);
         return "";
     }
     std::stringstream ss;
@@ -90,7 +89,7 @@ GLuint Shader::CompileShader(GLenum type, const std::string& source) {
         glGetShaderInfoLog(id, length, &length, message.data());
 
         const char* typeName = (type == GL_VERTEX_SHADER) ? "vertex" : "fragment";
-        Logger::Error(std::format("Shader compilation failed ({}): {}", typeName, message.data()));
+        Logger::Error("Shader compilation failed ({}): {}", typeName, message.data());
         glDeleteShader(id);
         return 0;
     }
@@ -118,7 +117,7 @@ GLuint Shader::CreateProgram(const std::string& vertexSrc, const std::string& fr
         glGetProgramiv(program, GL_INFO_LOG_LENGTH, &length);
         std::vector<char> message(static_cast<size_t>(length));
         glGetProgramInfoLog(program, length, &length, message.data());
-        Logger::Error(std::format("Shader linking failed: {}", message.data()));
+        Logger::Error("Shader linking failed: {}", message.data());
         glDeleteProgram(program);
         return 0;
     }
@@ -134,7 +133,7 @@ int Shader::GetUniformLocation(const std::string& name) {
 
     int location = glGetUniformLocation(m_rendererID, name.c_str());
     if (location == -1) {
-        Logger::Warn(std::format("Uniform '{}' not found in shader", name));
+        Logger::Warn("Uniform '{}' not found in shader", name);
     }
     m_uniformLocationCache[name] = location;
     return location;

@@ -11,7 +11,6 @@
 #include "Logger.h"
 
 #include <glad/glad.h>
-#include <format>
 
 bool Renderer::InitGL() {
     if (!gladLoadGLLoader((GLADloadproc)Window::GetProcAddress)) {
@@ -19,10 +18,10 @@ bool Renderer::InitGL() {
         return false;
     }
 
-    Logger::Info(std::format("OpenGL {}.{} loaded", GLVersion.major, GLVersion.minor));
-    Logger::Info(std::format("Renderer: {}", (const char*)glGetString(GL_RENDERER)));
-    Logger::Info(std::format("Vendor: {}", (const char*)glGetString(GL_VENDOR)));
-    Logger::Info(std::format("GLSL Version: {}", (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION)));
+    Logger::Info("OpenGL {}.{} loaded", GLVersion.major, GLVersion.minor);
+    Logger::Info("Renderer: {}", (const char*)glGetString(GL_RENDERER));
+    Logger::Info("Vendor: {}", (const char*)glGetString(GL_VENDOR));
+    Logger::Info("GLSL Version: {}", (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION));
 
     if (IS_DEBUG) {
         if (GLAD_GL_VERSION_4_3 || GLAD_GL_KHR_debug) {
@@ -32,17 +31,17 @@ bool Renderer::InitGL() {
                                       const GLchar* message, const void* userParam) {
                 if (severity == GL_DEBUG_SEVERITY_HIGH) {
                     if (type == GL_DEBUG_TYPE_ERROR) {
-                        Logger::Error(std::format("[GL] {}", message));
+                        Logger::Error("[GL] {}", message);
                         __debugbreak();
                     } else {
-                        Logger::Warn(std::format("[GL] {}", message));
+                        Logger::Warn("[GL] {}", message);
                     }
                 } else if (severity == GL_DEBUG_SEVERITY_MEDIUM) {
-                    Logger::Warn(std::format("[GL] {}", message));
+                    Logger::Warn("[GL] {}", message);
                 } else if (severity == GL_DEBUG_SEVERITY_LOW) {
-                    Logger::Info(std::format("[GL] {}", message));
+                    Logger::Info("[GL] {}", message);
                 } else {
-                    Logger::Debug(std::format("[GL] {}", message));
+                    Logger::Debug("[GL] {}", message);
                 }
             }, nullptr);
             Logger::Info("GL debug output enabled");

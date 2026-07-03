@@ -27,9 +27,36 @@ function(target_copy_assets target_name)
     )
 endfunction()
 
+# Helper: copy scripts to a target's output directory
+function(target_copy_scripts target_name)
+    add_custom_command(TARGET ${target_name} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_SOURCE_DIR}/scripts"
+        "$<TARGET_FILE_DIR:${target_name}>/scripts"
+    )
+endfunction()
+
 # Libraries
 add_subdirectory(third_party/glad)
 add_subdirectory(third_party/stb_image)
+
+# Python bindings (optional, for Phase 9)
+option(CLENGINE_BUILD_PYTHON "Build Python bindings and py_sandbox" ON)
+if(CLENGINE_BUILD_PYTHON)
+    include(FetchContent)
+    FetchContent_Declare(
+        pybind11
+        GIT_REPOSITORY https://github.com/pybind/pybind11.git
+        GIT_TAG v2.13.6
+    )
+    set(PYBIND11_FINDPYTHON ON)
+    FetchContent_MakeAvailable(pybind11)
+    if(NOT pybind11_FOUND)
+        message(WARNING "pybind11 not available — Python bindings will be skipped")
+        set(CLENGINE_BUILD_PYTHON OFF)
+    endif()
+endif()
+
 add_subdirectory(src/engine)
 
 # Sandbox (startup project)
@@ -41,3 +68,8 @@ add_subdirectory(src/editor)
 
 # Font Debug Tool
 add_subdirectory(src/font_debug)
+
+# Python Sandbox (requires pybind11)
+if(CLENGINE_BUILD_PYTHON)
+    add_subdirectory(src/py_sandbox)
+endif()

@@ -3,7 +3,6 @@
 #include "Audio/Sound.h"
 #include "Logger.h"
 
-#include <format>
 
 Sound::Sound(ma_engine* engine)
     : m_engine(engine)
@@ -31,7 +30,7 @@ bool Sound::Load(const std::string& filepath) {
         MA_SOUND_FLAG_NO_DEFAULT_ATTACHMENT, nullptr, nullptr, m_sound);
 
     if (result != MA_SUCCESS) {
-        Logger::Error(std::format("Failed to load sound: {}", filepath));
+        Logger::Error("Failed to load sound: {}", filepath);
         delete m_sound;
         m_sound = nullptr;
         return false;

@@ -7,7 +7,6 @@
 #include "miniaudio.h"
 #undef MINIAUDIO_IMPLEMENTATION
 
-#include <format>
 
 AudioEngine::AudioEngine() = default;
 
@@ -57,7 +56,7 @@ std::shared_ptr<Sound> AudioEngine::LoadSound(const std::string& filepath) {
 
     std::shared_ptr<Sound> sound(new Sound(m_engine));
     if (!sound->Load(filepath)) {
-        Logger::Error(std::format("Failed to load sound: {}", filepath));
+        Logger::Error("Failed to load sound: {}", filepath);
         return nullptr;
     }
     return sound;

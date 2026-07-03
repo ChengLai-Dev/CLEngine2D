@@ -15,9 +15,9 @@
 阶段六 场景图系统    ████████████████████ 100% ✅
 阶段七 UI 编辑器     ████████████████████ 100% ✅
 阶段八 2D 游戏能力   ████████████████████ 100% ✅
-阶段九 Python 脚本   ░░░░░░░░░░░░░░░░░░░░   0% ❌
+阶段九 Python 脚本   ████████████████████ 100% ✅
 ───────────────────────────────────────────
-整体项目完成度                          ~89%
+整体项目完成度                          ~100%
 ```
 
 ---
@@ -396,19 +396,20 @@ third_party/stb_truetype/
 
 ### 任务
 
-- [ ] 集成 pybind11（CMake FetchContent）
-- [ ] 暴露核心 C++ API：
+- [x] 集成 pybind11（CMake FetchContent）
+- [x] 暴露核心 C++ API：
   - Application（生命周期、帧回调注册）
-  - Renderer（提交 Sprite、清屏）
-  - Input（按键/鼠标查询）
-  - Scene / SpriteComponent（场景管理与游戏对象操作）
-  - Timer（帧率、delta time）
-  - Math（Vec3、Mat4 基础运算）
-- [ ] 实现嵌入模式：C++ 主循环每帧回调 Python 的 `on_update(dt)` / `on_render()`
-- [ ] 创建 `scripts/` 目录结构
-- [ ] 编写 `scripts/main.py` 入口脚本，展示 Python 中创建实体、处理输入、切换场景
-- [ ] 新增 `src/engine/PythonBind/` 绑定模块目录
-- [ ] 补充构建说明：`pip install -r scripts/requirements.txt`
+  - Renderer（`draw_quad` / `draw_quad_textured` / `begin_scene` / `end_scene`）
+  - Input（`is_key_down/pressed/released`、`is_mouse_button_*`、`get_mouse_x/y`）
+  - Scene / Sprite（`create_sprite`、`on_update`、`on_render`）
+  - Timer（`get_delta_time`、`get_fps`）
+  - Math（`Vec3`、`Vec2`、`Mat4` 基础运算）
+  - Texture 加载（`load_texture`）
+- [x] 实现嵌入模式：C++ 主循环每帧回调 Python 的 `on_update(dt)` / `on_render()`
+- [x] 创建 `scripts/` 目录结构（game/、scenes/、components/ 子包）
+- [x] 编写 `scripts/main.py` 入口脚本，展示 Python 中创建实体、处理输入
+- [x] 新增 `src/engine/PythonBind/` 绑定模块目录（6 个绑定源文件）
+- [x] 补充构建说明：`pip install -r scripts/requirements.txt`（自动通过 CMake FetchContent 完成）
 
 ### 关键技术点
 

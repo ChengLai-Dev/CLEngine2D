@@ -14,6 +14,10 @@ class Renderer;
 class Node {
 public:
     Node();
+    Node(Node&&) = default;
+    Node& operator=(Node&&) = default;
+    Node(const Node&) = delete;
+    Node& operator=(const Node&) = delete;
     virtual ~Node();
 
     // === Transform (Vec3 position, Euler XYZ rotation, Vec3 scale) ===

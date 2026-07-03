@@ -149,8 +149,8 @@ const std::string& Node::GetName() const {
 const Mat4& Node::GetLocalTransform() {
     if (m_transformDirty) {
         Vec3 anchorOffset(
-            -m_anchor.x * m_contentSize.x,
-            -m_anchor.y * m_contentSize.y,
+            (0.5f - m_anchor.x) * m_contentSize.x,
+            (0.5f - m_anchor.y) * m_contentSize.y,
             0.0f
         );
 

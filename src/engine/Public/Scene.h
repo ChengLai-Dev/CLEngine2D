@@ -36,7 +36,7 @@ class SceneManager {
 public:
     static SceneManager& GetInstance();
 
-    void PushScene(std::unique_ptr<Scene> scene);
+    void PushScene(std::shared_ptr<Scene> scene);
     void PopScene();
     Scene* GetCurrentScene();
     bool IsEmpty() const;
@@ -46,5 +46,5 @@ private:
     SceneManager(const SceneManager&) = delete;
     SceneManager& operator=(const SceneManager&) = delete;
 
-    std::vector<std::unique_ptr<Scene>> m_sceneStack;
+    std::vector<std::shared_ptr<Scene>> m_sceneStack;
 };

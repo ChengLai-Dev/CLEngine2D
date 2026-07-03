@@ -5,7 +5,6 @@
 #include "Render/Renderer.h"
 #include "Logger.h"
 
-#include <format>
 
 Scene::Scene()
     : m_root(std::make_unique<Node>()) {
@@ -65,15 +64,15 @@ SceneManager& SceneManager::GetInstance() {
     return instance;
 }
 
-void SceneManager::PushScene(std::unique_ptr<Scene> scene) {
+void SceneManager::PushScene(std::shared_ptr<Scene> scene) {
     m_sceneStack.push_back(std::move(scene));
-    Logger::Info(std::format("SceneManager: scene pushed (stack size: {})", m_sceneStack.size()));
+    Logger::Info("SceneManager: scene pushed (stack size: {})", m_sceneStack.size());
 }
 
 void SceneManager::PopScene() {
     if (!m_sceneStack.empty()) {
         m_sceneStack.pop_back();
-        Logger::Info(std::format("SceneManager: scene popped (stack size: {})", m_sceneStack.size()));
+        Logger::Info("SceneManager: scene popped (stack size: {})", m_sceneStack.size());
     }
 }
 

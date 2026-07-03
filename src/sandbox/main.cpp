@@ -89,30 +89,31 @@ protected:
 
         SceneManager& sceneManager = SceneManager::GetInstance();
         m_scene = new GameScene();
-        sceneManager.PushScene(std::unique_ptr<Scene>(m_scene));
+        sceneManager.PushScene(std::shared_ptr<Scene>(m_scene));
 
         m_uiScene = std::make_unique<UIDemoScene>();
 
-        m_defaultContext.MapKey(&m_quitAction, KeyCode::Escape);
+        m_defaultContext = std::make_shared<InputMappingContext>();
+        m_defaultContext->MapKey(&m_quitAction, KeyCode::Escape);
         m_quitAction.OnStarted([this](const InputActionValue&) {
             glfwSetWindowShouldClose(GetWindow()->GetNativeWindow(), GLFW_TRUE);
         });
 
-        m_defaultContext.MapMouse(&m_toggleAction, MouseCode::ButtonLeft);
+        m_defaultContext->MapMouse(&m_toggleAction, MouseCode::ButtonLeft);
         m_toggleAction.OnStarted([this](const InputActionValue&) {
             m_scene->ToggleRotation();
         });
 
-        m_defaultContext.MapKey(&mMoveAction, KeyCode::W, Vec2(0.0f, 1.0f));
-        m_defaultContext.MapKey(&mMoveAction, KeyCode::S, Vec2(0.0f, -1.0f));
-        m_defaultContext.MapKey(&mMoveAction, KeyCode::D, Vec2(1.0f, 0.0f));
-        m_defaultContext.MapKey(&mMoveAction, KeyCode::A, Vec2(-1.0f, 0.0f));
-        m_defaultContext.MapKey(&mMoveAction, KeyCode::Up, Vec2(0.0f, 1.0f));
-        m_defaultContext.MapKey(&mMoveAction, KeyCode::Down, Vec2(0.0f, -1.0f));
-        m_defaultContext.MapKey(&mMoveAction, KeyCode::Right, Vec2(1.0f, 0.0f));
-        m_defaultContext.MapKey(&mMoveAction, KeyCode::Left, Vec2(-1.0f, 0.0f));
+        m_defaultContext->MapKey(&mMoveAction, KeyCode::W, Vec2(0.0f, 1.0f));
+        m_defaultContext->MapKey(&mMoveAction, KeyCode::S, Vec2(0.0f, -1.0f));
+        m_defaultContext->MapKey(&mMoveAction, KeyCode::D, Vec2(1.0f, 0.0f));
+        m_defaultContext->MapKey(&mMoveAction, KeyCode::A, Vec2(-1.0f, 0.0f));
+        m_defaultContext->MapKey(&mMoveAction, KeyCode::Up, Vec2(0.0f, 1.0f));
+        m_defaultContext->MapKey(&mMoveAction, KeyCode::Down, Vec2(0.0f, -1.0f));
+        m_defaultContext->MapKey(&mMoveAction, KeyCode::Right, Vec2(1.0f, 0.0f));
+        m_defaultContext->MapKey(&mMoveAction, KeyCode::Left, Vec2(-1.0f, 0.0f));
 
-        InputSystem::GetInstance().AddContext(&m_defaultContext, 0);
+        InputSystem::GetInstance().AddContext(m_defaultContext, 0);
         mMoveAction.OnTriggered([this](const InputActionValue& val) {
             Vec2 dir = val.GetVec2();
             m_scene->SetMoveDir(dir.LengthSq() > 0.0f
@@ -180,7 +181,7 @@ private:
     InputAction m_quitAction;
     InputAction m_toggleAction;
     InputAction mMoveAction;
-    InputMappingContext m_defaultContext;
+    std::shared_ptr<InputMappingContext> m_defaultContext;
 
     Timer m_timer;
     std::unique_ptr<OrthographicCamera> m_camera;

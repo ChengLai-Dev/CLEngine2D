@@ -3,13 +3,12 @@
 
 #include <glad/glad.h>
 #include <stb_image.h>
-#include <format>
 
 Texture::Texture(const std::string& filepath) {
     stbi_set_flip_vertically_on_load(1);
     unsigned char* data = stbi_load(filepath.c_str(), &m_width, &m_height, &m_channels, STBI_rgb_alpha);
     if (!data) {
-        Logger::Error(std::format("Failed to load texture: {} - {}", filepath, stbi_failure_reason()));
+        Logger::Error("Failed to load texture: {} - {}", filepath, stbi_failure_reason());
         return;
     }
 
@@ -25,7 +24,7 @@ Texture::Texture(const std::string& filepath) {
     glGenerateMipmap(GL_TEXTURE_2D);
 
     stbi_image_free(data);
-    Logger::Info(std::format("Loaded texture: {} ({}x{})", filepath, m_width, m_height));
+    Logger::Info("Loaded texture: {} ({}x{})", filepath, m_width, m_height);
 }
 
 Texture::Texture(unsigned int width, unsigned int height, const unsigned char* data)

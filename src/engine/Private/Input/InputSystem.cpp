@@ -11,8 +11,8 @@ InputSystem& InputSystem::GetInstance() {
     return instance;
 }
 
-void InputSystem::AddContext(InputMappingContext* context, int priority) {
-    m_contexts.push_back({context, priority});
+void InputSystem::AddContext(std::shared_ptr<InputMappingContext> context, int priority) {
+    m_contexts.push_back({std::move(context), priority});
     std::sort(m_contexts.begin(), m_contexts.end(),
         [](const ContextEntry& a, const ContextEntry& b) {
             return a.priority > b.priority;
@@ -21,7 +21,7 @@ void InputSystem::AddContext(InputMappingContext* context, int priority) {
 
 void InputSystem::RemoveContext(InputMappingContext* context) {
     for (std::size_t i = 0; i < m_contexts.size(); ++i) {
-        if (m_contexts[i].context == context) {
+        if (m_contexts[i].context.get() == context) {
             m_contexts.erase(m_contexts.begin() + static_cast<std::ptrdiff_t>(i));
             return;
         }

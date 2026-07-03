@@ -7,7 +7,6 @@
 #include <stb_truetype.h>
 
 #include <algorithm>
-#include <format>
 #include <cstring>
 #include <fstream>
 #include <vector>
@@ -22,7 +21,7 @@ TextRenderer::~TextRenderer() = default;
 bool TextRenderer::LoadFont(const std::string& filepath, float pixelHeight) {
     std::ifstream file(filepath, std::ios::binary | std::ios::ate);
     if (!file) {
-        Logger::Error(std::format("TextRenderer: failed to open font file '{}'", filepath));
+        Logger::Error("TextRenderer: failed to open font file '{}'", filepath);
         return false;
     }
 
@@ -31,13 +30,13 @@ bool TextRenderer::LoadFont(const std::string& filepath, float pixelHeight) {
 
     std::vector<unsigned char> fontBuffer(static_cast<size_t>(size));
     if (!file.read(reinterpret_cast<char*>(fontBuffer.data()), size)) {
-        Logger::Error(std::format("TextRenderer: failed to read font file '{}'", filepath));
+        Logger::Error("TextRenderer: failed to read font file '{}'", filepath);
         return false;
     }
 
     stbtt_fontinfo fontInfo;
     if (!stbtt_InitFont(&fontInfo, fontBuffer.data(), 0)) {
-        Logger::Error(std::format("TextRenderer: failed to init font '{}'", filepath));
+        Logger::Error("TextRenderer: failed to init font '{}'", filepath);
         return false;
     }
 
@@ -68,7 +67,7 @@ bool TextRenderer::LoadFont(const std::string& filepath, float pixelHeight) {
     }
 
     if (result <= 0) {
-        Logger::Error(std::format("TextRenderer: failed to bake font '{}' (result={})", filepath, result));
+        Logger::Error("TextRenderer: failed to bake font '{}' (result={})", filepath, result);
         return false;
     }
 
@@ -111,8 +110,8 @@ bool TextRenderer::LoadFont(const std::string& filepath, float pixelHeight) {
     }
 
     m_loaded = true;
-    Logger::Info(std::format("TextRenderer: loaded font '{}' ({}px, atlas {}x{})",
-                             filepath, static_cast<int>(pixelHeight), atlasW, atlasH));
+    Logger::Info("TextRenderer: loaded font '{}' ({}px, atlas {}x{})",
+                             filepath, static_cast<int>(pixelHeight), atlasW, atlasH);
     return true;
 }
 

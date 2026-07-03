@@ -1,0 +1,7 @@
+# CLEngine2D Python dependencies
+# pybind11 is handled by CMake FetchContent; no pip install needed for the engine.
+#
+# If you use additional Python packages in your game scripts,
+# list them here. Example:
+# numpy>=1.24
+# pyyaml>=6.0

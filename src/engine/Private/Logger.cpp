@@ -1,7 +1,6 @@
 #include "Logger.h"
 #include "Utils.h"
 
-#include <format>
 #include <cstdio>
 #include <stacktrace>
 #include <Windows.h>
@@ -59,14 +58,11 @@ const char* Logger::LevelPrefix(LogLevel level) {
     return "[?]";
 }
 
-void Logger::Trace(const std::string& msg) { Log(LogLevel::Trace, msg); }
-void Logger::Debug(const std::string& msg) { Log(LogLevel::Debug, msg); }
-void Logger::Info(const std::string& msg)  { Log(LogLevel::Info, msg); }
-void Logger::Warn(const std::string& msg)  { Log(LogLevel::Warn, msg); }
-void Logger::Error(const std::string& msg) { Log(LogLevel::Error, msg); }
-void Logger::Fatal(const std::string& msg) { Log(LogLevel::Fatal, msg); }
+void Logger::LogV(LogLevel level, std::string_view fmt, std::format_args args) {
+    LogImpl(level, std::vformat(fmt, args));
+}
 
-void Logger::Log(LogLevel level, const std::string& msg) {
+void Logger::LogImpl(LogLevel level, std::string&& msg) {
     std::string text = std::format("{} {} {}", Utils::CurrentTimeString(), LevelPrefix(level), msg);
 
     if (level >= s_minStackTraceLogLevel) {

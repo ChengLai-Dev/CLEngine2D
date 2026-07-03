@@ -5,7 +5,6 @@
 #include "Logger.h"
 
 #include <GLFW/glfw3.h>
-#include <format>
 
 Window::Window(const std::string& title, int width, int height)
     : m_title(title)
@@ -20,7 +19,7 @@ Window::~Window() {
 }
 
 void Window::Init() {
-    Logger::Info(std::format("Creating window: {} ({}x{})", m_title, m_width, m_height));
+    Logger::Info("Creating window: {} ({}x{})", m_title, m_width, m_height);
 
     if (!glfwInit()) {
         Logger::Fatal("Failed to initialize GLFW");
@@ -28,7 +27,7 @@ void Window::Init() {
     }
 
     glfwSetErrorCallback([](int error, const char* desc) {
-        Logger::Error(std::format("GLFW Error ({}): {}", error, desc));
+        Logger::Error("GLFW Error ({}): {}", error, desc);
     });
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);

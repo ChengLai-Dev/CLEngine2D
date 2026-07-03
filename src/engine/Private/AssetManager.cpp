@@ -3,7 +3,6 @@
 #include "Render/Shader.h"
 #include "Logger.h"
 
-#include <format>
 
 AssetManager& AssetManager::GetInstance() {
     static AssetManager instance;
@@ -22,7 +21,7 @@ std::shared_ptr<Texture> AssetManager::LoadTexture(const std::string& filepath) 
 
     std::shared_ptr<Texture> texture = std::make_shared<Texture>(filepath);
     m_textures[filepath] = texture;
-    Logger::Debug(std::format("AssetManager: cached texture '{}'", filepath));
+    Logger::Debug("AssetManager: cached texture '{}'", filepath);
     return texture;
 }
 
@@ -39,7 +38,7 @@ void AssetManager::UnloadTexture(const std::string& filepath) {
     auto it = m_textures.find(filepath);
     if (it != m_textures.end()) {
         m_textures.erase(it);
-        Logger::Debug(std::format("AssetManager: unloaded texture '{}'", filepath));
+        Logger::Debug("AssetManager: unloaded texture '{}'", filepath);
     }
 }
 
@@ -56,7 +55,7 @@ std::shared_ptr<Shader> AssetManager::LoadShader(const std::string& filepath) {
 
     std::shared_ptr<Shader> shader = std::make_shared<Shader>(filepath);
     m_shaders[filepath] = shader;
-    Logger::Debug(std::format("AssetManager: cached shader '{}'", filepath));
+    Logger::Debug("AssetManager: cached shader '{}'", filepath);
     return shader;
 }
 
@@ -73,7 +72,7 @@ void AssetManager::UnloadShader(const std::string& filepath) {
     auto it = m_shaders.find(filepath);
     if (it != m_shaders.end()) {
         m_shaders.erase(it);
-        Logger::Debug(std::format("AssetManager: unloaded shader '{}'", filepath));
+        Logger::Debug("AssetManager: unloaded shader '{}'", filepath);
     }
 }
 

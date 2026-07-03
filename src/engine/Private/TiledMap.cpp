@@ -3,7 +3,6 @@
 #include "Render/Texture.h"
 #include "Logger.h"
 
-#include <format>
 #include <fstream>
 #include <sstream>
 
@@ -13,7 +12,7 @@ TileMap::~TileMap() = default;
 bool TileMap::LoadFromFile(const std::string& filepath) {
     std::ifstream file(filepath);
     if (!file) {
-        Logger::Error(std::format("TileMap: failed to open '{}'", filepath));
+        Logger::Error("TileMap: failed to open '{}'", filepath);
         return false;
     }
 
@@ -94,10 +93,10 @@ bool TileMap::LoadFromFile(const std::string& filepath) {
         }
     }
 
-    Logger::Info(std::format("TileMap: loaded '{}' ({}x{}, {} tiles, {} layers)",
+    Logger::Info("TileMap: loaded '{}' ({}x{}, {} tiles, {} layers)",
                              filepath, m_width, m_height,
                              m_tileSet.columns * m_tileSet.rows,
-                             m_layers.size()));
+                             m_layers.size());
     return true;
 }
 

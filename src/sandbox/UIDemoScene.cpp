@@ -24,7 +24,7 @@ void UIDemoScene::SetupUI() {
     m_testButton->SetTextColor(Vec4(1.0f, 1.0f, 1.0f, 1.0f));
     m_testButton->OnClicked([this](Button* btn) {
         m_clickCount++;
-        Logger::Info(std::to_string(m_clickCount));
+        Logger::Info("{}", m_clickCount);
     });
 
     FAnchorData btnAnchor;

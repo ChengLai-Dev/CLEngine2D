@@ -26,7 +26,6 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <format>
 
 EditorApp::EditorApp() = default;
 EditorApp::~EditorApp() = default;
@@ -205,7 +204,7 @@ void EditorApp::AddWidgetToScene(const std::string& type) {
 
     m_editedScene->GetRoot()->AddChild(std::move(widget));
 
-    Logger::Info(std::format("Added widget: {}", type));
+    Logger::Info("Added widget: {}", type);
 }
 
 void EditorApp::DeleteSelected() {
@@ -222,7 +221,7 @@ void EditorApp::SaveScene() {
     Node* root = m_editedScene->GetRoot();
     std::string filepath = "assets/ui/editor_test.ui";
     if (Serializer::SaveToFile(root, filepath)) {
-        Logger::Info(std::format("Scene saved to {}", filepath));
+        Logger::Info("Scene saved to {}", filepath);
     } else {
         Logger::Error("Failed to save scene");
     }
