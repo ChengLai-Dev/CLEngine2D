@@ -145,6 +145,7 @@ void PythonScriptApp::OnShutdown()
     tryCall(m_pyOnShutdown);
 
     SceneManager::GetInstance().PopScene();
+    InputSystem::GetInstance().Clear();
     m_renderer->Shutdown();
     m_renderer.reset();
 

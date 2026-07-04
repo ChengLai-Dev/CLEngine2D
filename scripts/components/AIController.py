@@ -1,4 +1,4 @@
-import clengine
+from CLEngine.Math import Vec3
 import math
 
 
@@ -9,17 +9,17 @@ class AIController:
         self.sprite = sprite
         self.speed = speed
         self.patrol_range = patrol_range
-        self.start_x = sprite.get_position().x
+        self.start_x = sprite.GetPosition().x
         self.direction = 1.0
 
     def update(self, dt):
-        pos = self.sprite.get_position()
+        pos = self.sprite.GetPosition()
         new_x = pos.x + self.direction * self.speed * dt
 
         if abs(new_x - self.start_x) > self.patrol_range:
             self.direction *= -1.0
             new_x = pos.x
 
-        self.sprite.set_position(
-            clengine.Vec3(new_x, pos.y, pos.z)
+        self.sprite.SetPosition(
+            Vec3(new_x, pos.y, pos.z)
         )

@@ -61,14 +61,14 @@ void RegisterInputBindings(py::module_& m)
         .value("ButtonRight", MouseCode::ButtonRight)
         .value("ButtonMiddle", MouseCode::ButtonMiddle);
 
-    m.def("is_key_down", &RawInput::IsKeyDown);
-    m.def("is_key_pressed", &RawInput::IsKeyPressed);
-    m.def("is_key_released", &RawInput::IsKeyReleased);
+    m.def("IsKeyDown", &RawInput::IsKeyDown);
+    m.def("IsKeyPressed", &RawInput::IsKeyPressed);
+    m.def("IsKeyReleased", &RawInput::IsKeyReleased);
 
-    m.def("is_mouse_button_down", &RawInput::IsMouseButtonDown);
-    m.def("is_mouse_button_pressed", &RawInput::IsMouseButtonPressed);
-    m.def("is_mouse_button_released", &RawInput::IsMouseButtonReleased);
-    m.def("get_mouse_x", &RawInput::GetMouseX);
-    m.def("get_mouse_y", &RawInput::GetMouseY);
-    m.def("get_mouse_position", &RawInput::GetMousePosition);
+    m.def("IsMouseButtonDown", &RawInput::IsMouseButtonDown);
+    m.def("IsMouseButtonPressed", &RawInput::IsMouseButtonPressed);
+    m.def("IsMouseButtonReleased", &RawInput::IsMouseButtonReleased);
+    m.def("GetMouseX", &RawInput::GetMouseX);
+    m.def("GetMouseY", &RawInput::GetMouseY);
+    m.def("GetMousePosition", &RawInput::GetMousePosition);
 }

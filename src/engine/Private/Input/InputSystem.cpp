@@ -38,10 +38,10 @@ void InputSystem::Update() {
 
             bool found = false;
             for (InputAction* a : actions) {
-                if (a == mapping.action) { found = true; break; }
+                if (a == mapping.action.get()) { found = true; break; }
             }
             if (!found) {
-                actions.push_back(mapping.action);
+                actions.push_back(mapping.action.get());
             }
         }
     }

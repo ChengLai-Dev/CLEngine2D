@@ -21,12 +21,12 @@ void RegisterMathBindings(py::module_& m)
         .def("__repr__", [](const Vec2& v) {
             return "<Vec2(" + std::to_string(v.x) + ", " + std::to_string(v.y) + ")>";
         })
-        .def("dot", &Vec2::Dot)
-        .def("cross", &Vec2::Cross)
-        .def("length", &Vec2::Length)
-        .def("length_sq", &Vec2::LengthSq)
-        .def("normalized", &Vec2::Normalized)
-        .def("normalize", &Vec2::Normalize);
+        .def("Dot", &Vec2::Dot)
+        .def("Cross", &Vec2::Cross)
+        .def("Length", &Vec2::Length)
+        .def("LengthSq", &Vec2::LengthSq)
+        .def("Normalized", &Vec2::Normalized)
+        .def("Normalize", &Vec2::Normalize);
 
     py::class_<Vec3>(m, "Vec3")
         .def(py::init<>())
@@ -43,15 +43,15 @@ void RegisterMathBindings(py::module_& m)
         .def("__repr__", [](const Vec3& v) {
             return "<Vec3(" + std::to_string(v.x) + ", " + std::to_string(v.y) + ", " + std::to_string(v.z) + ")>";
         })
-        .def("dot", &Vec3::Dot)
-        .def("cross", &Vec3::Cross)
-        .def("length", &Vec3::Length)
-        .def("length_sq", &Vec3::LengthSq)
-        .def("normalized", &Vec3::Normalized)
-        .def("normalize", &Vec3::Normalize);
+        .def("Dot", &Vec3::Dot)
+        .def("Cross", &Vec3::Cross)
+        .def("Length", &Vec3::Length)
+        .def("LengthSq", &Vec3::LengthSq)
+        .def("Normalized", &Vec3::Normalized)
+        .def("Normalize", &Vec3::Normalize);
 
     py::class_<Mat4>(m, "Mat4")
-        .def_static("identity", &Mat4::Identity)
+        .def_static("Identity", &Mat4::Identity)
         .def("__mul__", [](const Mat4& a, const Mat4& b) { return a * b; })
         .def("__repr__", [](const Mat4&) {
             return "<Mat4 4x4>";

@@ -1,4 +1,4 @@
-import clengine
+from CLEngine.Math import Vec3
 import math
 
 
@@ -14,7 +14,7 @@ class Enemy:
         if not self.active:
             return
 
-        pos = self.sprite.get_position()
+        pos = self.sprite.GetPosition()
 
         dx = player_pos.x - pos.x
         dy = player_pos.y - pos.y
@@ -23,8 +23,8 @@ class Enemy:
         if dist > 1.0:
             nx = dx / dist
             ny = dy / dist
-            self.sprite.set_position(
-                clengine.Vec3(
+            self.sprite.SetPosition(
+                Vec3(
                     pos.x + nx * self.speed * dt,
                     pos.y + ny * self.speed * dt,
                     0.0

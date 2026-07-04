@@ -1,4 +1,8 @@
-import clengine
+from CLEngine.Math import Vec2, Vec3
+from CLEngine.Input import (
+    KeyCode, InputAction, InputMappingContext, InputSystem
+)
+import CLEngine
 
 
 class Player:
@@ -10,25 +14,23 @@ class Player:
         self.health = 100
         self._setup_input()
 
-    def _setup_input(self):
-        self._input_action = clengine.InputAction()
-        ctx = clengine.InputMappingContext()
-        ctx.map_key(self._input_action, clengine.KeyCode.W, clengine.Vec2(0.0, 1.0))
-        ctx.map_key(self._input_action, clengine.KeyCode.S, clengine.Vec2(0.0, -1.0))
-        ctx.map_key(self._input_action, clengine.KeyCode.D, clengine.Vec2(1.0, 0.0))
-        ctx.map_key(self._input_action, clengine.KeyCode.A, clengine.Vec2(-1.0, 0.0))
-        clengine.InputSystem.get_instance().add_context(ctx)
-
-    def update(self, dt):
-        value = self._input_action.get_value()
+    def _on_move(self, value):
+        dt = CLEngine.GetDeltaTime()
         dx = value.x * self.speed * dt
         dy = value.y * self.speed * dt
-
         if dx != 0.0 or dy != 0.0:
-            pos = self.sprite.get_position()
-            self.sprite.set_position(
-                clengine.Vec3(pos.x + dx, pos.y + dy, 0.0)
-            )
+            pos = self.sprite.GetPosition()
+            self.sprite.SetPosition(Vec3(pos.x + dx, pos.y + dy, 0.0))
+
+    def _setup_input(self):
+        move_action = InputAction()
+        move_action.OnTriggered(self._on_move)
+        ctx = InputMappingContext()
+        ctx.MapKey(move_action, KeyCode.W, Vec2(0.0, 1.0))
+        ctx.MapKey(move_action, KeyCode.S, Vec2(0.0, -1.0))
+        ctx.MapKey(move_action, KeyCode.D, Vec2(1.0, 0.0))
+        ctx.MapKey(move_action, KeyCode.A, Vec2(-1.0, 0.0))
+        InputSystem.GetInstance().AddContext(ctx)
 
     def take_damage(self, amount):
         self.health -= amount
@@ -36,4 +38,4 @@ class Player:
             self.die()
 
     def die(self):
-        self.sprite.set_visible(False)
+        self.sprite.SetVisible(False)

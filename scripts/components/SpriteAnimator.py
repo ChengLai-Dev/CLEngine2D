@@ -1,6 +1,3 @@
-import clengine
-
-
 class SpriteAnimator:
     """Example sprite animation using texture offset cycling."""
 
@@ -23,8 +20,8 @@ class SpriteAnimator:
             self.time -= frame_duration
             self.current_frame = (self.current_frame + 1) % self.frame_count
             frame_width = 1.0 / self.frame_count
-            self.sprite.set_tex_offset(frame_width * self.current_frame, 0.0)
-            self.sprite.set_tex_scale(frame_width, 1.0)
+            self.sprite.SetTexOffset(frame_width * self.current_frame, 0.0)
+            self.sprite.SetTexScale(frame_width, 1.0)
 
     def play(self):
         self.playing = True
