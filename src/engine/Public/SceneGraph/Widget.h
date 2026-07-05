@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Input/InputCodes.h"
 #include "SceneGraph/Node.h"
 #include <functional>
 
@@ -33,11 +34,19 @@ public:
     void OnTouchMoved(TouchCallback cb);
     void OnTouchEnded(TouchCallback cb);
 
+    using KeyCallback = std::function<bool(Widget*, KeyCode)>;
+
+    void OnKeyDown(KeyCallback cb);
+    void OnKeyUp(KeyCallback cb);
+
     virtual bool HitTest(const Vec3& worldPoint);
 
     virtual void OnTouchStartedEvent(const Vec2& pos);
     virtual void OnTouchMovedEvent(const Vec2& pos);
     virtual void OnTouchEndedEvent(const Vec2& pos);
+
+    virtual bool OnKeyDownEvent(KeyCode key);
+    virtual bool OnKeyUpEvent(KeyCode key);
 
 protected:
     bool m_enabled = true;
@@ -50,4 +59,7 @@ protected:
     TouchCallback m_onTouchStarted;
     TouchCallback m_onTouchMoved;
     TouchCallback m_onTouchEnded;
+
+    KeyCallback m_onKeyDown;
+    KeyCallback m_onKeyUp;
 };

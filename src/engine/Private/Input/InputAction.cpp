@@ -34,3 +34,13 @@ void InputAction::Update() {
         }
     }
 }
+
+void InputAction::ForceComplete() {
+    if (IsActive()) {
+        m_prevValue = m_value;
+        m_value = InputActionValue();
+        for (std::size_t i = 0; i < m_onCompleted.size(); ++i) {
+            m_onCompleted[i](m_prevValue);
+        }
+    }
+}

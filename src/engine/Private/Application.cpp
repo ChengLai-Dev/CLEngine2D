@@ -4,6 +4,7 @@
 #include "Platform/Window.h"
 #include "Render/Renderer.h"
 #include "Audio/AudioEngine.h"
+#include "SceneGraph/UISystem.h"
 
 Application::Application() {
     Logger::Init();
@@ -34,7 +35,18 @@ void Application::Run() {
         float deltaTime = static_cast<float>(currentTime - lastTime);
 
         m_window->OnUpdate();
-        InputSystem::GetInstance().Update();
+
+        // Input mode routing
+        EInputMode mode = InputSystem::GetInstance().GetInputMode();
+        if (mode == EInputMode::GameAndUI || mode == EInputMode::UIOnly) {
+            InputSystem::GetInstance().ResetUIConsumedFlags();
+            UISystem::GetInstance().ProcessEvents();
+        }
+
+        if (mode != EInputMode::UIOnly) {
+            InputSystem::GetInstance().Update();
+        }
+
         OnUpdate(deltaTime);
         OnRender();
         lastTime = currentTime;

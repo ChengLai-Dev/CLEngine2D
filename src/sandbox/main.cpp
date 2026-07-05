@@ -114,6 +114,7 @@ protected:
         m_defaultContext->MapKey(m_moveAction, KeyCode::Left, Vec2(-1.0f, 0.0f));
 
         InputSystem::GetInstance().AddContext(m_defaultContext, 0);
+        m_moveAction->AccumulationBehavior = EInputActionAccumulationBehavior::Cumulative;
         m_moveAction->OnTriggered([this](const InputActionValue& val) {
             Vec2 dir = val.GetVec2();
             m_scene->SetMoveDir(dir.LengthSq() > 0.0f

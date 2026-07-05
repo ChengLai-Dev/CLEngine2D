@@ -1,8 +1,14 @@
 #pragma once
 
 #include "Math/Vec2.h"
+#include <cstdint>
 #include <functional>
 #include <vector>
+
+enum class EInputActionAccumulationBehavior : uint8_t {
+    TakeHighestAbsoluteValue,
+    Cumulative
+};
 
 struct InputActionValue {
     float x = 0.0f;
@@ -30,10 +36,15 @@ public:
     const InputActionValue& GetValue() const { return m_value; }
     bool IsActive() const { return !m_value.IsZero(); }
 
+    bool bConsumeInput = true;
+    EInputActionAccumulationBehavior AccumulationBehavior =
+        EInputActionAccumulationBehavior::TakeHighestAbsoluteValue;
+
 private:
     friend class InputSystem;
 
     void Update();
+    void ForceComplete();
 
     InputActionValue m_value;
     InputActionValue m_prevValue;

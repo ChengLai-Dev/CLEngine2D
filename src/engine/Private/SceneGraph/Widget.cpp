@@ -89,3 +89,25 @@ void Widget::OnTouchEndedEvent(const Vec2& pos) {
         m_onTouchEnded(this, pos);
     }
 }
+
+void Widget::OnKeyDown(KeyCallback cb) {
+    m_onKeyDown = std::move(cb);
+}
+
+void Widget::OnKeyUp(KeyCallback cb) {
+    m_onKeyUp = std::move(cb);
+}
+
+bool Widget::OnKeyDownEvent(KeyCode key) {
+    if (m_onKeyDown) {
+        return m_onKeyDown(this, key);
+    }
+    return false;
+}
+
+bool Widget::OnKeyUpEvent(KeyCode key) {
+    if (m_onKeyUp) {
+        return m_onKeyUp(this, key);
+    }
+    return false;
+}

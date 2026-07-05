@@ -1,5 +1,6 @@
 #include "SceneGraph/UISystem.h"
 #include "SceneGraph/Widget.h"
+#include "Input/InputSystem.h"
 #include "Input/RawInput.h"
 
 UISystem& UISystem::GetInstance() {
@@ -72,6 +73,28 @@ void UISystem::ProcessEvents() {
         }
     } else if (m_mouseDown && m_pressedWidget) {
         m_pressedWidget->OnTouchMovedEvent(Vec2(mousePos.x, mousePos.y));
+    }
+
+    ProcessKeyboardEvents();
+}
+
+void UISystem::ProcessKeyboardEvents() {
+    if (!m_focusedWidget) return;
+
+    for (uint16_t code = 0; code < 349; ++code) {
+        KeyCode key = static_cast<KeyCode>(code);
+
+        if (RawInput::IsKeyPressed(key)) {
+            if (m_focusedWidget->OnKeyDownEvent(key)) {
+                InputSystem::GetInstance().MarkKeyConsumedByUI(code, false);
+            }
+        }
+
+        if (RawInput::IsKeyReleased(key)) {
+            if (m_focusedWidget->OnKeyUpEvent(key)) {
+                InputSystem::GetInstance().MarkKeyConsumedByUI(code, false);
+            }
+        }
     }
 }
 

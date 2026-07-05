@@ -23,6 +23,7 @@ private:
     UISystem& operator=(const UISystem&) = delete;
 
     Widget* HitTestTree(Widget* root, const Vec3& worldPoint);
+    void ProcessKeyboardEvents();
 
     Widget* m_uiRoot = nullptr;
     Widget* m_pressedWidget = nullptr;

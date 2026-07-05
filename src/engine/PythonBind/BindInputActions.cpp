@@ -8,6 +8,15 @@ namespace py = pybind11;
 
 void RegisterInputActionsBindings(py::module_& m)
 {
+    py::enum_<EInputActionAccumulationBehavior>(m, "EInputActionAccumulationBehavior")
+        .value("TakeHighestAbsoluteValue", EInputActionAccumulationBehavior::TakeHighestAbsoluteValue)
+        .value("Cumulative", EInputActionAccumulationBehavior::Cumulative);
+
+    py::enum_<EInputMode>(m, "EInputMode")
+        .value("GameOnly", EInputMode::GameOnly)
+        .value("UIOnly", EInputMode::UIOnly)
+        .value("GameAndUI", EInputMode::GameAndUI);
+
     py::class_<InputActionValue>(m, "InputActionValue")
         .def(py::init<>())
         .def(py::init<float, float>(), py::arg("x") = 0.0f, py::arg("y") = 0.0f)
@@ -26,7 +35,9 @@ void RegisterInputActionsBindings(py::module_& m)
         .def("OnTriggered", &InputAction::OnTriggered, py::keep_alive<1, 2>())
         .def("OnCompleted", &InputAction::OnCompleted, py::keep_alive<1, 2>())
         .def("GetValue", &InputAction::GetValue, py::return_value_policy::reference)
-        .def("IsActive", &InputAction::IsActive);
+        .def("IsActive", &InputAction::IsActive)
+        .def_readwrite("bConsumeInput", &InputAction::bConsumeInput)
+        .def_readwrite("AccumulationBehavior", &InputAction::AccumulationBehavior);
 
     py::class_<InputMappingContext, std::shared_ptr<InputMappingContext>>(m, "InputMappingContext")
         .def(py::init<>())
@@ -35,7 +46,8 @@ void RegisterInputActionsBindings(py::module_& m)
              py::arg("scale") = Vec2(1.0f, 0.0f))
         .def("MapMouse", &InputMappingContext::MapMouse,
              py::arg("action"), py::arg("button"),
-             py::arg("scale") = Vec2(1.0f, 0.0f));
+             py::arg("scale") = Vec2(1.0f, 0.0f))
+        .def_readwrite("InputMode", &InputMappingContext::InputMode);
 
     py::class_<InputSystem>(m, "InputSystem")
         .def_static("GetInstance", &InputSystem::GetInstance,
@@ -43,6 +55,8 @@ void RegisterInputActionsBindings(py::module_& m)
         .def("AddContext", &InputSystem::AddContext,
              py::arg("context"), py::arg("priority") = 0)
         .def("RemoveContext", &InputSystem::RemoveContext)
+        .def("SetInputMode", &InputSystem::SetInputMode)
+        .def("GetInputMode", &InputSystem::GetInputMode)
         .def("Update", &InputSystem::Update)
         .def("Clear", &InputSystem::Clear);
 }

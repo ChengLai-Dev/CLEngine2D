@@ -8,21 +8,30 @@
 
 class InputAction;
 
+enum class EInputMode : uint8_t {
+    GameOnly,
+    UIOnly,
+    GameAndUI
+};
+
+enum class EDevice : uint8_t { Keyboard, Mouse };
+
+struct ActionMapping {
+    std::shared_ptr<InputAction> action;
+    EDevice device;
+    uint16_t code;
+    Vec2 scale;
+};
+
 class InputMappingContext {
 public:
-    struct Mapping {
-        std::shared_ptr<InputAction> action;
-        enum class Device : uint8_t { Keyboard, Mouse };
-        Device device;
-        uint16_t code;
-        Vec2 scale;
-    };
-
     void MapKey(std::shared_ptr<InputAction> action, KeyCode key, const Vec2& scale = Vec2(1.0f, 0.0f));
     void MapMouse(std::shared_ptr<InputAction> action, MouseCode button, const Vec2& scale = Vec2(1.0f, 0.0f));
 
-    const std::vector<Mapping>& GetMappings() const { return m_mappings; }
+    const std::vector<ActionMapping>& GetMappings() const { return m_mappings; }
+
+    EInputMode InputMode = EInputMode::GameOnly;
 
 private:
-    std::vector<Mapping> m_mappings;
+    std::vector<ActionMapping> m_mappings;
 };
