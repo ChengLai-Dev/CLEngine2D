@@ -22,6 +22,11 @@ Makefile
 __pycache__/
 *.pyc
 
+# Generated table data (keep data/__init__.py and defs/)
+scripts/tables/data/*.py
+!scripts/tables/data/__init__.py
+!scripts/tables/defs/
+
 # Compiled
 *.obj
 *.exe

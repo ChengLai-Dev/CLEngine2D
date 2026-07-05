@@ -73,3 +73,14 @@ add_subdirectory(src/font_debug)
 if(CLENGINE_BUILD_PYTHON)
     add_subdirectory(src/py_sandbox)
 endif()
+
+# Export game tables from Excel (requires pybind11 → Python_EXECUTABLE)
+if(CLENGINE_BUILD_PYTHON)
+    add_custom_target(export_tables ALL
+        COMMAND ${Python_EXECUTABLE}
+            "${CMAKE_SOURCE_DIR}/scripts/tools/export_tables.py"
+        COMMENT "Exporting game tables from Excel..."
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    )
+    add_dependencies(py_sandbox export_tables)
+endif()
