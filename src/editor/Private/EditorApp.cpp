@@ -37,7 +37,6 @@ void EditorApp::OnInit() {
     RenderCommand::SetBlend(true);
     RenderCommand::SetBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    m_editorCamera = std::make_unique<OrthographicCamera>(0.0f, 1280.0f, 720.0f, 0.0f);
     m_renderer = std::make_unique<Renderer>();
     m_renderer->Init();
 
@@ -49,27 +48,28 @@ void EditorApp::OnInit() {
 
     m_canvasView = std::make_unique<CanvasView>();
     m_canvasView->SetEditedScene(m_editedScene.get());
-    m_canvasView->SetViewRect(250.0f, 36.0f, 730.0f, 684.0f);
 
     m_propertyPanel = std::make_unique<PropertyPanel>();
-    m_propertyPanel->SetRect(980.0f, 36.0f, 300.0f, 684.0f);
 
     m_widgetTreePanel = std::make_unique<WidgetTreePanel>();
     m_widgetTreePanel->SetRoot(m_editedScene->GetRoot());
-    m_widgetTreePanel->SetRect(0.0f, 36.0f, 250.0f, 684.0f);
 
     m_widgetTreePanel->OnSelectionChanged([this](Node* node) {
         SelectNode(node);
     });
 
     m_toolbar = std::make_unique<Toolbar>();
-    m_toolbar->SetRect(0.0f, 0.0f, 1280.0f, 36.0f);
 
     m_toolbar->OnAction([this](ToolbarAction action) {
         OnToolbarAction(static_cast<int>(action));
     });
 
     GetWindow()->SetTitle("CLEngine2D UI Editor");
+
+    int winW = GetWindow()->GetWidth();
+    int winH = GetWindow()->GetHeight();
+    m_editorCamera = std::make_unique<OrthographicCamera>(0.0f, static_cast<float>(winW), static_cast<float>(winH), 0.0f);
+    RecalculateLayout(winW, winH);
 }
 
 void EditorApp::OnUpdate(float deltaTime) {
@@ -87,7 +87,10 @@ void EditorApp::OnUpdate(float deltaTime) {
         m_canvasView->Zoom(scrollY > 0.0f ? 1.1f : 0.9f);
     }
 
-    float canvasX = 250.0f, canvasY = 36.0f, canvasW = 730.0f, canvasH = 684.0f;
+    float canvasX = m_canvasView->GetViewX();
+    float canvasY = m_canvasView->GetViewY();
+    float canvasW = m_canvasView->GetViewW();
+    float canvasH = m_canvasView->GetViewH();
     bool inCanvas = mx >= canvasX && mx < canvasX + canvasW &&
                     my >= canvasY && my < canvasY + canvasH;
 
@@ -138,6 +141,8 @@ void EditorApp::OnRender() {
     m_toolbar->OnRender(*m_renderer);
 
     m_renderer->EndScene();
+
+    RenderCommand::SetViewport(0, 0, GetWindow()->GetWidth(), GetWindow()->GetHeight());
 }
 
 void EditorApp::OnShutdown() {
@@ -155,6 +160,31 @@ void EditorApp::SelectNode(Node* node) {
     m_selectedNode = node;
     m_propertyPanel->SetTarget(node);
     m_canvasView->GetGizmo()->SetTarget(node);
+}
+
+void EditorApp::RecalculateLayout(int windowW, int windowH) {
+    const float toolbarH = 36.0f;
+    const float leftPanelW = 250.0f;
+    const float rightPanelW = 300.0f;
+
+    m_toolbar->SetRect(0.0f, 0.0f, static_cast<float>(windowW), toolbarH);
+
+    m_widgetTreePanel->SetRect(0.0f, toolbarH, leftPanelW,
+                               static_cast<float>(windowH) - toolbarH);
+
+    m_propertyPanel->SetRect(static_cast<float>(windowW) - rightPanelW, toolbarH,
+                             rightPanelW, static_cast<float>(windowH) - toolbarH);
+
+    m_canvasView->SetViewRect(leftPanelW, toolbarH,
+                              static_cast<float>(windowW) - leftPanelW - rightPanelW,
+                              static_cast<float>(windowH) - toolbarH);
+
+    m_editorCamera->SetProjection(0.0f, static_cast<float>(windowW),
+                                  static_cast<float>(windowH), 0.0f);
+}
+
+void EditorApp::OnWindowResize(int width, int height) {
+    RecalculateLayout(width, height);
 }
 
 void EditorApp::OnToolbarAction(int action) {

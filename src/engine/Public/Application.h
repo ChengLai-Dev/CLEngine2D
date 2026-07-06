@@ -16,6 +16,7 @@ protected:
     virtual void OnUpdate(float deltaTime) { (void)deltaTime; }
     virtual void OnRender() {}
     virtual void OnShutdown() {}
+    virtual void OnWindowResize(int width, int height) { (void)width; (void)height; }
 
     Window* GetWindow() const { return m_window.get(); }
 

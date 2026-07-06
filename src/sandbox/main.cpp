@@ -82,7 +82,8 @@ protected:
 
         m_camera = std::unique_ptr<OrthographicCamera>(new OrthographicCamera(-16.0f, 16.0f, -9.0f, 9.0f));
         m_uiCamera = std::unique_ptr<OrthographicCamera>(
-            new OrthographicCamera(0.0f, 1280.0f, 720.0f, 0.0f)
+            new OrthographicCamera(0.0f, static_cast<float>(GetWindow()->GetWidth()),
+                                   static_cast<float>(GetWindow()->GetHeight()), 0.0f)
         );
         m_renderer = std::unique_ptr<Renderer>(new Renderer());
         m_renderer->Init();
@@ -167,6 +168,14 @@ protected:
             m_uiScene->OnRender(*m_renderer);
         }
         m_renderer->EndScene();
+    }
+
+    void OnWindowResize(int width, int height) override {
+        m_uiCamera->SetProjection(0.0f, static_cast<float>(width),
+                                  static_cast<float>(height), 0.0f);
+        if (m_uiScene) {
+            m_uiScene->SetWindowSize(width, height);
+        }
     }
 
     void OnShutdown() override {

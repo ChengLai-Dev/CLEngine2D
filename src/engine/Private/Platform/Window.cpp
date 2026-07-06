@@ -1,5 +1,6 @@
 #include "Platform/Window.h"
 #include "Input/RawInput.h"
+#include "Render/RenderCommand.h"
 #include "Utils.h"
 
 #include "Logger.h"
@@ -87,11 +88,19 @@ double Window::GetTime() {
     return glfwGetTime();
 }
 
+void Window::SetResizeCallback(ResizeCallback cb) {
+    m_resizeCallback = std::move(cb);
+}
+
 void Window::WindowResizeCallback(GLFWwindow* window, int width, int height) {
     Window* self = static_cast<Window*>(glfwGetWindowUserPointer(window));
     if (self) {
         self->m_width = width;
         self->m_height = height;
+        RenderCommand::SetViewport(0, 0, width, height);
+        if (self->m_resizeCallback) {
+            self->m_resizeCallback(width, height);
+        }
     }
 }
 

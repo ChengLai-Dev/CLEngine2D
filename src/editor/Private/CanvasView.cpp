@@ -8,7 +8,7 @@
 #include <glad/glad.h>
 
 CanvasView::CanvasView() {
-    m_camera = std::make_unique<OrthographicCamera>(0.0f, 1280.0f, 720.0f, 0.0f);
+    m_camera = std::make_unique<OrthographicCamera>(0.0f, 100.0f, 100.0f, 0.0f);
     m_gizmo = std::make_unique<Gizmo>();
 }
 
@@ -143,7 +143,6 @@ void CanvasView::OnRender(Renderer& renderer) {
     renderer.EndScene();
 
     RenderCommand::SetScissor(false);
-    RenderCommand::SetViewport(0, 0, 1280, 720);
 }
 
 Gizmo* CanvasView::GetGizmo() const {

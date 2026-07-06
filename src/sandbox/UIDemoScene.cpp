@@ -54,10 +54,16 @@ void UIDemoScene::SetupUI() {
     Logger::Info("UI Demo Scene initialized");
 }
 
+void UIDemoScene::SetWindowSize(int w, int h) {
+    m_windowWidth = w;
+    m_windowHeight = h;
+}
+
 void UIDemoScene::OnUpdate(float deltaTime) {
     Scene::OnUpdate(deltaTime);
 
-    m_canvas->UpdateLayout(Vec2(1280.0f, 720.0f));
+    m_canvas->UpdateLayout(Vec2(static_cast<float>(m_windowWidth),
+                                static_cast<float>(m_windowHeight)));
 
     UISystem::GetInstance().ProcessEvents();
 

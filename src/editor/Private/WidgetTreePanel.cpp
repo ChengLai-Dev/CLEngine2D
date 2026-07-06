@@ -6,7 +6,7 @@
 #include <Render/RenderCommand.h>
 
 WidgetTreePanel::WidgetTreePanel() {
-    m_camera = std::make_unique<OrthographicCamera>(0.0f, 250.0f, 720.0f, 0.0f);
+    m_camera = std::make_unique<OrthographicCamera>(0.0f, 100.0f, 100.0f, 0.0f);
 }
 
 WidgetTreePanel::~WidgetTreePanel() = default;
@@ -20,6 +20,7 @@ void WidgetTreePanel::SetRect(float x, float y, float w, float h) {
     m_rectY = y;
     m_rectW = w;
     m_rectH = h;
+    m_camera->SetProjection(0.0f, w, h, 0.0f);
 }
 
 void WidgetTreePanel::OnSelectionChanged(SelectionChangedCallback cb) {
@@ -77,6 +78,4 @@ void WidgetTreePanel::OnRender(Renderer& renderer) {
     }
 
     renderer.EndScene();
-
-    RenderCommand::SetViewport(0, 0, 1280, 720);
 }

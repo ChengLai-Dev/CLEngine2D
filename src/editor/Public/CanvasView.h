@@ -19,6 +19,10 @@ public:
     Scene* GetEditedScene() const;
 
     void SetViewRect(float x, float y, float w, float h);
+    float GetViewX() const { return m_viewX; }
+    float GetViewY() const { return m_viewY; }
+    float GetViewW() const { return m_viewW; }
+    float GetViewH() const { return m_viewH; }
 
     void Zoom(float factor);
     void Pan(const Vec2& delta);

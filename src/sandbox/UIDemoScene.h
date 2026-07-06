@@ -12,6 +12,7 @@ public:
     UIDemoScene();
     void OnUpdate(float deltaTime) override;
     void OnRender(Renderer& renderer) override;
+    void SetWindowSize(int w, int h);
 
 private:
     void SetupUI();
@@ -20,4 +21,6 @@ private:
     Button* m_testButton = nullptr;
     Label* m_statusLabel = nullptr;
     int m_clickCount = 0;
+    int m_windowWidth = 1280;
+    int m_windowHeight = 720;
 };

@@ -25,9 +25,10 @@ protected:
     void OnUpdate(float deltaTime) override;
     void OnRender() override;
     void OnShutdown() override;
+    void OnWindowResize(int width, int height) override;
 
 private:
-    void CreateEditorLayout();
+    void RecalculateLayout(int windowW, int windowH);
     void OnToolbarAction(int action);
     void SelectNode(Node* node);
     void AddWidgetToScene(const std::string& type);

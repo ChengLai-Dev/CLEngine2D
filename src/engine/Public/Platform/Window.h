@@ -1,16 +1,21 @@
 #pragma once
 
 #include <string>
+#include <functional>
 
 struct GLFWwindow;
 
 class Window {
 public:
+    using ResizeCallback = std::function<void(int width, int height)>;
+
     Window(const std::string& title, int width, int height);
     ~Window();
 
     void OnUpdate();
     bool ShouldClose() const;
+
+    void SetResizeCallback(ResizeCallback cb);
 
     int GetWidth() const;
     int GetHeight() const;
@@ -36,4 +41,5 @@ private:
     std::string m_title;
     int m_width;
     int m_height;
+    ResizeCallback m_resizeCallback;
 };

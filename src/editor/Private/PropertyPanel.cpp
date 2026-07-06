@@ -9,7 +9,7 @@
 #include <glad/glad.h>
 
 PropertyPanel::PropertyPanel() {
-    m_camera = std::make_unique<OrthographicCamera>(0.0f, 300.0f, 720.0f, 0.0f);
+    m_camera = std::make_unique<OrthographicCamera>(0.0f, 100.0f, 100.0f, 0.0f);
 }
 
 PropertyPanel::~PropertyPanel() = default;
@@ -27,6 +27,7 @@ void PropertyPanel::SetRect(float x, float y, float w, float h) {
     m_rectY = y;
     m_rectW = w;
     m_rectH = h;
+    m_camera->SetProjection(0.0f, w, h, 0.0f);
 }
 
 void PropertyPanel::OnPropertyChanged(PropertyChangedCallback cb) {
@@ -83,6 +84,4 @@ void PropertyPanel::OnRender(Renderer& renderer) {
     }
 
     renderer.EndScene();
-
-    RenderCommand::SetViewport(0, 0, 1280, 720);
 }

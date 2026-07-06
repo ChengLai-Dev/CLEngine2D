@@ -26,6 +26,10 @@ Application::~Application() {
 void Application::Run() {
     Logger::Info("Engine started");
 
+    m_window->SetResizeCallback([this](int w, int h) {
+        OnWindowResize(w, h);
+    });
+
     OnInit();
 
     double lastTime = Window::GetTime();
