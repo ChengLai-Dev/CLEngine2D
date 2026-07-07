@@ -122,7 +122,7 @@ void EditorApp::OnUpdate(float deltaTime) {
 
     if (rightDown && inCanvas) {
         Vec2 delta = mousePos - m_lastMousePos;
-        m_canvasView->Pan(delta * 0.5f);
+        m_canvasView->Pan(Vec2(-delta.x, delta.y) * 0.5f);
     }
 
     m_lastMousePos = mousePos;

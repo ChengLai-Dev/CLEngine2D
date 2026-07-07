@@ -1,0 +1,769 @@
+{
+  "name": "Character",
+  "version": "5.5",
+  "compatibleVersion": "5.5",
+  "frameRate": 30,
+  "armature": [
+    {
+      "name": "Armature",
+      "type": "Armature",
+      "frameRate": 30,
+      "bone": [
+        {
+          "name": "root",
+          "length": 0
+        },
+        {
+          "name": "bone_back_hair",
+          "parent": "root",
+          "length": 0,
+          "transform": {
+            "x": -18.0,
+            "y": -275.0
+          }
+        },
+        {
+          "name": "bone_legwear",
+          "parent": "root",
+          "length": 0,
+          "transform": {
+            "x": -35.0,
+            "y": 117.5
+          }
+        },
+        {
+          "name": "bone_footwear",
+          "parent": "root",
+          "length": 0,
+          "transform": {
+            "x": -20.5,
+            "y": 297.5
+          }
+        },
+        {
+          "name": "bone_topwear",
+          "parent": "root",
+          "length": 0,
+          "transform": {
+            "x": -70.5,
+            "y": -105.5
+          }
+        },
+        {
+          "name": "bone_handwear",
+          "parent": "root",
+          "length": 0,
+          "transform": {
+            "x": -10.5,
+            "y": -67.0
+          }
+        },
+        {
+          "name": "bone_objects",
+          "parent": "root",
+          "length": 0,
+          "transform": {
+            "x": -116.0,
+            "y": -114.0
+          }
+        },
+        {
+          "name": "bone_neck",
+          "parent": "root",
+          "length": 0,
+          "transform": {
+            "x": -31.5,
+            "y": -226.5
+          }
+        },
+        {
+          "name": "bone_head",
+          "parent": "root",
+          "length": 0,
+          "transform": {
+            "x": -11.0,
+            "y": -256.5
+          }
+        },
+        {
+          "name": "bone_ears",
+          "parent": "root",
+          "length": 0,
+          "transform": {
+            "x": -35.5,
+            "y": -256.0
+          }
+        },
+        {
+          "name": "bone_headwear",
+          "parent": "root",
+          "length": 0,
+          "transform": {
+            "x": -20.5,
+            "y": -264.5
+          }
+        },
+        {
+          "name": "bone_face",
+          "parent": "root",
+          "length": 0,
+          "transform": {
+            "x": -6.5,
+            "y": -258.0
+          }
+        },
+        {
+          "name": "bone_eyebrow",
+          "parent": "root",
+          "length": 0,
+          "transform": {
+            "x": 3.5,
+            "y": -266.5
+          }
+        },
+        {
+          "name": "bone_eyelash",
+          "parent": "root",
+          "length": 0,
+          "transform": {
+            "x": 2.0,
+            "y": -261.0
+          }
+        },
+        {
+          "name": "bone_mouth",
+          "parent": "root",
+          "length": 0,
+          "transform": {
+            "x": 6.0,
+            "y": -237.0
+          }
+        },
+        {
+          "name": "bone_front_hair",
+          "parent": "root",
+          "length": 0,
+          "transform": {
+            "x": -2.0,
+            "y": -281.5
+          }
+        }
+      ],
+      "slot": [
+        {
+          "name": "slot_back_hair",
+          "parent": "bone_back_hair"
+        },
+        {
+          "name": "slot_legwear",
+          "parent": "bone_legwear"
+        },
+        {
+          "name": "slot_footwear",
+          "parent": "bone_footwear"
+        },
+        {
+          "name": "slot_topwear",
+          "parent": "bone_topwear"
+        },
+        {
+          "name": "slot_handwear",
+          "parent": "bone_handwear"
+        },
+        {
+          "name": "slot_objects",
+          "parent": "bone_objects"
+        },
+        {
+          "name": "slot_neck",
+          "parent": "bone_neck"
+        },
+        {
+          "name": "slot_head",
+          "parent": "bone_head"
+        },
+        {
+          "name": "slot_ears",
+          "parent": "bone_ears"
+        },
+        {
+          "name": "slot_headwear",
+          "parent": "bone_headwear"
+        },
+        {
+          "name": "slot_face",
+          "parent": "bone_face"
+        },
+        {
+          "name": "slot_eyebrow",
+          "parent": "bone_eyebrow"
+        },
+        {
+          "name": "slot_eyelash",
+          "parent": "bone_eyelash"
+        },
+        {
+          "name": "slot_mouth",
+          "parent": "bone_mouth"
+        },
+        {
+          "name": "slot_front_hair",
+          "parent": "bone_front_hair"
+        }
+      ],
+      "skin": [
+        {
+          "slot": [
+            {
+              "name": "slot_back_hair",
+              "display": [
+                {
+                  "name": "back hair",
+                  "type": "image",
+                  "width": 93,
+                  "height": 79,
+                  "pivot": {
+                    "x": 0.4946,
+                    "y": 0.5063
+                  }
+                }
+              ]
+            },
+            {
+              "name": "slot_legwear",
+              "display": [
+                {
+                  "name": "legwear",
+                  "type": "image",
+                  "width": 157,
+                  "height": 270,
+                  "pivot": {
+                    "x": 0.4968,
+                    "y": 0.5019
+                  }
+                }
+              ]
+            },
+            {
+              "name": "slot_footwear",
+              "display": [
+                {
+                  "name": "footwear",
+                  "type": "image",
+                  "width": 180,
+                  "height": 116,
+                  "pivot": {
+                    "x": 0.4972,
+                    "y": 0.5043
+                  }
+                }
+              ]
+            },
+            {
+              "name": "slot_topwear",
+              "display": [
+                {
+                  "name": "topwear",
+                  "type": "image",
+                  "width": 234,
+                  "height": 276,
+                  "pivot": {
+                    "x": 0.4979,
+                    "y": 0.5018
+                  }
+                }
+              ]
+            },
+            {
+              "name": "slot_handwear",
+              "display": [
+                {
+                  "name": "handwear",
+                  "type": "image",
+                  "width": 300,
+                  "height": 243,
+                  "pivot": {
+                    "x": 0.4983,
+                    "y": 0.5021
+                  }
+                }
+              ]
+            },
+            {
+              "name": "slot_objects",
+              "display": [
+                {
+                  "name": "objects",
+                  "type": "image",
+                  "width": 143,
+                  "height": 205,
+                  "pivot": {
+                    "x": 0.4965,
+                    "y": 0.5024
+                  }
+                }
+              ]
+            },
+            {
+              "name": "slot_neck",
+              "display": [
+                {
+                  "name": "neck",
+                  "type": "image",
+                  "width": 52,
+                  "height": 70,
+                  "pivot": {
+                    "x": 0.4904,
+                    "y": 0.5071
+                  }
+                }
+              ]
+            },
+            {
+              "name": "slot_head",
+              "display": [
+                {
+                  "name": "head",
+                  "type": "image",
+                  "width": 63,
+                  "height": 74,
+                  "pivot": {
+                    "x": 0.4921,
+                    "y": 0.5068
+                  }
+                }
+              ]
+            },
+            {
+              "name": "slot_ears",
+              "display": [
+                {
+                  "name": "ears",
+                  "type": "image",
+                  "width": 16,
+                  "height": 25,
+                  "pivot": {
+                    "x": 0.4688,
+                    "y": 0.52
+                  }
+                }
+              ]
+            },
+            {
+              "name": "slot_headwear",
+              "display": [
+                {
+                  "name": "headwear",
+                  "type": "image",
+                  "width": 72,
+                  "height": 88,
+                  "pivot": {
+                    "x": 0.4931,
+                    "y": 0.5057
+                  }
+                }
+              ]
+            },
+            {
+              "name": "slot_face",
+              "display": [
+                {
+                  "name": "face",
+                  "type": "image",
+                  "width": 50,
+                  "height": 75,
+                  "pivot": {
+                    "x": 0.49,
+                    "y": 0.5067
+                  }
+                }
+              ]
+            },
+            {
+              "name": "slot_eyebrow",
+              "display": [
+                {
+                  "name": "eyebrow",
+                  "type": "image",
+                  "width": 16,
+                  "height": 4,
+                  "pivot": {
+                    "x": 0.4688,
+                    "y": 0.625
+                  }
+                }
+              ]
+            },
+            {
+              "name": "slot_eyelash",
+              "display": [
+                {
+                  "name": "eyelash",
+                  "type": "image",
+                  "width": 9,
+                  "height": 7,
+                  "pivot": {
+                    "x": 0.4444,
+                    "y": 0.5714
+                  }
+                }
+              ]
+            },
+            {
+              "name": "slot_mouth",
+              "display": [
+                {
+                  "name": "mouth",
+                  "type": "image",
+                  "width": 11,
+                  "height": 7,
+                  "pivot": {
+                    "x": 0.4545,
+                    "y": 0.5714
+                  }
+                }
+              ]
+            },
+            {
+              "name": "slot_front_hair",
+              "display": [
+                {
+                  "name": "front hair",
+                  "type": "image",
+                  "width": 61,
+                  "height": 58,
+                  "pivot": {
+                    "x": 0.4918,
+                    "y": 0.5086
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "animation": [
+        {
+          "name": "idle",
+          "duration": 1,
+          "playTimes": 0,
+          "bone": [
+            {
+              "name": "root",
+              "translateFrame": [
+                {
+                  "duration": 1,
+                  "tweenEasing": 0.0,
+                  "x": 0,
+                  "y": 0
+                }
+              ]
+            },
+            {
+              "name": "bone_back_hair",
+              "translateFrame": [
+                {
+                  "duration": 1,
+                  "tweenEasing": 0.0,
+                  "x": 0,
+                  "y": 0
+                }
+              ]
+            },
+            {
+              "name": "bone_legwear",
+              "translateFrame": [
+                {
+                  "duration": 1,
+                  "tweenEasing": 0.0,
+                  "x": 0,
+                  "y": 0
+                }
+              ]
+            },
+            {
+              "name": "bone_footwear",
+              "translateFrame": [
+                {
+                  "duration": 1,
+                  "tweenEasing": 0.0,
+                  "x": 0,
+                  "y": 0
+                }
+              ]
+            },
+            {
+              "name": "bone_topwear",
+              "translateFrame": [
+                {
+                  "duration": 1,
+                  "tweenEasing": 0.0,
+                  "x": 0,
+                  "y": 0
+                }
+              ]
+            },
+            {
+              "name": "bone_handwear",
+              "translateFrame": [
+                {
+                  "duration": 1,
+                  "tweenEasing": 0.0,
+                  "x": 0,
+                  "y": 0
+                }
+              ]
+            },
+            {
+              "name": "bone_objects",
+              "translateFrame": [
+                {
+                  "duration": 1,
+                  "tweenEasing": 0.0,
+                  "x": 0,
+                  "y": 0
+                }
+              ]
+            },
+            {
+              "name": "bone_neck",
+              "translateFrame": [
+                {
+                  "duration": 1,
+                  "tweenEasing": 0.0,
+                  "x": 0,
+                  "y": 0
+                }
+              ]
+            },
+            {
+              "name": "bone_head",
+              "translateFrame": [
+                {
+                  "duration": 1,
+                  "tweenEasing": 0.0,
+                  "x": 0,
+                  "y": 0
+                }
+              ]
+            },
+            {
+              "name": "bone_ears",
+              "translateFrame": [
+                {
+                  "duration": 1,
+                  "tweenEasing": 0.0,
+                  "x": 0,
+                  "y": 0
+                }
+              ]
+            },
+            {
+              "name": "bone_headwear",
+              "translateFrame": [
+                {
+                  "duration": 1,
+                  "tweenEasing": 0.0,
+                  "x": 0,
+                  "y": 0
+                }
+              ]
+            },
+            {
+              "name": "bone_face",
+              "translateFrame": [
+                {
+                  "duration": 1,
+                  "tweenEasing": 0.0,
+                  "x": 0,
+                  "y": 0
+                }
+              ]
+            },
+            {
+              "name": "bone_eyebrow",
+              "translateFrame": [
+                {
+                  "duration": 1,
+                  "tweenEasing": 0.0,
+                  "x": 0,
+                  "y": 0
+                }
+              ]
+            },
+            {
+              "name": "bone_eyelash",
+              "translateFrame": [
+                {
+                  "duration": 1,
+                  "tweenEasing": 0.0,
+                  "x": 0,
+                  "y": 0
+                }
+              ]
+            },
+            {
+              "name": "bone_mouth",
+              "translateFrame": [
+                {
+                  "duration": 1,
+                  "tweenEasing": 0.0,
+                  "x": 0,
+                  "y": 0
+                }
+              ]
+            },
+            {
+              "name": "bone_front_hair",
+              "translateFrame": [
+                {
+                  "duration": 1,
+                  "tweenEasing": 0.0,
+                  "x": 0,
+                  "y": 0
+                }
+              ]
+            }
+          ],
+          "slot": [
+            {
+              "name": "slot_back_hair",
+              "displayFrame": [
+                {
+                  "duration": 1,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "name": "slot_legwear",
+              "displayFrame": [
+                {
+                  "duration": 1,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "name": "slot_footwear",
+              "displayFrame": [
+                {
+                  "duration": 1,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "name": "slot_topwear",
+              "displayFrame": [
+                {
+                  "duration": 1,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "name": "slot_handwear",
+              "displayFrame": [
+                {
+                  "duration": 1,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "name": "slot_objects",
+              "displayFrame": [
+                {
+                  "duration": 1,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "name": "slot_neck",
+              "displayFrame": [
+                {
+                  "duration": 1,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "name": "slot_head",
+              "displayFrame": [
+                {
+                  "duration": 1,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "name": "slot_ears",
+              "displayFrame": [
+                {
+                  "duration": 1,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "name": "slot_headwear",
+              "displayFrame": [
+                {
+                  "duration": 1,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "name": "slot_face",
+              "displayFrame": [
+                {
+                  "duration": 1,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "name": "slot_eyebrow",
+              "displayFrame": [
+                {
+                  "duration": 1,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "name": "slot_eyelash",
+              "displayFrame": [
+                {
+                  "duration": 1,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "name": "slot_mouth",
+              "displayFrame": [
+                {
+                  "duration": 1,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "name": "slot_front_hair",
+              "displayFrame": [
+                {
+                  "duration": 1,
+                  "value": 0
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

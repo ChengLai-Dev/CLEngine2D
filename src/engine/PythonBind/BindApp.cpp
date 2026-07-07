@@ -31,6 +31,15 @@ PythonScriptApp::~PythonScriptApp()
     s_current = nullptr;
 }
 
+void PythonScriptApp::ReloadScripts()
+{
+    Logger::Info("Hot-reloading Python scripts...");
+    py::module_ hotreload = py::module_::import("engine_hotreload");
+    hotreload.attr("perform_reload")(m_scriptDir, m_moduleName);
+    loadScriptFunctions();
+    Logger::Info("Script hot-reload completed");
+}
+
 void PythonScriptApp::loadScriptFunctions()
 {
     py::module_ sys = py::module_::import("sys");

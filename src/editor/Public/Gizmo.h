@@ -38,6 +38,15 @@ public:
     bool IsDragging() const;
 
 private:
+    struct GizmoData {
+        Vec3 corners[4];
+        Vec3 handlePositions[8];
+        Vec3 edges[4][2];
+        float edgeLengths[4];
+        float edgeAngles[4];
+    };
+    GizmoData ComputeGizmoData() const;
+
     struct DragState {
         GizmoHandle::Type handle = GizmoHandle::NONE;
         Vec3 startPos;

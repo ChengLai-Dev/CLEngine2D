@@ -24,13 +24,12 @@ GizmoMode Gizmo::GetMode() const {
     return m_mode;
 }
 
-GizmoHandle::Type Gizmo::HitTestHandle(const Vec3& worldPoint) const {
-    if (!m_target) return GizmoHandle::NONE;
+Gizmo::GizmoData Gizmo::ComputeGizmoData() const {
+    GizmoData data;
 
     Vec2 size = m_target->GetContentSize();
     const Mat4& world = const_cast<Node*>(m_target)->GetWorldTransform();
 
-    Vec3 corners[4];
     float hw = size.x * 0.5f;
     float hh = size.y * 0.5f;
     Vec3 localCorners[4] = {
@@ -41,24 +40,45 @@ GizmoHandle::Type Gizmo::HitTestHandle(const Vec3& worldPoint) const {
     };
 
     for (int i = 0; i < 4; ++i) {
-        corners[i] = world.TransformPoint(localCorners[i]);
+        data.corners[i] = world.TransformPoint(localCorners[i]);
     }
 
-    float handleSize = 8.0f;
-    Vec3 handlePositions[8] = {
-        corners[0],                                      // TOP_LEFT
-        Vec3((corners[0].x + corners[1].x) * 0.5f, corners[0].y, 0.0f), // TOP_CENTER
-        corners[1],                                      // TOP_RIGHT
-        Vec3(corners[0].x, (corners[0].y + corners[3].y) * 0.5f, 0.0f), // MIDDLE_LEFT
-        Vec3(corners[1].x, (corners[1].y + corners[2].y) * 0.5f, 0.0f), // MIDDLE_RIGHT
-        corners[3],                                      // BOTTOM_LEFT
-        Vec3((corners[3].x + corners[2].x) * 0.5f, corners[3].y, 0.0f), // BOTTOM_CENTER
-        corners[2]                                       // BOTTOM_RIGHT
-    };
+    data.handlePositions[0] = data.corners[0];
+    data.handlePositions[1] = Vec3((data.corners[0].x + data.corners[1].x) * 0.5f, data.corners[0].y, 0.0f);
+    data.handlePositions[2] = data.corners[1];
+    data.handlePositions[3] = Vec3(data.corners[0].x, (data.corners[0].y + data.corners[3].y) * 0.5f, 0.0f);
+    data.handlePositions[4] = Vec3(data.corners[1].x, (data.corners[1].y + data.corners[2].y) * 0.5f, 0.0f);
+    data.handlePositions[5] = data.corners[3];
+    data.handlePositions[6] = Vec3((data.corners[3].x + data.corners[2].x) * 0.5f, data.corners[3].y, 0.0f);
+    data.handlePositions[7] = data.corners[2];
 
+    Vec3 edgePairs[4][2] = {
+        { data.corners[0], data.corners[1] },
+        { data.corners[1], data.corners[2] },
+        { data.corners[2], data.corners[3] },
+        { data.corners[3], data.corners[0] }
+    };
+    for (int e = 0; e < 4; ++e) {
+        data.edges[e][0] = edgePairs[e][0];
+        data.edges[e][1] = edgePairs[e][1];
+        float dx = edgePairs[e][1].x - edgePairs[e][0].x;
+        float dy = edgePairs[e][1].y - edgePairs[e][0].y;
+        data.edgeLengths[e] = std::sqrt(dx * dx + dy * dy);
+        data.edgeAngles[e] = std::atan2(dy, dx);
+    }
+
+    return data;
+}
+
+GizmoHandle::Type Gizmo::HitTestHandle(const Vec3& worldPoint) const {
+    if (!m_target) return GizmoHandle::NONE;
+
+    GizmoData data = ComputeGizmoData();
+
+    float handleSize = 8.0f;
     for (int i = 0; i < 8; ++i) {
-        float dx = worldPoint.x - handlePositions[i].x;
-        float dy = worldPoint.y - handlePositions[i].y;
+        float dx = worldPoint.x - data.handlePositions[i].x;
+        float dy = worldPoint.y - data.handlePositions[i].y;
         if (dx * dx + dy * dy < handleSize * handleSize) {
             return static_cast<GizmoHandle::Type>(i);
         }
@@ -99,70 +119,27 @@ void Gizmo::EndDrag() {
 void Gizmo::Draw(Renderer& renderer, const OrthographicCamera& camera) {
     if (!m_target) return;
 
-    Vec2 size = m_target->GetContentSize();
-    const Mat4& world = const_cast<Node*>(m_target)->GetWorldTransform();
-
-    float hw = size.x * 0.5f;
-    float hh = size.y * 0.5f;
-    Vec3 localCorners[4] = {
-        Vec3(-hw, -hh, 0.0f),
-        Vec3( hw, -hh, 0.0f),
-        Vec3( hw,  hh, 0.0f),
-        Vec3(-hw,  hh, 0.0f)
-    };
-
-    Vec3 corners[4];
-    for (int i = 0; i < 4; ++i) {
-        corners[i] = world.TransformPoint(localCorners[i]);
-    }
+    GizmoData data = ComputeGizmoData();
 
     float selectColor[4] = { 1.0f, 0.5f, 0.0f, 1.0f };
 
-    Vec2 edgeSize(2.0f, 0.0f);
-
-    Vec3 edges[4][2] = {
-        { corners[0], corners[1] },
-        { corners[1], corners[2] },
-        { corners[2], corners[3] },
-        { corners[3], corners[0] }
-    };
-
     for (int e = 0; e < 4; ++e) {
         Vec3 mid = Vec3(
-            (edges[e][0].x + edges[e][1].x) * 0.5f,
-            (edges[e][0].y + edges[e][1].y) * 0.5f,
+            (data.edges[e][0].x + data.edges[e][1].x) * 0.5f,
+            (data.edges[e][0].y + data.edges[e][1].y) * 0.5f,
             0.0f
         );
-        float dx = edges[e][1].x - edges[e][0].x;
-        float dy = edges[e][1].y - edges[e][0].y;
-        float len = std::sqrt(dx * dx + dy * dy);
-        if (len > 0.0f) {
-            float angle = std::atan2(dy, dx);
-            Mat4 edgeTransform =
-                Mat4::Translate(mid) *
-                Mat4::RotateZ(angle);
-            renderer.DrawQuad(edgeTransform, Vec2(len, 3.0f),
+        if (data.edgeLengths[e] > 0.0f) {
+            Mat4 edgeTransform = Mat4::Translate(mid) * Mat4::RotateZ(data.edgeAngles[e]);
+            renderer.DrawQuad(edgeTransform, Vec2(data.edgeLengths[e], 3.0f),
                               nullptr, selectColor,
                               0.0f, 0.0f, 1.0f, 1.0f);
         }
     }
 
     float handleColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-    Vec3 handlePositions[8] = {
-        corners[0],
-        Vec3((corners[0].x + corners[1].x) * 0.5f, corners[0].y, 0.0f),
-        corners[1],
-        Vec3(corners[0].x, (corners[0].y + corners[3].y) * 0.5f, 0.0f),
-        Vec3(corners[1].x, (corners[1].y + corners[2].y) * 0.5f, 0.0f),
-        corners[3],
-        Vec3((corners[3].x + corners[2].x) * 0.5f, corners[3].y, 0.0f),
-        corners[2]
-    };
-
     for (int i = 0; i < 8; ++i) {
-        Mat4 handleTransform =
-            Mat4::Translate(handlePositions[i]) *
-            Mat4::Scale(Vec3(6.0f, 6.0f, 1.0f));
+        Mat4 handleTransform = Mat4::Translate(data.handlePositions[i]) * Mat4::Scale(Vec3(6.0f, 6.0f, 1.0f));
         renderer.DrawQuad(handleTransform, Vec2(6.0f, 6.0f),
                           nullptr, handleColor,
                           0.0f, 0.0f, 1.0f, 1.0f);

@@ -224,6 +224,10 @@ void InputSystem::Update() {
     }
 }
 
+void InputSystem::EndFrame() {
+    RawInput::EndFrame();
+}
+
 void InputSystem::Clear() {
     m_contexts.clear();
     m_compiledMappings.clear();

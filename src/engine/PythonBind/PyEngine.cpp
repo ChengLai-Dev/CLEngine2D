@@ -25,6 +25,11 @@ PYBIND11_EMBEDDED_MODULE(CLEngine, m)
         return app ? app->GetFPS() : 0.0f;
     });
 
+    m.def("ReloadScripts", []() {
+        PythonScriptApp* app = PythonScriptApp::GetCurrent();
+        if (app) app->ReloadScripts();
+    });
+
     // Sub-modules
     auto math = m.def_submodule("Math", "Math types: Vec2, Vec3, Mat4");
     RegisterMathBindings(math);

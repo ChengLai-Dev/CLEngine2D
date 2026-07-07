@@ -37,7 +37,13 @@ void RegisterRendererBindings(py::module_& m)
             float color[4] = {r_, g_, b_, a_};
             r.DrawQuad(Vec3(x, y, 0.0f), Vec3(w, h, 1.0f), 0.0f,
                        tex, color);
-        }, "Draw a textured quad at (x,y) with size (w,h)");
+        }, "Draw a textured quad at (x,y) with size (w,h)")
+        .def("DrawLine", [](Renderer& r,
+                              float x1, float y1, float x2, float y2,
+                              float r_, float g_, float b_, float a_) {
+            float color[4] = {r_, g_, b_, a_};
+            r.DrawLine(Vec3(x1, y1, 0.0f), Vec3(x2, y2, 0.0f), color);
+        }, "Draw a line from (x1,y1) to (x2,y2)");
 
     m.def("SetClearColor", [](float r, float g, float b, float a) {
         RenderCommand::SetClearColor(r, g, b, a);

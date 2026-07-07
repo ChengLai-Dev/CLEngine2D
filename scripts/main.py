@@ -17,6 +17,21 @@ from CLEngine.Renderer import SetClearColor, GetRenderer, GetGameCamera
 import CLEngine
 
 
+# -- Hot-reload trigger state --
+_reload_ctx = None
+
+
+def _setup_reload_trigger():
+    global _reload_ctx
+    if _reload_ctx is not None:
+        InputSystem.GetInstance().RemoveContext(_reload_ctx)
+    reload_action = InputAction()
+    reload_action.OnTriggered(lambda value: CLEngine.ReloadScripts())
+    _reload_ctx = InputMappingContext()
+    _reload_ctx.MapKey(reload_action, KeyCode.F5, Vec2(1, 0))
+    InputSystem.GetInstance().AddContext(_reload_ctx)
+
+
 # -- Game state --
 scene = None
 player = None
@@ -70,6 +85,12 @@ def on_init():
     InputSystem.GetInstance().AddContext(ctx)
 
     SceneManager.GetInstance().PushScene(scene)
+
+    _setup_reload_trigger()
+
+
+def on_reload(new_module):
+    _setup_reload_trigger()
 
 
 def on_update(dt):

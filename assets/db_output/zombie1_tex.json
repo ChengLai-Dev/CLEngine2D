@@ -1,0 +1,80 @@
+{
+  "name": "zombie1_tex",
+  "imagePath": "zombie1_tex.png",
+  "width": 1015,
+  "height": 495,
+  "SubTexture": [
+    {
+      "name": "face",
+      "x": 0,
+      "y": 0,
+      "width": 139,
+      "height": 183,
+      "frameWidth": 768,
+      "frameHeight": 768
+    },
+    {
+      "name": "handwear",
+      "x": 141,
+      "y": 0,
+      "width": 295,
+      "height": 334,
+      "frameWidth": 768,
+      "frameHeight": 768
+    },
+    {
+      "name": "head",
+      "x": 438,
+      "y": 0,
+      "width": 113,
+      "height": 137,
+      "frameWidth": 768,
+      "frameHeight": 768
+    },
+    {
+      "name": "headwear",
+      "x": 553,
+      "y": 0,
+      "width": 161,
+      "height": 192,
+      "frameWidth": 768,
+      "frameHeight": 768
+    },
+    {
+      "name": "mouth",
+      "x": 716,
+      "y": 0,
+      "width": 29,
+      "height": 13,
+      "frameWidth": 768,
+      "frameHeight": 768
+    },
+    {
+      "name": "neck",
+      "x": 747,
+      "y": 0,
+      "width": 62,
+      "height": 61,
+      "frameWidth": 768,
+      "frameHeight": 768
+    },
+    {
+      "name": "nose",
+      "x": 811,
+      "y": 0,
+      "width": 8,
+      "height": 14,
+      "frameWidth": 768,
+      "frameHeight": 768
+    },
+    {
+      "name": "topwear",
+      "x": 821,
+      "y": 0,
+      "width": 194,
+      "height": 495,
+      "frameWidth": 768,
+      "frameHeight": 768
+    }
+  ]
+}

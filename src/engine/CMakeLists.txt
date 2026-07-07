@@ -80,6 +80,15 @@ add_library(engine STATIC
     Private/Animator.cpp
     Public/TiledMap.h
     Private/TiledMap.cpp
+    Public/SceneGraph/DBArmatureNode.h
+    Private/SceneGraph/DBArmatureNode.cpp
+    Public/SceneGraph/DragonBones/internal.h
+    Public/SceneGraph/DragonBones/CLEngine2DSlot.h
+    Private/SceneGraph/DragonBones/CLEngine2DSlot.cpp
+    Public/SceneGraph/DragonBones/CLEngine2DTextureAtlasData.h
+    Private/SceneGraph/DragonBones/CLEngine2DTextureAtlasData.cpp
+    Public/SceneGraph/DragonBones/CLEngine2DFactory.h
+    Private/SceneGraph/DragonBones/CLEngine2DFactory.cpp
 )
 
 target_include_directories(engine PUBLIC
@@ -92,4 +101,4 @@ target_include_directories(engine PRIVATE
     ${CMAKE_SOURCE_DIR}/third_party/stb_truetype
 )
 
-target_link_libraries(engine PUBLIC glfw glad stb_image)
+target_link_libraries(engine PUBLIC glfw glad stb_image dragonbones)

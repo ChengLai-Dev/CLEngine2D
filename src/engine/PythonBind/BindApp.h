@@ -25,6 +25,8 @@ public:
 
     static PythonScriptApp* GetCurrent() { return s_current; }
 
+    void ReloadScripts();
+
 protected:
     void OnInit() override;
     void OnUpdate(float deltaTime) override;

@@ -4,6 +4,8 @@
 #include "Math/Vec3.h"
 #include "Math/Mat4.h"
 
+#include <glad/glad.h>
+
 #include <memory>
 #include <vector>
 #include <array>
@@ -47,10 +49,17 @@ public:
                   float texOffsetX = 0.0f, float texOffsetY = 0.0f,
                   float texScaleX = 1.0f, float texScaleY = 1.0f);
 
+    void DrawLine(const Vec3& from, const Vec3& to, const float color[4]);
+
+    void DrawTriangles(const QuadVertex* vertices, unsigned int vertexCount,
+                       const unsigned int* indices, unsigned int indexCount,
+                       Texture* texture);
+
     void Flush();
 
 private:
     void CreateBuffers();
+    void CreateLineBuffers();
     void ResetBatch();
 
     unsigned int m_maxQuads;
@@ -65,8 +74,21 @@ private:
     std::vector<QuadVertex> m_quadVertexBuffer;
     unsigned int m_quadCount = 0;
 
+    unsigned int m_maxLines;
+    unsigned int m_maxLineVertices;
+    std::vector<QuadVertex> m_lineVertexBuffer;
+    unsigned int m_lineCount = 0;
+    std::unique_ptr<VertexArray> m_lineVAO = nullptr;
+    std::unique_ptr<VertexBuffer> m_lineVBO = nullptr;
+
     std::array<Texture*, MAX_TEXTURE_SLOTS> m_textureSlots = {};
     unsigned int m_textureSlotCount = 0;
 
     std::unique_ptr<Texture> m_whiteTexture = nullptr;
+
+    // Mesh drawing (for DragonBones / Spine)
+    std::unique_ptr<VertexArray> m_meshVAO = nullptr;
+    std::unique_ptr<VertexBuffer> m_meshVBO = nullptr;
+    GLuint m_meshIBO_id = 0;
+    unsigned int m_meshVBOCapacity = 0;
 };

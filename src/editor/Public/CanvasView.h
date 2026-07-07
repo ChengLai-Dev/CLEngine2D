@@ -48,7 +48,7 @@ private:
     float m_viewH = 720.0f;
 
     float m_zoomLevel = 1.0f;
-    Vec2 m_panOffset = Vec2(0.0f, 0.0f);
+    Vec2 m_viewCenter = Vec2(0.0f, 0.0f);
 
     float m_gridSize = 50.0f;
 };

@@ -1,0 +1,305 @@
+{
+  "name": "Character",
+  "version": "5.5",
+  "compatibleVersion": "5.5",
+  "frameRate": 30,
+  "armature": [
+    {
+      "name": "Armature",
+      "type": "Armature",
+      "frameRate": 30,
+      "bone": [
+        {
+          "name": "root",
+          "length": 0
+        }
+      ],
+      "slot": [
+        {
+          "name": "slot_topwear",
+          "parent": "root"
+        },
+        {
+          "name": "slot_handwear",
+          "parent": "root"
+        },
+        {
+          "name": "slot_neck",
+          "parent": "root"
+        },
+        {
+          "name": "slot_head",
+          "parent": "root"
+        },
+        {
+          "name": "slot_headwear",
+          "parent": "root"
+        },
+        {
+          "name": "slot_face",
+          "parent": "root"
+        },
+        {
+          "name": "slot_nose",
+          "parent": "root"
+        },
+        {
+          "name": "slot_mouth",
+          "parent": "root"
+        }
+      ],
+      "skin": [
+        {
+          "slot": [
+            {
+              "name": "slot_topwear",
+              "display": [
+                {
+                  "name": "topwear",
+                  "type": "image",
+                  "width": 194,
+                  "height": 495,
+                  "transform": {
+                    "x": -5.5,
+                    "y": -17.0
+                  },
+                  "pivot": {
+                    "x": 0.4974,
+                    "y": 0.501
+                  }
+                }
+              ]
+            },
+            {
+              "name": "slot_handwear",
+              "display": [
+                {
+                  "name": "handwear",
+                  "type": "image",
+                  "width": 295,
+                  "height": 334,
+                  "transform": {
+                    "x": -3.0,
+                    "y": 29.5
+                  },
+                  "pivot": {
+                    "x": 0.4983,
+                    "y": 0.5015
+                  }
+                }
+              ]
+            },
+            {
+              "name": "slot_neck",
+              "display": [
+                {
+                  "name": "neck",
+                  "type": "image",
+                  "width": 62,
+                  "height": 61,
+                  "transform": {
+                    "x": 18.5,
+                    "y": 225.0
+                  },
+                  "pivot": {
+                    "x": 0.4919,
+                    "y": 0.5082
+                  }
+                }
+              ]
+            },
+            {
+              "name": "slot_head",
+              "display": [
+                {
+                  "name": "head",
+                  "type": "image",
+                  "width": 113,
+                  "height": 137,
+                  "transform": {
+                    "x": 41.0,
+                    "y": 258.0
+                  },
+                  "pivot": {
+                    "x": 0.4956,
+                    "y": 0.5036
+                  }
+                }
+              ]
+            },
+            {
+              "name": "slot_headwear",
+              "display": [
+                {
+                  "name": "headwear",
+                  "type": "image",
+                  "width": 161,
+                  "height": 192,
+                  "transform": {
+                    "x": 40.0,
+                    "y": 258.5
+                  },
+                  "pivot": {
+                    "x": 0.4969,
+                    "y": 0.5026
+                  }
+                }
+              ]
+            },
+            {
+              "name": "slot_face",
+              "display": [
+                {
+                  "name": "face",
+                  "type": "image",
+                  "width": 139,
+                  "height": 183,
+                  "transform": {
+                    "x": 51.0,
+                    "y": 263.0
+                  },
+                  "pivot": {
+                    "x": 0.4964,
+                    "y": 0.5027
+                  }
+                }
+              ]
+            },
+            {
+              "name": "slot_nose",
+              "display": [
+                {
+                  "name": "nose",
+                  "type": "image",
+                  "width": 8,
+                  "height": 14,
+                  "transform": {
+                    "x": 77.5,
+                    "y": 230.5
+                  },
+                  "pivot": {
+                    "x": 0.4375,
+                    "y": 0.5357
+                  }
+                }
+              ]
+            },
+            {
+              "name": "slot_mouth",
+              "display": [
+                {
+                  "name": "mouth",
+                  "type": "image",
+                  "width": 29,
+                  "height": 13,
+                  "transform": {
+                    "x": 68.0,
+                    "y": 216.0
+                  },
+                  "pivot": {
+                    "x": 0.4828,
+                    "y": 0.5385
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "animation": [
+        {
+          "name": "idle",
+          "duration": 1,
+          "playTimes": 0,
+          "bone": [
+            {
+              "name": "root",
+              "translateFrame": [
+                {
+                  "duration": 1,
+                  "tweenEasing": 0.0,
+                  "x": 0,
+                  "y": 0
+                }
+              ]
+            }
+          ],
+          "slot": [
+            {
+              "name": "slot_topwear",
+              "displayFrame": [
+                {
+                  "duration": 1,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "name": "slot_handwear",
+              "displayFrame": [
+                {
+                  "duration": 1,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "name": "slot_neck",
+              "displayFrame": [
+                {
+                  "duration": 1,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "name": "slot_head",
+              "displayFrame": [
+                {
+                  "duration": 1,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "name": "slot_headwear",
+              "displayFrame": [
+                {
+                  "duration": 1,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "name": "slot_face",
+              "displayFrame": [
+                {
+                  "duration": 1,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "name": "slot_nose",
+              "displayFrame": [
+                {
+                  "duration": 1,
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "name": "slot_mouth",
+              "displayFrame": [
+                {
+                  "duration": 1,
+                  "value": 0
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

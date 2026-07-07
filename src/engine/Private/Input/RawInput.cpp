@@ -62,6 +62,11 @@ float RawInput::GetScrollDeltaY() {
     return static_cast<float>(s_state.scrollY);
 }
 
+void RawInput::EndFrame() {
+    s_state.scrollX = 0.0;
+    s_state.scrollY = 0.0;
+}
+
 bool RawInput::IsGamepadConnected(int gamepadIndex) {
     if (gamepadIndex < 0 || gamepadIndex >= GAMEPAD_COUNT) return false;
     return s_gamepadConnected[gamepadIndex];
@@ -175,9 +180,6 @@ void RawInput::Update() {
                 break;
         }
     }
-
-    s_state.scrollX = 0.0;
-    s_state.scrollY = 0.0;
 
     for (int i = 0; i < GAMEPAD_COUNT; ++i) {
         s_gamepadConnected[i] = (glfwJoystickPresent(GLFW_JOYSTICK_1 + i) &&

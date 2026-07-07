@@ -58,12 +58,15 @@ const char* Logger::LevelPrefix(LogLevel level) {
     return "[?]";
 }
 
-void Logger::LogV(LogLevel level, std::string_view fmt, std::format_args args) {
-    LogImpl(level, std::vformat(fmt, args));
+void Logger::LogV(LogLevel level, std::string_view fmt, std::format_args args, const std::source_location& loc) {
+    LogImpl(level, std::vformat(fmt, args), loc);
 }
 
-void Logger::LogImpl(LogLevel level, std::string&& msg) {
-    std::string text = std::format("{} {} {}", Utils::CurrentTimeString(), LevelPrefix(level), msg);
+void Logger::LogImpl(LogLevel level, std::string&& msg, const std::source_location& loc) {
+    std::string_view filepath(loc.file_name());
+    auto sepPos = filepath.find_last_of("/\\");
+    std::string_view filename = (sepPos != std::string_view::npos) ? filepath.substr(sepPos + 1) : filepath;
+    std::string text = std::format("{} {} [{}:{}] {}", Utils::CurrentTimeString(), LevelPrefix(level), filename, loc.line(), msg);
 
     if (level >= s_minStackTraceLogLevel) {
         text = std::format("-----------TraceBack Begin-----------\n"

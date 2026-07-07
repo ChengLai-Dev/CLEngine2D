@@ -36,20 +36,20 @@ void CanvasView::Zoom(float factor) {
 }
 
 void CanvasView::Pan(const Vec2& delta) {
-    m_panOffset += delta;
+    m_viewCenter += delta;
 }
 
 void CanvasView::ResetView() {
     m_zoomLevel = 1.0f;
-    m_panOffset = Vec2(0.0f, 0.0f);
+    m_viewCenter = Vec2(0.0f, 0.0f);
 }
 
 Vec3 CanvasView::ScreenToWorld(const Vec2& screenPos) const {
     float halfW = m_viewW * 0.5f;
     float halfH = m_viewH * 0.5f;
 
-    float worldX = (screenPos.x - m_viewX - halfW) / m_zoomLevel + m_panOffset.x;
-    float worldY = (screenPos.y - m_viewY - halfH) / m_zoomLevel + m_panOffset.y;
+    float worldX = (screenPos.x - m_viewX - halfW) / m_zoomLevel + m_viewCenter.x;
+    float worldY = (screenPos.y - m_viewY - halfH) / m_zoomLevel + m_viewCenter.y;
 
     return Vec3(worldX, worldY, 0.0f);
 }
@@ -62,10 +62,12 @@ void CanvasView::DrawGrid(Renderer& renderer) {
     float gridColor[4] = { 0.3f, 0.3f, 0.35f, 0.5f };
     float centerColor[4] = { 0.5f, 0.5f, 0.6f, 0.8f };
 
-    float left = -m_panOffset.x * m_zoomLevel - m_viewW * 0.5f;
-    float right = -m_panOffset.x * m_zoomLevel + m_viewW * 0.5f;
-    float bottom = -m_panOffset.y * m_zoomLevel - m_viewH * 0.5f;
-    float top = -m_panOffset.y * m_zoomLevel + m_viewH * 0.5f;
+    float halfW = m_viewW * 0.5f / m_zoomLevel;
+    float halfH = m_viewH * 0.5f / m_zoomLevel;
+    float left = -halfW + m_viewCenter.x;
+    float right = halfW + m_viewCenter.x;
+    float bottom = -halfH + m_viewCenter.y;
+    float top = halfH + m_viewCenter.y;
 
     float spacedGrid = m_gridSize * m_zoomLevel;
 
@@ -73,52 +75,32 @@ void CanvasView::DrawGrid(Renderer& renderer) {
     float startY = std::floor(bottom / spacedGrid) * spacedGrid;
 
     for (float x = startX; x <= right; x += spacedGrid) {
-        float len = top - bottom;
-        Vec3 start(x, bottom, 0.0f);
-        Vec3 end(x, top, 0.0f);
-        Mat4 transform = Mat4::Translate(Vec3((start.x + end.x) * 0.5f, (start.y + end.y) * 0.5f, 0.0f));
-        renderer.DrawQuad(transform, Vec2(1.0f, len),
-                          nullptr, gridColor,
-                          0.0f, 0.0f, 1.0f, 1.0f);
+        renderer.DrawLine(Vec3(x, bottom, 0.0f), Vec3(x, top, 0.0f), gridColor);
     }
 
     for (float y = startY; y <= top; y += spacedGrid) {
-        float len = right - left;
-        Vec3 start(left, y, 0.0f);
-        Vec3 end(right, y, 0.0f);
-        Mat4 transform = Mat4::Translate(Vec3((start.x + end.x) * 0.5f, (start.y + end.y) * 0.5f, 0.0f));
-        renderer.DrawQuad(transform, Vec2(len, 1.0f),
-                          nullptr, gridColor,
-                          0.0f, 0.0f, 1.0f, 1.0f);
+        renderer.DrawLine(Vec3(left, y, 0.0f), Vec3(right, y, 0.0f), gridColor);
     }
 
-    {
-        Mat4 cx = Mat4::Translate(Vec3(0.0f, (top + bottom) * 0.5f, 0.0f));
-        renderer.DrawQuad(cx, Vec2(right - left, 2.0f),
-                          nullptr, centerColor,
-                          0.0f, 0.0f, 1.0f, 1.0f);
-    }
-    {
-        Mat4 cy = Mat4::Translate(Vec3((left + right) * 0.5f, 0.0f, 0.0f));
-        renderer.DrawQuad(cy, Vec2(2.0f, top - bottom),
-                          nullptr, centerColor,
-                          0.0f, 0.0f, 1.0f, 1.0f);
-    }
+    float cx = (left + right) * 0.5f;
+    float cy = (top + bottom) * 0.5f;
+    renderer.DrawLine(Vec3(left, cy, 0.0f), Vec3(right, cy, 0.0f), centerColor);
+    renderer.DrawLine(Vec3(cx, bottom, 0.0f), Vec3(cx, top, 0.0f), centerColor);
 }
 
 void CanvasView::OnRender(Renderer& renderer) {
     if (!m_editedScene) return;
 
-    float left = -m_panOffset.x * m_viewW * 0.5f;
-    float right = m_viewW * 0.5f / m_zoomLevel + m_panOffset.x;
-    float bottom = m_viewH * 0.5f / m_zoomLevel + m_panOffset.y;
-    float top = -m_panOffset.y * m_viewH * 0.5f;
+    float left = -m_viewCenter.x * m_viewW * 0.5f;
+    float right = m_viewW * 0.5f / m_zoomLevel + m_viewCenter.x;
+    float bottom = m_viewH * 0.5f / m_zoomLevel + m_viewCenter.y;
+    float top = -m_viewCenter.y * m_viewH * 0.5f;
 
     m_camera->SetProjection(
-        -m_viewW * 0.5f / m_zoomLevel + m_panOffset.x,
-        m_viewW * 0.5f / m_zoomLevel + m_panOffset.x,
-        -m_viewH * 0.5f / m_zoomLevel + m_panOffset.y,
-        m_viewH * 0.5f / m_zoomLevel + m_panOffset.y
+        -m_viewW * 0.5f / m_zoomLevel + m_viewCenter.x,
+        m_viewW * 0.5f / m_zoomLevel + m_viewCenter.x,
+        -m_viewH * 0.5f / m_zoomLevel + m_viewCenter.y,
+        m_viewH * 0.5f / m_zoomLevel + m_viewCenter.y
     );
 
     RenderCommand::SetViewport(

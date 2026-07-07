@@ -59,7 +59,9 @@ bool Renderer::InitGL() {
 Renderer::Renderer(unsigned int initialQuadCapacity)
     : m_maxQuads(initialQuadCapacity)
     , m_maxVertices(initialQuadCapacity * 4)
-    , m_maxIndices(initialQuadCapacity * 6) {
+    , m_maxIndices(initialQuadCapacity * 6)
+    , m_maxLines(initialQuadCapacity)
+    , m_maxLineVertices(initialQuadCapacity * 2) {
 }
 
 Renderer::~Renderer() {
@@ -71,6 +73,9 @@ void Renderer::Init() {
 
     m_quadVertexBuffer.resize(m_maxVertices);
     CreateBuffers();
+
+    m_lineVertexBuffer.resize(m_maxLineVertices);
+    CreateLineBuffers();
 
     unsigned char whitePixel[4] = { 255, 255, 255, 255 };
     m_whiteTexture = std::unique_ptr<Texture>(new Texture(1, 1, whitePixel));
@@ -118,6 +123,20 @@ void Renderer::CreateBuffers() {
     m_vertexArray->SetIndexBuffer(m_indexBuffer.get());
 }
 
+void Renderer::CreateLineBuffers() {
+    m_lineVAO = std::unique_ptr<VertexArray>(new VertexArray());
+    m_lineVBO = std::unique_ptr<VertexBuffer>(new VertexBuffer(nullptr, m_maxLineVertices * sizeof(QuadVertex)));
+
+    BufferLayout lineLayout = {
+        { ShaderDataType::Float3, "a_Position" },
+        { ShaderDataType::Float2, "a_TexCoord" },
+        { ShaderDataType::Float,  "a_TexIndex" },
+        { ShaderDataType::Float4, "a_Color" }
+    };
+    m_lineVBO->SetLayout(lineLayout);
+    m_lineVAO->AddVertexBuffer(m_lineVBO.get());
+}
+
 void Renderer::Shutdown() {
     m_whiteTexture.reset();
     m_shader.reset();
@@ -125,6 +144,9 @@ void Renderer::Shutdown() {
     m_vertexBuffer.reset();
     m_indexBuffer.reset();
     m_quadVertexBuffer.clear();
+    m_lineVAO.reset();
+    m_lineVBO.reset();
+    m_lineVertexBuffer.clear();
 }
 
 void Renderer::BeginScene(const OrthographicCamera& camera) {
@@ -222,26 +244,111 @@ void Renderer::DrawQuad(const Mat4& worldTransform, const Vec2& contentSize,
     ++m_quadCount;
 }
 
-void Renderer::Flush() {
-    if (m_quadCount == 0) return;
-
-    unsigned int dataSize = m_quadCount * 4 * sizeof(QuadVertex);
-    m_vertexBuffer->SetData(m_quadVertexBuffer.data(), dataSize);
-
-    for (unsigned int i = 0; i < m_textureSlotCount; ++i) {
-        m_textureSlots[i]->Bind(i);
+void Renderer::DrawLine(const Vec3& from, const Vec3& to, const float color[4]) {
+    if (m_lineCount >= m_maxLines) {
+        Flush();
     }
 
-    m_vertexArray->Bind();
-    unsigned int indexCount = m_quadCount * 6;
+    unsigned int start = m_lineCount * 2;
+    for (unsigned int i = 0; i < 2; ++i) {
+        Vec3 p = (i == 0) ? from : to;
+        m_lineVertexBuffer[start + i].Position[0] = p.x;
+        m_lineVertexBuffer[start + i].Position[1] = p.y;
+        m_lineVertexBuffer[start + i].Position[2] = p.z;
+        m_lineVertexBuffer[start + i].TexCoord[0] = 0.0f;
+        m_lineVertexBuffer[start + i].TexCoord[1] = 0.0f;
+        m_lineVertexBuffer[start + i].TexIndex = 0.0f;
+        m_lineVertexBuffer[start + i].Color[0] = color[0];
+        m_lineVertexBuffer[start + i].Color[1] = color[1];
+        m_lineVertexBuffer[start + i].Color[2] = color[2];
+        m_lineVertexBuffer[start + i].Color[3] = color[3];
+    }
+
+    ++m_lineCount;
+}
+
+void Renderer::DrawTriangles(const QuadVertex* vertices, unsigned int vertexCount,
+                              const unsigned int* indices, unsigned int indexCount,
+                              Texture* texture) {
+    Flush();
+
+    if (!m_meshVAO) {
+        m_meshVAO = std::unique_ptr<VertexArray>(new VertexArray());
+        m_meshVAO->Bind();
+
+        m_meshVBO = std::unique_ptr<VertexBuffer>(new VertexBuffer(nullptr, 0));
+        BufferLayout quadLayout = {
+            { ShaderDataType::Float3, "a_Position" },
+            { ShaderDataType::Float2, "a_TexCoord" },
+            { ShaderDataType::Float,  "a_TexIndex" },
+            { ShaderDataType::Float4, "a_Color" }
+        };
+        m_meshVBO->SetLayout(quadLayout);
+        m_meshVAO->AddVertexBuffer(m_meshVBO.get());
+
+        glGenBuffers(1, &m_meshIBO_id);
+        m_meshVAO->Unbind();
+    }
+
+    unsigned int dataSize = vertexCount * sizeof(QuadVertex);
+    if (dataSize > m_meshVBOCapacity) {
+        m_meshVBOCapacity = dataSize;
+        m_meshVBO->Bind();
+        glBufferData(GL_ARRAY_BUFFER, static_cast<long long>(dataSize), vertices, GL_DYNAMIC_DRAW);
+        m_meshVBO->Unbind();
+    } else {
+        m_meshVBO->Bind();
+        glBufferSubData(GL_ARRAY_BUFFER, 0, static_cast<long long>(dataSize), vertices);
+        m_meshVBO->Unbind();
+    }
+
+    unsigned int indexDataSize = indexCount * sizeof(unsigned int);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_meshIBO_id);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<long long>(indexDataSize), indices, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+    texture->Bind(0);
+    m_shader->SetInt("u_Textures[0]", 0);
+
+    m_meshVAO->Bind();
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_meshIBO_id);
     glDrawElements(GL_TRIANGLES, static_cast<int>(indexCount), GL_UNSIGNED_INT, nullptr);
-    m_vertexArray->Unbind();
+    m_meshVAO->Unbind();
+}
+
+void Renderer::Flush() {
+    if (m_quadCount > 0) {
+        unsigned int dataSize = m_quadCount * 4 * sizeof(QuadVertex);
+        m_vertexBuffer->SetData(m_quadVertexBuffer.data(), dataSize);
+
+        for (unsigned int i = 0; i < m_textureSlotCount; ++i) {
+            m_textureSlots[i]->Bind(i);
+        }
+
+        m_vertexArray->Bind();
+        unsigned int indexCount = m_quadCount * 6;
+        glDrawElements(GL_TRIANGLES, static_cast<int>(indexCount), GL_UNSIGNED_INT, nullptr);
+        m_vertexArray->Unbind();
+    }
+
+    if (m_lineCount > 0) {
+        unsigned int lineDataSize = m_lineCount * 2 * sizeof(QuadVertex);
+        m_lineVBO->SetData(m_lineVertexBuffer.data(), lineDataSize);
+
+        m_whiteTexture->Bind(0);
+        m_shader->SetInt("u_Textures[0]", 0);
+
+        m_lineVAO->Bind();
+        glDrawArrays(GL_LINES, 0, static_cast<int>(m_lineCount * 2));
+        m_lineVAO->Unbind();
+    }
 
     ResetBatch();
 }
 
 void Renderer::ResetBatch() {
     m_quadCount = 0;
+    m_lineCount = 0;
     m_textureSlotCount = 0;
     m_textureSlots.fill(nullptr);
 }

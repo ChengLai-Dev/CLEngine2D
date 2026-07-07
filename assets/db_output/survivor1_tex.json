@@ -1,0 +1,143 @@
+{
+  "name": "survivor1_tex",
+  "imagePath": "survivor1_tex.png",
+  "width": 1485,
+  "height": 276,
+  "SubTexture": [
+    {
+      "name": "back hair",
+      "x": 0,
+      "y": 0,
+      "width": 93,
+      "height": 79,
+      "frameWidth": 93,
+      "frameHeight": 79
+    },
+    {
+      "name": "ears",
+      "x": 95,
+      "y": 0,
+      "width": 16,
+      "height": 25,
+      "frameWidth": 16,
+      "frameHeight": 25
+    },
+    {
+      "name": "eyebrow",
+      "x": 113,
+      "y": 0,
+      "width": 16,
+      "height": 4,
+      "frameWidth": 16,
+      "frameHeight": 4
+    },
+    {
+      "name": "eyelash",
+      "x": 131,
+      "y": 0,
+      "width": 9,
+      "height": 7,
+      "frameWidth": 9,
+      "frameHeight": 7
+    },
+    {
+      "name": "face",
+      "x": 142,
+      "y": 0,
+      "width": 50,
+      "height": 75,
+      "frameWidth": 50,
+      "frameHeight": 75
+    },
+    {
+      "name": "footwear",
+      "x": 194,
+      "y": 0,
+      "width": 180,
+      "height": 116,
+      "frameWidth": 180,
+      "frameHeight": 116
+    },
+    {
+      "name": "front hair",
+      "x": 376,
+      "y": 0,
+      "width": 61,
+      "height": 58,
+      "frameWidth": 61,
+      "frameHeight": 58
+    },
+    {
+      "name": "handwear",
+      "x": 439,
+      "y": 0,
+      "width": 300,
+      "height": 243,
+      "frameWidth": 300,
+      "frameHeight": 243
+    },
+    {
+      "name": "head",
+      "x": 741,
+      "y": 0,
+      "width": 63,
+      "height": 74,
+      "frameWidth": 63,
+      "frameHeight": 74
+    },
+    {
+      "name": "headwear",
+      "x": 806,
+      "y": 0,
+      "width": 72,
+      "height": 88,
+      "frameWidth": 72,
+      "frameHeight": 88
+    },
+    {
+      "name": "legwear",
+      "x": 880,
+      "y": 0,
+      "width": 157,
+      "height": 270,
+      "frameWidth": 157,
+      "frameHeight": 270
+    },
+    {
+      "name": "mouth",
+      "x": 1039,
+      "y": 0,
+      "width": 11,
+      "height": 7,
+      "frameWidth": 11,
+      "frameHeight": 7
+    },
+    {
+      "name": "neck",
+      "x": 1052,
+      "y": 0,
+      "width": 52,
+      "height": 70,
+      "frameWidth": 52,
+      "frameHeight": 70
+    },
+    {
+      "name": "objects",
+      "x": 1106,
+      "y": 0,
+      "width": 143,
+      "height": 205,
+      "frameWidth": 143,
+      "frameHeight": 205
+    },
+    {
+      "name": "topwear",
+      "x": 1251,
+      "y": 0,
+      "width": 234,
+      "height": 276,
+      "frameWidth": 234,
+      "frameHeight": 276
+    }
+  ]
+}

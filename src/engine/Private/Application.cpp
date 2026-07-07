@@ -53,6 +53,7 @@ void Application::Run() {
 
         OnUpdate(deltaTime);
         OnRender();
+        InputSystem::GetInstance().EndFrame();
         lastTime = currentTime;
     }
 

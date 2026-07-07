@@ -39,6 +39,7 @@ endfunction()
 # Libraries
 add_subdirectory(third_party/glad)
 add_subdirectory(third_party/stb_image)
+add_subdirectory(third_party/dragonbones)
 
 # Python bindings (optional, for Phase 9)
 option(CLENGINE_BUILD_PYTHON "Build Python bindings and py_sandbox" ON)

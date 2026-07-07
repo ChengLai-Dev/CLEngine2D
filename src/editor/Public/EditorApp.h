@@ -40,7 +40,6 @@ private:
     std::unique_ptr<OrthographicCamera> m_editorCamera;
 
     std::unique_ptr<Scene> m_editedScene;
-    std::unique_ptr<Scene> m_uiScene;
 
     std::unique_ptr<CanvasView> m_canvasView;
     std::unique_ptr<PropertyPanel> m_propertyPanel;

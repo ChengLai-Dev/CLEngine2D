@@ -22,6 +22,7 @@ public:
     void ResetUIConsumedFlags();
 
     void Update();
+    void EndFrame();
     void Clear();
 
     ~InputSystem() = default;

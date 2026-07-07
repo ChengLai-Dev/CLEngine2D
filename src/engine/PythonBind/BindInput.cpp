@@ -54,7 +54,10 @@ void RegisterInputBindings(py::module_& m)
         .value("LeftAlt", KeyCode::LeftAlt)
         .value("RightShift", KeyCode::RightShift)
         .value("RightControl", KeyCode::RightControl)
-        .value("RightAlt", KeyCode::RightAlt);
+        .value("RightAlt", KeyCode::RightAlt)
+        .value("F1", KeyCode::F1).value("F2", KeyCode::F2)
+        .value("F3", KeyCode::F3).value("F4", KeyCode::F4)
+        .value("F5", KeyCode::F5);
 
     py::enum_<MouseCode>(m, "MouseCode")
         .value("ButtonLeft", MouseCode::ButtonLeft)

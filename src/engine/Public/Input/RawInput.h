@@ -31,6 +31,7 @@ public:
     static void OnScrollEvent(double xOffset, double yOffset);
 
     static void Update();
+    static void EndFrame();
 
 private:
     static constexpr int KEY_COUNT = 349;
