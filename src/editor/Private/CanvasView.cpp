@@ -63,6 +63,7 @@ IEditorPanel::HitRect CanvasView::GetHitRect() const {
 }
 
 bool CanvasView::OnMouseEvent(const MouseEvent& event) {
+    IEditorPanel::OnMouseEvent(event);
     Vec3 worldPos = ScreenToWorld(event.screenPos);
 
     switch (event.type) {

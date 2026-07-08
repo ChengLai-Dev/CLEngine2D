@@ -50,8 +50,8 @@ float RawInput::GetMouseY() {
     return static_cast<float>(s_state.mouseY);
 }
 
-std::pair<float, float> RawInput::GetMousePosition() {
-    return { static_cast<float>(s_state.mouseX), static_cast<float>(s_state.mouseY) };
+Vec2 RawInput::GetMousePosition() {
+    return Vec2(static_cast<float>(s_state.mouseX), static_cast<float>(s_state.mouseY));
 }
 
 float RawInput::GetScrollDeltaX() {

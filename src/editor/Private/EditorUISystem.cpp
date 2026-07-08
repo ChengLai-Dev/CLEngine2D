@@ -29,8 +29,7 @@ void EditorUISystem::ReleaseCapture() {
 }
 
 void EditorUISystem::ProcessInput() {
-    auto [mx, my] = RawInput::GetMousePosition();
-    Vec2 pos(mx, my);
+    Vec2 pos = RawInput::GetMousePosition();
 
     bool leftPressed = RawInput::IsMouseButtonPressed(MouseCode::ButtonLeft);
     bool leftDown = RawInput::IsMouseButtonDown(MouseCode::ButtonLeft);

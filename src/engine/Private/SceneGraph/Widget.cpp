@@ -1,6 +1,7 @@
 #include "SceneGraph/Widget.h"
 #include "Math/Mat4.h"
 #include "Logger.h"
+#include <typeinfo>
 
 Widget::Widget() = default;
 
@@ -73,18 +74,21 @@ bool Widget::HitTest(const Vec3& worldPoint) {
 }
 
 void Widget::OnTouchStartedEvent(const Vec2& pos) {
+    Logger::Debug("[{}] TouchStarted pos=({}, {})", typeid(*this).name(), pos.x, pos.y);
     if (m_onTouchStarted) {
         m_onTouchStarted(this, pos);
     }
 }
 
 void Widget::OnTouchMovedEvent(const Vec2& pos) {
+    Logger::Debug("[{}] TouchMoved pos=({}, {})", typeid(*this).name(), pos.x, pos.y);
     if (m_onTouchMoved) {
         m_onTouchMoved(this, pos);
     }
 }
 
 void Widget::OnTouchEndedEvent(const Vec2& pos) {
+    Logger::Debug("[{}] TouchEnded pos=({}, {})", typeid(*this).name(), pos.x, pos.y);
     if (m_onTouchEnded) {
         m_onTouchEnded(this, pos);
     }

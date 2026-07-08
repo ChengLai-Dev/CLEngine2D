@@ -30,6 +30,7 @@ IEditorPanel::HitRect WidgetPalette::GetHitRect() const {
 }
 
 bool WidgetPalette::OnMouseEvent(const MouseEvent& event) {
+    IEditorPanel::OnMouseEvent(event);
     switch (event.type) {
         case MouseEvent::Down: {
             if (event.button != 0) return false;

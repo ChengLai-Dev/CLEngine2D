@@ -139,11 +139,11 @@ protected:
         }
 
         if (m_fpsUpdateTimer >= 0.25f) {
-            std::pair<float, float> mousePos = RawInput::GetMousePosition();
+            Vec2 mousePos = RawInput::GetMousePosition();
             std::string title = std::string(TITLE)
                 + " [FPS: " + std::to_string(static_cast<int>(m_timer.GetFPS()))
-                + ", Mouse: " + std::to_string(static_cast<int>(mousePos.first))
-                + "," + std::to_string(static_cast<int>(mousePos.second))
+                + ", Mouse: " + std::to_string(static_cast<int>(mousePos.x))
+                + "," + std::to_string(static_cast<int>(mousePos.y))
                 + "]";
             glfwSetWindowTitle(GetWindow()->GetNativeWindow(), title.c_str());
             m_fpsUpdateTimer = 0.0f;

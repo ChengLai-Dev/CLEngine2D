@@ -31,8 +31,8 @@ Widget* UISystem::GetFocusedWidget() const {
 void UISystem::ProcessEvents() {
     if (!m_uiRoot) return;
 
-    auto [mx, my] = RawInput::GetMousePosition();
-    Vec3 mousePos(mx, my, 0.0f);
+    Vec2 pos2d = RawInput::GetMousePosition();
+    Vec3 mousePos(pos2d.x, pos2d.y, 0.0f);
     m_lastMousePos = mousePos;
 
     bool leftDown = RawInput::IsMouseButtonDown(MouseCode::ButtonLeft);

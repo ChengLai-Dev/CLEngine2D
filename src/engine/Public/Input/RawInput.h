@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Input/InputCodes.h"
-#include <utility>
+#include "Math/Vec2.h"
 
 class RawInput {
 public:
@@ -16,7 +16,7 @@ public:
     static bool IsMouseButtonReleased(MouseCode button);
     static float GetMouseX();
     static float GetMouseY();
-    static std::pair<float, float> GetMousePosition();
+    static Vec2 GetMousePosition();
     static float GetScrollDeltaX();
     static float GetScrollDeltaY();
 
