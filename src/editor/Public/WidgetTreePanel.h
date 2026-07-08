@@ -34,8 +34,8 @@ private:
     Node* m_root = nullptr;
     Node* m_selectedNode = nullptr;
 
-    float m_rectX = 0.0f;
-    float m_rectY = 0.0f;
+    float m_rectLeft = 0.0f;
+    float m_rectTop = 0.0f;
     float m_rectWidth = 250.0f;
     float m_rectHeight = 720.0f;
 

@@ -33,8 +33,8 @@ private:
                       const char* const* items, const MenuBarAction* actions, int count);
     bool HandleClick(float mx, float my);
 
-    float m_rectX = 0.0f;
-    float m_rectY = 0.0f;
+    float m_rectLeft = 0.0f;
+    float m_rectTop = 0.0f;
     float m_rectWidth = 1280.0f;
     float m_rectHeight = 24.0f;
     int m_windowHeight = 0;

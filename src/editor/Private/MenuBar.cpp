@@ -25,8 +25,8 @@ MenuBar::MenuBar() {
 MenuBar::~MenuBar() = default;
 
 void MenuBar::SetRect(float x, float y, float width, float height) {
-    m_rectX = x;
-    m_rectY = y;
+    m_rectLeft = x;
+    m_rectTop = y;
     m_rectWidth = width;
     m_rectHeight = height;
     m_camera->SetProjection(0.0f, width, height, 0.0f);
@@ -68,10 +68,10 @@ void MenuBar::OnRender(Renderer& renderer) {
     float titleColor[4] = { 0.8f, 0.8f, 0.8f, 1.0f };
     (void)titleColor;
 
-    float vpY = static_cast<float>(m_windowHeight) - m_rectY - m_rectHeight;
+    float vpY = static_cast<float>(m_windowHeight) - m_rectTop - m_rectHeight;
 
     RenderCommand::SetViewport(
-        static_cast<int>(m_rectX),
+        static_cast<int>(m_rectLeft),
         static_cast<int>(vpY),
         static_cast<int>(m_rectWidth),
         static_cast<int>(m_rectHeight)
@@ -100,7 +100,7 @@ void MenuBar::OnRender(Renderer& renderer) {
 }
 
 IEditorPanel::HitRect MenuBar::GetHitRect() const {
-    HitRect r = { m_rectX, m_rectY, m_rectWidth, m_rectHeight };
+    HitRect r = { m_rectLeft, m_rectTop, m_rectWidth, m_rectHeight };
     if (m_openMenu >= 0) {
         r.h += 3.0f * 22.0f;
     }
@@ -114,8 +114,8 @@ bool MenuBar::OnMouseEvent(const MouseEvent& event) {
 }
 
 bool MenuBar::HandleClick(float mx, float my) {
-    bool inBar = mx >= m_rectX && mx < m_rectX + m_rectWidth &&
-                 my >= m_rectY && my < m_rectY + m_rectHeight;
+    bool inBar = mx >= m_rectLeft && mx < m_rectLeft + m_rectWidth &&
+                 my >= m_rectTop && my < m_rectTop + m_rectHeight;
 
     if (m_openMenu >= 0) {
         const MenuBarAction* actions = (m_openMenu == 0) ? FILE_ACTIONS : EDIT_ACTIONS;
@@ -123,7 +123,7 @@ bool MenuBar::HandleClick(float mx, float my) {
         float menuW = 160.0f;
         float itemH = 22.0f;
         float dropX = (m_openMenu == 0) ? 0.0f : 60.0f;
-        float dropY = m_rectY + m_rectHeight;
+        float dropY = m_rectTop + m_rectHeight;
 
         for (int i = 0; i < count; ++i) {
             float ix = dropX;
@@ -135,7 +135,7 @@ bool MenuBar::HandleClick(float mx, float my) {
             }
         }
 
-        if (!inBar || my >= m_rectY + m_rectHeight) {
+        if (!inBar || my >= m_rectTop + m_rectHeight) {
             m_openMenu = -1;
             return true;
         }
@@ -145,8 +145,8 @@ bool MenuBar::HandleClick(float mx, float my) {
         float labelX = 12.0f;
         float labelW = 60.0f;
         for (int i = 0; i < MENU_COUNT; ++i) {
-            if (mx >= m_rectX + labelX && mx < m_rectX + labelX + labelW &&
-                my >= m_rectY && my < m_rectY + m_rectHeight) {
+            if (mx >= m_rectLeft + labelX && mx < m_rectLeft + labelX + labelW &&
+                my >= m_rectTop && my < m_rectTop + m_rectHeight) {
                 m_openMenu = (m_openMenu == i) ? -1 : i;
                 return true;
             }

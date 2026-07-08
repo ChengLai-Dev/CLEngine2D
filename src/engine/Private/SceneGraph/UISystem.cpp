@@ -98,6 +98,11 @@ void UISystem::ProcessKeyboardEvents() {
     }
 }
 
+Widget* UISystem::HitTestScene(const Vec3& worldPoint) {
+    if (!m_uiRoot) return nullptr;
+    return HitTestTree(m_uiRoot, worldPoint);
+}
+
 Widget* UISystem::HitTestTree(Widget* root, const Vec3& worldPoint) {
     if (!root || !root->IsVisible() || !root->IsEnabled()) return nullptr;
 

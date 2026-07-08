@@ -23,8 +23,8 @@ Node* PropertyPanel::GetTarget() const {
 }
 
 void PropertyPanel::SetRect(float x, float y, float width, float height) {
-    m_rectX = x;
-    m_rectY = y;
+    m_rectLeft = x;
+    m_rectTop = y;
     m_rectWidth = width;
     m_rectHeight = height;
     m_camera->SetProjection(0.0f, width, height, 0.0f);
@@ -39,7 +39,7 @@ void PropertyPanel::OnPropertyChanged(PropertyChangedCallback cb) {
 }
 
 IEditorPanel::HitRect PropertyPanel::GetHitRect() const {
-    return { m_rectX, m_rectY, m_rectWidth, m_rectHeight };
+    return { m_rectLeft, m_rectTop, m_rectWidth, m_rectHeight };
 }
 
 void PropertyPanel::DrawProperty(const char* label, float value, float minVal, float maxVal,
@@ -60,9 +60,9 @@ void PropertyPanel::DrawProperty(const char* label, float value, float minVal, f
 void PropertyPanel::OnRender(Renderer& renderer) {
     float bgColor[4] = { 0.12f, 0.12f, 0.14f, 1.0f };
 
-    float vpY = static_cast<float>(m_windowHeight) - m_rectY - m_rectHeight;
+    float vpY = static_cast<float>(m_windowHeight) - m_rectTop - m_rectHeight;
     RenderCommand::SetViewport(
-        static_cast<int>(m_rectX),
+        static_cast<int>(m_rectLeft),
         static_cast<int>(vpY),
         static_cast<int>(m_rectWidth),
         static_cast<int>(m_rectHeight)

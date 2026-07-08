@@ -16,8 +16,8 @@ void WidgetTreePanel::SetRoot(Node* root) {
 }
 
 void WidgetTreePanel::SetRect(float x, float y, float width, float height) {
-    m_rectX = x;
-    m_rectY = y;
+    m_rectLeft = x;
+    m_rectTop = y;
     m_rectWidth = width;
     m_rectHeight = height;
     m_camera->SetProjection(0.0f, width, height, 0.0f);
@@ -32,7 +32,7 @@ void WidgetTreePanel::OnSelectionChanged(SelectionChangedCallback cb) {
 }
 
 IEditorPanel::HitRect WidgetTreePanel::GetHitRect() const {
-    return { m_rectX, m_rectY, m_rectWidth, m_rectHeight };
+    return { m_rectLeft, m_rectTop, m_rectWidth, m_rectHeight };
 }
 
 Node* WidgetTreePanel::GetSelectedNode() const {
@@ -66,9 +66,9 @@ void WidgetTreePanel::VisitNode(Node* node, Renderer& renderer, float& y, int de
 void WidgetTreePanel::OnRender(Renderer& renderer) {
     float bgColor[4] = { 0.1f, 0.1f, 0.12f, 1.0f };
 
-    float vpY = static_cast<float>(m_windowHeight) - m_rectY - m_rectHeight;
+    float vpY = static_cast<float>(m_windowHeight) - m_rectTop - m_rectHeight;
     RenderCommand::SetViewport(
-        static_cast<int>(m_rectX),
+        static_cast<int>(m_rectLeft),
         static_cast<int>(vpY),
         static_cast<int>(m_rectWidth),
         static_cast<int>(m_rectHeight)

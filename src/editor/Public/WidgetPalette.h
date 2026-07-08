@@ -29,8 +29,8 @@ public:
     void OnAction(ActionCallback cb);
 
 private:
-    float m_rectX = 0.0f;
-    float m_rectY = 0.0f;
+    float m_rectLeft = 0.0f;
+    float m_rectTop = 0.0f;
     float m_rectWidth = 250.0f;
     float m_rectHeight = 50.0f;
     int m_windowHeight = 0;

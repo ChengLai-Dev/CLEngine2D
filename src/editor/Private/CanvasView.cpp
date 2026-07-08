@@ -1,6 +1,7 @@
 #include "CanvasView.h"
 #include "Gizmo.h"
 #include <Scene.h>
+#include <SceneGraph/UISystem.h>
 #include <SceneGraph/Node.h>
 #include <Render/Renderer.h>
 #include <Render/OrthographicCamera.h>
@@ -23,10 +24,10 @@ Scene* CanvasView::GetEditedScene() const {
 }
 
 void CanvasView::SetRect(float x, float y, float w, float h) {
-    m_viewX = x;
-    m_viewY = y;
-    m_viewW = w;
-    m_viewH = h;
+    m_rectLeft = x;
+    m_rectTop = y;
+    m_rectWidth = w;
+    m_rectHeight = h;
 }
 
 void CanvasView::SetWindowHeight(int height) {
@@ -49,17 +50,20 @@ void CanvasView::ResetView() {
 }
 
 Vec3 CanvasView::ScreenToWorld(const Vec2& screenPos) const {
-    float halfW = m_viewW * 0.5f;
-    float halfH = m_viewH * 0.5f;
+    float halfW = m_rectWidth * 0.5f;
+    float halfH = m_rectHeight * 0.5f;
 
-    float worldX = (screenPos.x - m_viewX - halfW) / m_zoomLevel + m_viewCenter.x;
-    float worldY = (screenPos.y - m_viewY - halfH) / m_zoomLevel + m_viewCenter.y;
+    float glviewportX = screenPos.x - m_rectLeft;
+    float glviewportY = (m_rectTop + m_rectHeight) - screenPos.y;
+
+    float worldX = (glviewportX - halfW) / m_zoomLevel + m_viewCenter.x;
+    float worldY = (glviewportY - halfH) / m_zoomLevel + m_viewCenter.y;
 
     return Vec3(worldX, worldY, 0.0f);
 }
 
 IEditorPanel::HitRect CanvasView::GetHitRect() const {
-    return { m_viewX, m_viewY, m_viewW, m_viewH };
+    return { m_rectLeft, m_rectTop, m_rectWidth, m_rectHeight };
 }
 
 bool CanvasView::OnMouseEvent(const MouseEvent& event) {
@@ -75,8 +79,9 @@ bool CanvasView::OnMouseEvent(const MouseEvent& event) {
                     m_isGizmoDragging = true;
                     return true;
                 }
-                if (m_onCanvasClick) {
-                    m_onCanvasClick(worldPos);
+                Widget* hit = UISystem::GetInstance().HitTestScene(worldPos);
+                if (m_onWidgetClicked) {
+                    m_onWidgetClicked(hit);
                 }
                 return true;
             }
@@ -127,8 +132,8 @@ void CanvasView::DrawGrid(Renderer& renderer) {
     float gridColor[4] = { 0.3f, 0.3f, 0.35f, 0.5f };
     float centerColor[4] = { 0.5f, 0.5f, 0.6f, 0.8f };
 
-    float halfW = m_viewW * 0.5f / m_zoomLevel;
-    float halfH = m_viewH * 0.5f / m_zoomLevel;
+    float halfW = m_rectWidth * 0.5f / m_zoomLevel;
+    float halfH = m_rectHeight * 0.5f / m_zoomLevel;
     float left = -halfW + m_viewCenter.x;
     float right = halfW + m_viewCenter.x;
     float bottom = -halfH + m_viewCenter.y;
@@ -157,26 +162,26 @@ void CanvasView::OnRender(Renderer& renderer) {
     if (!m_editedScene) return;
 
     m_camera->SetProjection(
-        -m_viewW * 0.5f / m_zoomLevel + m_viewCenter.x,
-        m_viewW * 0.5f / m_zoomLevel + m_viewCenter.x,
-        -m_viewH * 0.5f / m_zoomLevel + m_viewCenter.y,
-        m_viewH * 0.5f / m_zoomLevel + m_viewCenter.y
+        -m_rectWidth * 0.5f / m_zoomLevel + m_viewCenter.x,
+        m_rectWidth * 0.5f / m_zoomLevel + m_viewCenter.x,
+        -m_rectHeight * 0.5f / m_zoomLevel + m_viewCenter.y,
+        m_rectHeight * 0.5f / m_zoomLevel + m_viewCenter.y
     );
 
-    float vpY = static_cast<float>(m_windowHeight) - m_viewY - m_viewH;
+    float vpY = static_cast<float>(m_windowHeight) - m_rectTop - m_rectHeight;
     RenderCommand::SetViewport(
-        static_cast<int>(m_viewX),
+        static_cast<int>(m_rectLeft),
         static_cast<int>(vpY),
-        static_cast<int>(m_viewW),
-        static_cast<int>(m_viewH)
+        static_cast<int>(m_rectWidth),
+        static_cast<int>(m_rectHeight)
     );
 
     RenderCommand::SetScissor(true);
     RenderCommand::SetScissorRect(
-        static_cast<int>(m_viewX),
+        static_cast<int>(m_rectLeft),
         static_cast<int>(vpY),
-        static_cast<int>(m_viewW),
-        static_cast<int>(m_viewH)
+        static_cast<int>(m_rectWidth),
+        static_cast<int>(m_rectHeight)
     );
 
     renderer.BeginScene(*m_camera);

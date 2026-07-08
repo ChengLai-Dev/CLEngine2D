@@ -18,6 +18,7 @@
 #include <SceneGraph/CanvasPanel.h>
 #include <SceneGraph/Layout.h>
 #include <SceneGraph/UISystem.h>
+#include <Input/InputSystem.h>
 #include <Render/Renderer.h>
 #include <Render/RenderCommand.h>
 #include <Render/OrthographicCamera.h>
@@ -57,12 +58,16 @@ void EditorApp::OnInit() {
     canvasPanel->SetName("Root");
     m_editedScene->SetRoot(std::move(canvasPanel));
 
+    InputSystem::GetInstance().SetInputMode(EInputMode::GameAndUI);
+    UISystem::GetInstance().SetUIRoot(static_cast<Widget*>(m_editedScene->GetRoot()));
+
     EditorUISystem& ui = m_uiSystem;
 
     m_canvasView = std::make_unique<CanvasView>();
     m_canvasView->SetEditedScene(m_editedScene.get());
-    m_canvasView->OnCanvasClick([this](const Vec3&) {
-        SelectNode(nullptr);
+    m_canvasView->OnWidgetClicked([this](Widget* widget) {
+        Logger::Info("[Editor] Clicked widget: {}", widget ? typeid(*widget).name() : "null");
+        SelectWidget(widget);
     });
     ui.Register(m_canvasView.get(), 3);
 
@@ -95,7 +100,7 @@ void EditorApp::OnInit() {
     m_widgetTreePanel = std::make_unique<WidgetTreePanel>();
     m_widgetTreePanel->SetRoot(m_editedScene->GetRoot());
     m_widgetTreePanel->OnSelectionChanged([this](Node* node) {
-        SelectNode(node);
+        SelectWidget(static_cast<Widget*>(node));
     });
     ui.Register(m_widgetTreePanel.get(), 2);
 
@@ -137,10 +142,10 @@ void EditorApp::OnShutdown() {
     m_editorCamera.reset();
 }
 
-void EditorApp::SelectNode(Node* node) {
-    m_selectedNode = node;
-    m_propertyPanel->SetTarget(node);
-    m_canvasView->GetGizmo()->SetTarget(node);
+void EditorApp::SelectWidget(Widget* widget) {
+    m_selectedWidget = widget;
+    m_propertyPanel->SetTarget(static_cast<Node*>(widget));
+    m_canvasView->GetGizmo()->SetTarget(static_cast<Node*>(widget));
 }
 
 void EditorApp::RecalculateLayout(int windowWidth, int windowHeight) {
@@ -205,12 +210,12 @@ void EditorApp::AddWidgetToScene(const std::string& type, const Vec3& position) 
 }
 
 void EditorApp::DeleteSelected() {
-    if (!m_selectedNode) return;
+    if (!m_selectedWidget) return;
 
-    Node* parent = m_selectedNode->GetParent();
+    Node* parent = m_selectedWidget->GetParent();
     if (parent) {
-        parent->RemoveChild(m_selectedNode);
-        SelectNode(nullptr);
+        parent->RemoveChild(m_selectedWidget);
+        SelectWidget(nullptr);
     }
 }
 
@@ -231,7 +236,7 @@ void EditorApp::LoadScene() {
         m_editedScene->SetRoot(std::unique_ptr<Node>(loaded));
         m_widgetTreePanel->SetRoot(m_editedScene->GetRoot());
         m_canvasView->SetEditedScene(m_editedScene.get());
-        SelectNode(nullptr);
+        SelectWidget(nullptr);
         Logger::Info("Scene loaded");
     } else {
         Logger::Error("Failed to load scene");

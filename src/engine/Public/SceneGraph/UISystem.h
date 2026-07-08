@@ -17,6 +17,8 @@ public:
     Widget* GetHoveredWidget() const;
     Widget* GetFocusedWidget() const;
 
+    Widget* HitTestScene(const Vec3& worldPoint);
+
 private:
     UISystem() = default;
     UISystem(const UISystem&) = delete;

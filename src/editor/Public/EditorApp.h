@@ -7,6 +7,7 @@
 #include <Scene.h>
 #include <string>
 #include <memory>
+#include <SceneGraph/Widget.h>
 
 class Renderer;
 class OrthographicCamera;
@@ -31,7 +32,7 @@ protected:
 
 private:
     void RecalculateLayout(int windowWidth, int windowHeight);
-    void SelectNode(Node* node);
+    void SelectWidget(Widget* widget);
     void AddWidgetToScene(const std::string& type, const Vec3& position);
     void DeleteSelected();
     void SaveScene();
@@ -50,5 +51,5 @@ private:
 
     EditorUISystem m_uiSystem;
 
-    Node* m_selectedNode = nullptr;
+    Widget* m_selectedWidget = nullptr;
 };

@@ -10,6 +10,7 @@ class Renderer;
 class OrthographicCamera;
 class Scene;
 class Node;
+class Widget;
 class Gizmo;
 
 class CanvasView : public IEditorPanel {
@@ -22,10 +23,10 @@ public:
 
     void SetRect(float x, float y, float w, float h) override;
     void SetWindowHeight(int height) override;
-    float GetViewX() const { return m_viewX; }
-    float GetViewY() const { return m_viewY; }
-    float GetViewW() const { return m_viewW; }
-    float GetViewH() const { return m_viewH; }
+    float GetRectLeft() const { return m_rectLeft; }
+    float GetRectTop() const { return m_rectTop; }
+    float GetRectWidth() const { return m_rectWidth; }
+    float GetRectHeight() const { return m_rectHeight; }
 
     void Zoom(float factor);
     void Pan(const Vec2& delta);
@@ -42,8 +43,8 @@ public:
 
     Gizmo* GetGizmo() const;
 
-    using CanvasClickCallback = std::function<void(const Vec3& worldPos)>;
-    void OnCanvasClick(CanvasClickCallback cb) { m_onCanvasClick = std::move(cb); }
+    using WidgetClickCallback = std::function<void(Widget*)>;
+    void OnWidgetClicked(WidgetClickCallback cb) { m_onWidgetClicked = std::move(cb); }
 
 private:
     void DrawGrid(Renderer& renderer);
@@ -52,10 +53,10 @@ private:
     std::unique_ptr<OrthographicCamera> m_camera;
     std::unique_ptr<Gizmo> m_gizmo;
 
-    float m_viewX = 0.0f;
-    float m_viewY = 0.0f;
-    float m_viewW = 1280.0f;
-    float m_viewH = 720.0f;
+    float m_rectLeft = 0.0f;
+    float m_rectTop = 0.0f;
+    float m_rectWidth = 1280.0f;
+    float m_rectHeight = 720.0f;
 
     float m_zoomLevel = 1.0f;
     Vec2 m_viewCenter = Vec2(0.0f, 0.0f);
@@ -67,5 +68,5 @@ private:
     bool m_isPanning = false;
     Vec2 m_panLastPos;
 
-    CanvasClickCallback m_onCanvasClick;
+    WidgetClickCallback m_onWidgetClicked;
 };

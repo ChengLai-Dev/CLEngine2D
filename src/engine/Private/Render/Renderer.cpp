@@ -31,7 +31,7 @@ bool Renderer::InitGL() {
                                       GLenum severity, GLsizei length,
                                       const GLchar* message, const void* userParam) {
                 // NVIDIA: 着色器特化编译提示（良性，仅在首次绘制时触发一次）
-                if (id == 131218) return;
+                // if (id == 131218) return;
 
                 if (severity == GL_DEBUG_SEVERITY_HIGH) {
                     if (type == GL_DEBUG_TYPE_ERROR) {
