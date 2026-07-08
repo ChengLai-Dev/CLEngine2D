@@ -21,8 +21,8 @@ public:
     void MarkKeyConsumedByUI(uint16_t code, bool isMouse = false);
     void ResetUIConsumedFlags();
 
-    void Update();
-    void EndFrame();
+    void PollEvents();
+    void Advance();
     void Clear();
 
     ~InputSystem() = default;

@@ -1,8 +1,10 @@
 #pragma once
 
+#include "IEditorPanel.h"
 #include <Math/Vec2.h>
 #include <Math/Vec3.h>
 #include <memory>
+#include <functional>
 
 class Renderer;
 class OrthographicCamera;
@@ -10,7 +12,7 @@ class Scene;
 class Node;
 class Gizmo;
 
-class CanvasView {
+class CanvasView : public IEditorPanel {
 public:
     CanvasView();
     ~CanvasView();
@@ -18,7 +20,8 @@ public:
     void SetEditedScene(Scene* scene);
     Scene* GetEditedScene() const;
 
-    void SetViewRect(float x, float y, float w, float h);
+    void SetRect(float x, float y, float w, float h) override;
+    void SetWindowHeight(int height) override;
     float GetViewX() const { return m_viewX; }
     float GetViewY() const { return m_viewY; }
     float GetViewW() const { return m_viewW; }
@@ -30,10 +33,17 @@ public:
 
     Vec3 ScreenToWorld(const Vec2& screenPos) const;
 
-    void OnUpdate(float deltaTime);
-    void OnRender(Renderer& renderer);
+    void OnUpdate(float deltaTime) override;
+    void OnRender(Renderer& renderer) override;
+
+    bool OnMouseEvent(const MouseEvent& event) override;
+    HitRect GetHitRect() const override;
+    bool IsCapturing() const override { return m_isGizmoDragging || m_isPanning; }
 
     Gizmo* GetGizmo() const;
+
+    using CanvasClickCallback = std::function<void(const Vec3& worldPos)>;
+    void OnCanvasClick(CanvasClickCallback cb) { m_onCanvasClick = std::move(cb); }
 
 private:
     void DrawGrid(Renderer& renderer);
@@ -51,4 +61,11 @@ private:
     Vec2 m_viewCenter = Vec2(0.0f, 0.0f);
 
     float m_gridSize = 50.0f;
+    int m_windowHeight = 0;
+
+    bool m_isGizmoDragging = false;
+    bool m_isPanning = false;
+    Vec2 m_panLastPos;
+
+    CanvasClickCallback m_onCanvasClick;
 };

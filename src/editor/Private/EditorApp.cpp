@@ -1,8 +1,10 @@
 #include "EditorApp.h"
+#include "EditorUISystem.h"
 #include "CanvasView.h"
+#include "MenuBar.h"
+#include "WidgetPalette.h"
 #include "PropertyPanel.h"
 #include "WidgetTreePanel.h"
-#include "Toolbar.h"
 #include "Gizmo.h"
 #include "Serializer.h"
 #include "UndoRedo.h"
@@ -20,12 +22,21 @@
 #include <Render/RenderCommand.h>
 #include <Render/OrthographicCamera.h>
 #include <Platform/Window.h>
-#include <Input/RawInput.h>
-#include <Input/InputCodes.h>
 #include <Logger.h>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
+static const char* GetWidgetType(WidgetPaletteAction action) {
+    switch (action) {
+        case WidgetPaletteAction::ADD_BUTTON: return "Button";
+        case WidgetPaletteAction::ADD_LABEL:  return "Label";
+        case WidgetPaletteAction::ADD_IMAGE:  return "Image";
+        case WidgetPaletteAction::ADD_PANEL:  return "Panel";
+        case WidgetPaletteAction::ADD_LAYOUT: return "Layout";
+    }
+    return "";
+}
 
 EditorApp::EditorApp() = default;
 EditorApp::~EditorApp() = default;
@@ -46,88 +57,59 @@ void EditorApp::OnInit() {
     canvasPanel->SetName("Root");
     m_editedScene->SetRoot(std::move(canvasPanel));
 
+    EditorUISystem& ui = m_uiSystem;
+
     m_canvasView = std::make_unique<CanvasView>();
     m_canvasView->SetEditedScene(m_editedScene.get());
+    m_canvasView->OnCanvasClick([this](const Vec3&) {
+        SelectNode(nullptr);
+    });
+    ui.Register(m_canvasView.get(), 3);
+
+    m_menuBar = std::make_unique<MenuBar>();
+    m_menuBar->OnAction([this](MenuBarAction action) {
+        switch (action) {
+            case MenuBarAction::FILE_SAVE: SaveScene(); break;
+            case MenuBarAction::FILE_OPEN: LoadScene(); break;
+            case MenuBarAction::EDIT_UNDO: UndoRedoStack::GetInstance().Undo(); break;
+            case MenuBarAction::EDIT_REDO: UndoRedoStack::GetInstance().Redo(); break;
+            case MenuBarAction::EDIT_DELETE: DeleteSelected(); break;
+            default: break;
+        }
+    });
+    ui.Register(m_menuBar.get(), 1);
+
+    m_widgetPalette = std::make_unique<WidgetPalette>();
+    m_widgetPalette->OnAction([this](WidgetPaletteAction action, float mx, float my) {
+        auto hit = m_canvasView->GetHitRect();
+        if (hit.Contains(mx, my)) {
+            Vec3 pos = m_canvasView->ScreenToWorld(Vec2(mx, my));
+            AddWidgetToScene(GetWidgetType(action), pos);
+        }
+    });
+    ui.Register(m_widgetPalette.get(), 0);
 
     m_propertyPanel = std::make_unique<PropertyPanel>();
+    ui.Register(m_propertyPanel.get(), 2);
 
     m_widgetTreePanel = std::make_unique<WidgetTreePanel>();
     m_widgetTreePanel->SetRoot(m_editedScene->GetRoot());
-
     m_widgetTreePanel->OnSelectionChanged([this](Node* node) {
         SelectNode(node);
     });
-
-    m_toolbar = std::make_unique<Toolbar>();
-
-    m_toolbar->OnAction([this](ToolbarAction action) {
-        OnToolbarAction(static_cast<int>(action));
-    });
+    ui.Register(m_widgetTreePanel.get(), 2);
 
     GetWindow()->SetTitle("CLEngine2D UI Editor");
 
-    int winW = GetWindow()->GetWidth();
-    int winH = GetWindow()->GetHeight();
-    m_editorCamera = std::make_unique<OrthographicCamera>(0.0f, static_cast<float>(winW), static_cast<float>(winH), 0.0f);
-    RecalculateLayout(winW, winH);
+    int winWidth = GetWindow()->GetWidth();
+    int winHeight = GetWindow()->GetHeight();
+    m_editorCamera = std::make_unique<OrthographicCamera>(0.0f, static_cast<float>(winWidth), static_cast<float>(winHeight), 0.0f);
+    RecalculateLayout(winWidth, winHeight);
 }
 
 void EditorApp::OnUpdate(float deltaTime) {
-    auto [mx, my] = RawInput::GetMousePosition();
-    Vec2 mousePos(mx, my);
-
-    bool leftPressed = RawInput::IsMouseButtonPressed(MouseCode::ButtonLeft);
-    bool leftDown = RawInput::IsMouseButtonDown(MouseCode::ButtonLeft);
-    bool leftReleased = RawInput::IsMouseButtonReleased(MouseCode::ButtonLeft);
-    bool rightDown = RawInput::IsMouseButtonDown(MouseCode::ButtonRight);
-
-    float scrollY = RawInput::GetScrollDeltaY();
-
-    if (scrollY != 0.0f) {
-        m_canvasView->Zoom(scrollY > 0.0f ? 1.1f : 0.9f);
-    }
-
-    float canvasX = m_canvasView->GetViewX();
-    float canvasY = m_canvasView->GetViewY();
-    float canvasW = m_canvasView->GetViewW();
-    float canvasH = m_canvasView->GetViewH();
-    bool inCanvas = mx >= canvasX && mx < canvasX + canvasW &&
-                    my >= canvasY && my < canvasY + canvasH;
-
-    Gizmo* gizmo = m_canvasView->GetGizmo();
-
-    if (inCanvas) {
-        Vec3 worldPos = m_canvasView->ScreenToWorld(mousePos);
-
-        if (leftPressed) {
-            if (!gizmo->IsDragging()) {
-                GizmoHandle::Type handle = gizmo->HitTestHandle(worldPos);
-                if (handle != GizmoHandle::NONE) {
-                    gizmo->BeginDrag(handle, worldPos);
-                    m_isDragging = true;
-                } else {
-                    SelectNode(nullptr);
-                }
-            }
-        } else if (leftDown && m_isDragging && gizmo->IsDragging()) {
-            Vec3 currentWorld = m_canvasView->ScreenToWorld(mousePos);
-            gizmo->Drag(currentWorld);
-        } else if (leftReleased) {
-            if (gizmo->IsDragging()) {
-                gizmo->EndDrag();
-            }
-            m_isDragging = false;
-        }
-    }
-
-    if (rightDown && inCanvas) {
-        Vec2 delta = mousePos - m_lastMousePos;
-        m_canvasView->Pan(Vec2(-delta.x, delta.y) * 0.5f);
-    }
-
-    m_lastMousePos = mousePos;
-
-    m_canvasView->OnUpdate(deltaTime);
+    m_uiSystem.ProcessInput();
+    m_uiSystem.UpdatePanels(deltaTime);
 }
 
 void EditorApp::OnRender() {
@@ -135,10 +117,7 @@ void EditorApp::OnRender() {
 
     m_renderer->BeginScene(*m_editorCamera);
 
-    m_canvasView->OnRender(*m_renderer);
-    m_propertyPanel->OnRender(*m_renderer);
-    m_widgetTreePanel->OnRender(*m_renderer);
-    m_toolbar->OnRender(*m_renderer);
+    m_uiSystem.RenderPanels(*m_renderer);
 
     m_renderer->EndScene();
 
@@ -147,10 +126,12 @@ void EditorApp::OnRender() {
 
 void EditorApp::OnShutdown() {
     Logger::Info("UI Editor shutting down");
+    m_uiSystem.Clear();
     m_canvasView.reset();
+    m_menuBar.reset();
+    m_widgetPalette.reset();
     m_propertyPanel.reset();
     m_widgetTreePanel.reset();
-    m_toolbar.reset();
     m_editedScene.reset();
     m_renderer.reset();
     m_editorCamera.reset();
@@ -162,49 +143,35 @@ void EditorApp::SelectNode(Node* node) {
     m_canvasView->GetGizmo()->SetTarget(node);
 }
 
-void EditorApp::RecalculateLayout(int windowW, int windowH) {
-    const float toolbarH = 36.0f;
-    const float leftPanelW = 250.0f;
-    const float rightPanelW = 300.0f;
+void EditorApp::RecalculateLayout(int windowWidth, int windowHeight) {
+    const float menuBarHeight = 24.0f;
+    const float paletteHeight = 50.0f;
+    const float leftPanelWidth = 250.0f;
+    const float rightPanelWidth = 300.0f;
 
-    m_toolbar->SetRect(0.0f, 0.0f, static_cast<float>(windowW), toolbarH);
+    float ww = static_cast<float>(windowWidth);
+    float wh = static_cast<float>(windowHeight);
 
-    m_widgetTreePanel->SetRect(0.0f, toolbarH, leftPanelW,
-                               static_cast<float>(windowH) - toolbarH);
+    m_menuBar->SetRect(0.0f, 0.0f, ww, menuBarHeight);
+    m_widgetPalette->SetRect(0.0f, menuBarHeight, leftPanelWidth, paletteHeight);
+    m_widgetTreePanel->SetRect(0.0f, menuBarHeight + paletteHeight, leftPanelWidth,
+                                wh - menuBarHeight - paletteHeight);
+    m_propertyPanel->SetRect(ww - rightPanelWidth, menuBarHeight, rightPanelWidth,
+                              wh - menuBarHeight);
+    m_canvasView->SetRect(leftPanelWidth, menuBarHeight,
+                          ww - leftPanelWidth - rightPanelWidth,
+                          wh - menuBarHeight);
 
-    m_propertyPanel->SetRect(static_cast<float>(windowW) - rightPanelW, toolbarH,
-                             rightPanelW, static_cast<float>(windowH) - toolbarH);
+    m_uiSystem.SetAllWindowHeight(windowHeight);
 
-    m_canvasView->SetViewRect(leftPanelW, toolbarH,
-                              static_cast<float>(windowW) - leftPanelW - rightPanelW,
-                              static_cast<float>(windowH) - toolbarH);
-
-    m_editorCamera->SetProjection(0.0f, static_cast<float>(windowW),
-                                  static_cast<float>(windowH), 0.0f);
+    m_editorCamera->SetProjection(0.0f, ww, wh, 0.0f);
 }
 
 void EditorApp::OnWindowResize(int width, int height) {
     RecalculateLayout(width, height);
 }
 
-void EditorApp::OnToolbarAction(int action) {
-    ToolbarAction ta = static_cast<ToolbarAction>(action);
-
-    switch (ta) {
-    case ToolbarAction::ADD_BUTTON: AddWidgetToScene("Button"); break;
-    case ToolbarAction::ADD_LABEL: AddWidgetToScene("Label"); break;
-    case ToolbarAction::ADD_IMAGE: AddWidgetToScene("Image"); break;
-    case ToolbarAction::ADD_PANEL: AddWidgetToScene("Panel"); break;
-    case ToolbarAction::ADD_LAYOUT: AddWidgetToScene("Layout"); break;
-    case ToolbarAction::ACTION_SAVE: SaveScene(); break;
-    case ToolbarAction::ACTION_LOAD: LoadScene(); break;
-    case ToolbarAction::ACTION_UNDO: UndoRedoStack::GetInstance().Undo(); break;
-    case ToolbarAction::ACTION_REDO: UndoRedoStack::GetInstance().Redo(); break;
-    case ToolbarAction::ACTION_DELETE: DeleteSelected(); break;
-    }
-}
-
-void EditorApp::AddWidgetToScene(const std::string& type) {
+void EditorApp::AddWidgetToScene(const std::string& type, const Vec3& position) {
     if (!m_editedScene) return;
 
     std::unique_ptr<Widget> widget;
@@ -230,7 +197,7 @@ void EditorApp::AddWidgetToScene(const std::string& type) {
     static int counter = 0;
     widget->SetName(type + std::to_string(counter++));
     widget->SetContentSize(Vec2(150.0f, 40.0f));
-    widget->SetPosition(Vec3(0.0f, 0.0f, 0.0f));
+    widget->SetPosition(position);
 
     m_editedScene->GetRoot()->AddChild(std::move(widget));
 

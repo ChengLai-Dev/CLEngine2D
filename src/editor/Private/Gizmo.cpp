@@ -30,13 +30,13 @@ Gizmo::GizmoData Gizmo::ComputeGizmoData() const {
     Vec2 size = m_target->GetContentSize();
     const Mat4& world = const_cast<Node*>(m_target)->GetWorldTransform();
 
-    float hw = size.x * 0.5f;
-    float hh = size.y * 0.5f;
+    float halfWidth = size.x * 0.5f;
+    float halfHeight = size.y * 0.5f;
     Vec3 localCorners[4] = {
-        Vec3(-hw, -hh, 0.0f),
-        Vec3( hw, -hh, 0.0f),
-        Vec3( hw,  hh, 0.0f),
-        Vec3(-hw,  hh, 0.0f)
+        Vec3(-halfWidth, -halfHeight, 0.0f),
+        Vec3( halfWidth, -halfHeight, 0.0f),
+        Vec3( halfWidth,  halfHeight, 0.0f),
+        Vec3(-halfWidth,  halfHeight, 0.0f)
     };
 
     for (int i = 0; i < 4; ++i) {

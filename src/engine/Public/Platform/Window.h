@@ -12,7 +12,7 @@ public:
     Window(const std::string& title, int width, int height);
     ~Window();
 
-    void OnUpdate();
+    void SwapBuffers();
     bool ShouldClose() const;
 
     void SetResizeCallback(ResizeCallback cb);

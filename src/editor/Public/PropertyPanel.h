@@ -1,5 +1,6 @@
 #pragma once
 
+#include "IEditorPanel.h"
 #include <memory>
 #include <functional>
 
@@ -8,7 +9,7 @@ class Widget;
 class Renderer;
 class OrthographicCamera;
 
-class PropertyPanel {
+class PropertyPanel : public IEditorPanel {
 public:
     PropertyPanel();
     ~PropertyPanel();
@@ -16,9 +17,12 @@ public:
     void SetTarget(Node* target);
     Node* GetTarget() const;
 
-    void SetRect(float x, float y, float w, float h);
+    void SetRect(float x, float y, float width, float height) override;
+    void SetWindowHeight(int height) override;
 
-    void OnRender(Renderer& renderer);
+    void OnRender(Renderer& renderer) override;
+
+    HitRect GetHitRect() const override;
 
     using PropertyChangedCallback = std::function<void()>;
     void OnPropertyChanged(PropertyChangedCallback cb);
@@ -31,8 +35,10 @@ private:
 
     float m_rectX = 0.0f;
     float m_rectY = 0.0f;
-    float m_rectW = 300.0f;
-    float m_rectH = 720.0f;
+    float m_rectWidth = 300.0f;
+    float m_rectHeight = 720.0f;
+
+    int m_windowHeight = 0;
 
     PropertyChangedCallback m_onPropertyChanged;
 

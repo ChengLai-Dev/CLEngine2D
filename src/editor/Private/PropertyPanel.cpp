@@ -22,16 +22,24 @@ Node* PropertyPanel::GetTarget() const {
     return m_target;
 }
 
-void PropertyPanel::SetRect(float x, float y, float w, float h) {
+void PropertyPanel::SetRect(float x, float y, float width, float height) {
     m_rectX = x;
     m_rectY = y;
-    m_rectW = w;
-    m_rectH = h;
-    m_camera->SetProjection(0.0f, w, h, 0.0f);
+    m_rectWidth = width;
+    m_rectHeight = height;
+    m_camera->SetProjection(0.0f, width, height, 0.0f);
+}
+
+void PropertyPanel::SetWindowHeight(int height) {
+    m_windowHeight = height;
 }
 
 void PropertyPanel::OnPropertyChanged(PropertyChangedCallback cb) {
     m_onPropertyChanged = std::move(cb);
+}
+
+IEditorPanel::HitRect PropertyPanel::GetHitRect() const {
+    return { m_rectX, m_rectY, m_rectWidth, m_rectHeight };
 }
 
 void PropertyPanel::DrawProperty(const char* label, float value, float minVal, float maxVal,
@@ -52,17 +60,18 @@ void PropertyPanel::DrawProperty(const char* label, float value, float minVal, f
 void PropertyPanel::OnRender(Renderer& renderer) {
     float bgColor[4] = { 0.12f, 0.12f, 0.14f, 1.0f };
 
+    float vpY = static_cast<float>(m_windowHeight) - m_rectY - m_rectHeight;
     RenderCommand::SetViewport(
         static_cast<int>(m_rectX),
-        static_cast<int>(m_rectY),
-        static_cast<int>(m_rectW),
-        static_cast<int>(m_rectH)
+        static_cast<int>(vpY),
+        static_cast<int>(m_rectWidth),
+        static_cast<int>(m_rectHeight)
     );
 
     renderer.BeginScene(*m_camera);
 
-    Mat4 bgTransform = Mat4::Translate(Vec3(m_rectW * 0.5f, m_rectH * 0.5f, 0.0f));
-    renderer.DrawQuad(bgTransform, Vec2(m_rectW, m_rectH),
+    Mat4 bgTransform = Mat4::Translate(Vec3(m_rectWidth * 0.5f, m_rectHeight * 0.5f, 0.0f));
+    renderer.DrawQuad(bgTransform, Vec2(m_rectWidth, m_rectHeight),
                       nullptr, bgColor,
                       0.0f, 0.0f, 1.0f, 1.0f);
 

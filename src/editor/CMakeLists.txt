@@ -2,14 +2,19 @@ add_executable(editor
     main.cpp
     Public/EditorApp.h
     Private/EditorApp.cpp
+    Public/IEditorPanel.h
+    Public/EditorUISystem.h
+    Private/EditorUISystem.cpp
     Public/CanvasView.h
     Private/CanvasView.cpp
+    Public/MenuBar.h
+    Private/MenuBar.cpp
+    Public/WidgetPalette.h
+    Private/WidgetPalette.cpp
     Public/PropertyPanel.h
     Private/PropertyPanel.cpp
     Public/WidgetTreePanel.h
     Private/WidgetTreePanel.cpp
-    Public/Toolbar.h
-    Private/Toolbar.cpp
     Public/Gizmo.h
     Private/Gizmo.cpp
     Public/Serializer.h

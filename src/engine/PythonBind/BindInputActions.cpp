@@ -57,6 +57,7 @@ void RegisterInputActionsBindings(py::module_& m)
         .def("RemoveContext", &InputSystem::RemoveContext)
         .def("SetInputMode", &InputSystem::SetInputMode)
         .def("GetInputMode", &InputSystem::GetInputMode)
-        .def("Update", &InputSystem::Update)
+        .def("PollEvents", &InputSystem::PollEvents)
+        .def("Advance", &InputSystem::Advance)
         .def("Clear", &InputSystem::Clear);
 }

@@ -15,16 +15,24 @@ void WidgetTreePanel::SetRoot(Node* root) {
     m_root = root;
 }
 
-void WidgetTreePanel::SetRect(float x, float y, float w, float h) {
+void WidgetTreePanel::SetRect(float x, float y, float width, float height) {
     m_rectX = x;
     m_rectY = y;
-    m_rectW = w;
-    m_rectH = h;
-    m_camera->SetProjection(0.0f, w, h, 0.0f);
+    m_rectWidth = width;
+    m_rectHeight = height;
+    m_camera->SetProjection(0.0f, width, height, 0.0f);
+}
+
+void WidgetTreePanel::SetWindowHeight(int height) {
+    m_windowHeight = height;
 }
 
 void WidgetTreePanel::OnSelectionChanged(SelectionChangedCallback cb) {
     m_onSelectionChanged = std::move(cb);
+}
+
+IEditorPanel::HitRect WidgetTreePanel::GetHitRect() const {
+    return { m_rectX, m_rectY, m_rectWidth, m_rectHeight };
 }
 
 Node* WidgetTreePanel::GetSelectedNode() const {
@@ -34,7 +42,7 @@ Node* WidgetTreePanel::GetSelectedNode() const {
 void WidgetTreePanel::VisitNode(Node* node, Renderer& renderer, float& y, int depth) {
     if (!node) return;
 
-    float itemH = 22.0f;
+    float itemHeight = 22.0f;
     float indent = static_cast<float>(depth) * 16.0f;
 
     float bgColor[4] = { 0.15f, 0.15f, 0.17f, 1.0f };
@@ -43,12 +51,12 @@ void WidgetTreePanel::VisitNode(Node* node, Renderer& renderer, float& y, int de
 
     float* useColor = (node == m_selectedNode) ? selColor : bgColor;
 
-    Mat4 itemBg = Mat4::Translate(Vec3(indent + 2.0f + m_rectW * 0.5f, y, 0.0f));
-    renderer.DrawQuad(itemBg, Vec2(m_rectW - indent - 4.0f, itemH),
+    Mat4 itemBg = Mat4::Translate(Vec3(indent + 2.0f + m_rectWidth * 0.5f, y, 0.0f));
+    renderer.DrawQuad(itemBg, Vec2(m_rectWidth - indent - 4.0f, itemHeight),
                       nullptr, useColor,
                       0.0f, 0.0f, 1.0f, 1.0f);
 
-    y += itemH;
+    y += itemHeight;
 
     for (size_t i = 0; i < node->GetChildCount(); ++i) {
         VisitNode(node->GetChild(i), renderer, y, depth + 1);
@@ -58,17 +66,18 @@ void WidgetTreePanel::VisitNode(Node* node, Renderer& renderer, float& y, int de
 void WidgetTreePanel::OnRender(Renderer& renderer) {
     float bgColor[4] = { 0.1f, 0.1f, 0.12f, 1.0f };
 
+    float vpY = static_cast<float>(m_windowHeight) - m_rectY - m_rectHeight;
     RenderCommand::SetViewport(
         static_cast<int>(m_rectX),
-        static_cast<int>(m_rectY),
-        static_cast<int>(m_rectW),
-        static_cast<int>(m_rectH)
+        static_cast<int>(vpY),
+        static_cast<int>(m_rectWidth),
+        static_cast<int>(m_rectHeight)
     );
 
     renderer.BeginScene(*m_camera);
 
-    Mat4 bgTransform = Mat4::Translate(Vec3(m_rectW * 0.5f, m_rectH * 0.5f, 0.0f));
-    renderer.DrawQuad(bgTransform, Vec2(m_rectW, m_rectH),
+    Mat4 bgTransform = Mat4::Translate(Vec3(m_rectWidth * 0.5f, m_rectHeight * 0.5f, 0.0f));
+    renderer.DrawQuad(bgTransform, Vec2(m_rectWidth, m_rectHeight),
                       nullptr, bgColor,
                       0.0f, 0.0f, 1.0f, 1.0f);
 

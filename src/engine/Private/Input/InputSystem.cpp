@@ -6,6 +6,7 @@
 #include <cmath>
 #include <cstddef>
 #include <unordered_set>
+#include <GLFW/glfw3.h>
 #include <vector>
 
 InputSystem& InputSystem::GetInstance() {
@@ -148,7 +149,11 @@ void InputSystem::RebuildControlMappings() {
     m_mappingsDirty = false;
 }
 
-void InputSystem::Update() {
+void InputSystem::PollEvents() {
+    glfwPollEvents();
+}
+
+void InputSystem::Advance() {
     RawInput::Update();
 
     if (m_mappingsDirty) {
@@ -222,10 +227,6 @@ void InputSystem::Update() {
     for (InputAction* action : actions) {
         action->Update();
     }
-}
-
-void InputSystem::EndFrame() {
-    RawInput::EndFrame();
 }
 
 void InputSystem::Clear() {

@@ -38,22 +38,22 @@ void Application::Run() {
         double currentTime = Window::GetTime();
         float deltaTime = static_cast<float>(currentTime - lastTime);
 
-        m_window->OnUpdate();
+        InputSystem::GetInstance().PollEvents();
 
-        // Input mode routing
         EInputMode mode = InputSystem::GetInstance().GetInputMode();
         if (mode == EInputMode::GameAndUI || mode == EInputMode::UIOnly) {
             InputSystem::GetInstance().ResetUIConsumedFlags();
             UISystem::GetInstance().ProcessEvents();
         }
 
+        OnUpdate(deltaTime);
+
         if (mode != EInputMode::UIOnly) {
-            InputSystem::GetInstance().Update();
+            InputSystem::GetInstance().Advance();
         }
 
-        OnUpdate(deltaTime);
         OnRender();
-        InputSystem::GetInstance().EndFrame();
+        m_window->SwapBuffers();
         lastTime = currentTime;
     }
 

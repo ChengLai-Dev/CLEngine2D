@@ -22,11 +22,15 @@ Scene* CanvasView::GetEditedScene() const {
     return m_editedScene;
 }
 
-void CanvasView::SetViewRect(float x, float y, float w, float h) {
+void CanvasView::SetRect(float x, float y, float w, float h) {
     m_viewX = x;
     m_viewY = y;
     m_viewW = w;
     m_viewH = h;
+}
+
+void CanvasView::SetWindowHeight(int height) {
+    m_windowHeight = height;
 }
 
 void CanvasView::Zoom(float factor) {
@@ -52,6 +56,66 @@ Vec3 CanvasView::ScreenToWorld(const Vec2& screenPos) const {
     float worldY = (screenPos.y - m_viewY - halfH) / m_zoomLevel + m_viewCenter.y;
 
     return Vec3(worldX, worldY, 0.0f);
+}
+
+IEditorPanel::HitRect CanvasView::GetHitRect() const {
+    return { m_viewX, m_viewY, m_viewW, m_viewH };
+}
+
+bool CanvasView::OnMouseEvent(const MouseEvent& event) {
+    Vec3 worldPos = ScreenToWorld(event.screenPos);
+
+    switch (event.type) {
+        case MouseEvent::Down:
+            if (event.button == 0) {
+                GizmoHandle::Type handle = m_gizmo->HitTestHandle(worldPos);
+                if (handle != GizmoHandle::NONE) {
+                    m_gizmo->BeginDrag(handle, worldPos);
+                    m_isGizmoDragging = true;
+                    return true;
+                }
+                if (m_onCanvasClick) {
+                    m_onCanvasClick(worldPos);
+                }
+                return true;
+            }
+            if (event.button == 1) {
+                m_isPanning = true;
+                m_panLastPos = event.screenPos;
+                return true;
+            }
+            return false;
+
+        case MouseEvent::Move:
+            if (event.button == 0 && m_isGizmoDragging) {
+                m_gizmo->Drag(worldPos);
+                return true;
+            }
+            if (event.button == 1 && m_isPanning) {
+                Vec2 delta = event.screenPos - m_panLastPos;
+                Pan(Vec2(-delta.x, delta.y) * 0.5f);
+                m_panLastPos = event.screenPos;
+                return true;
+            }
+            return false;
+
+        case MouseEvent::Up:
+            if (event.button == 0 && m_isGizmoDragging) {
+                m_gizmo->EndDrag();
+                m_isGizmoDragging = false;
+                return true;
+            }
+            if (event.button == 1 && m_isPanning) {
+                m_isPanning = false;
+                return true;
+            }
+            return false;
+
+        case MouseEvent::Scroll:
+            Zoom(event.scrollDelta > 0.0f ? 1.1f : 0.9f);
+            return true;
+    }
+    return false;
 }
 
 void CanvasView::OnUpdate(float deltaTime) {
@@ -91,11 +155,6 @@ void CanvasView::DrawGrid(Renderer& renderer) {
 void CanvasView::OnRender(Renderer& renderer) {
     if (!m_editedScene) return;
 
-    float left = -m_viewCenter.x * m_viewW * 0.5f;
-    float right = m_viewW * 0.5f / m_zoomLevel + m_viewCenter.x;
-    float bottom = m_viewH * 0.5f / m_zoomLevel + m_viewCenter.y;
-    float top = -m_viewCenter.y * m_viewH * 0.5f;
-
     m_camera->SetProjection(
         -m_viewW * 0.5f / m_zoomLevel + m_viewCenter.x,
         m_viewW * 0.5f / m_zoomLevel + m_viewCenter.x,
@@ -103,9 +162,10 @@ void CanvasView::OnRender(Renderer& renderer) {
         m_viewH * 0.5f / m_zoomLevel + m_viewCenter.y
     );
 
+    float vpY = static_cast<float>(m_windowHeight) - m_viewY - m_viewH;
     RenderCommand::SetViewport(
         static_cast<int>(m_viewX),
-        static_cast<int>(m_viewY),
+        static_cast<int>(vpY),
         static_cast<int>(m_viewW),
         static_cast<int>(m_viewH)
     );
@@ -113,7 +173,7 @@ void CanvasView::OnRender(Renderer& renderer) {
     RenderCommand::SetScissor(true);
     RenderCommand::SetScissorRect(
         static_cast<int>(m_viewX),
-        static_cast<int>(m_viewY),
+        static_cast<int>(vpY),
         static_cast<int>(m_viewW),
         static_cast<int>(m_viewH)
     );

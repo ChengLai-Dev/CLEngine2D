@@ -67,8 +67,7 @@ void Window::Shutdown() {
     glfwTerminate();
 }
 
-void Window::OnUpdate() {
-    glfwPollEvents();
+void Window::SwapBuffers() {
     glfwSwapBuffers(m_window);
 }
 
