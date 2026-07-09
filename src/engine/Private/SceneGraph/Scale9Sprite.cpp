@@ -20,12 +20,7 @@ void Scale9Sprite::OnDraw(Renderer& renderer, const Mat4& worldTransform, float 
         return;
     }
 
-    float finalColor[4] = {
-        m_color.x,
-        m_color.y,
-        m_color.z,
-        m_color.w * worldOpacity
-    };
+    Color finalColor(m_color.x, m_color.y, m_color.z, m_color.w * worldOpacity);
 
     float texW = static_cast<float>(m_texture->GetWidth());
     float texH = static_cast<float>(m_texture->GetHeight());
@@ -71,7 +66,7 @@ void Scale9Sprite::OnDraw(Renderer& renderer, const Mat4& worldTransform, float 
             Mat4 worldSlice = worldTransform * sliceTransform;
 
             renderer.DrawQuad(worldSlice, Vec2(dw, dh),
-                              m_texture.get(), finalColor,
+                              finalColor, m_texture.get(),
                               u, v, uw, vh);
         }
     }

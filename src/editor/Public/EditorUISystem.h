@@ -21,7 +21,7 @@ public:
     void Clear();
 
 private:
-    struct Entry {
+    struct PanelEntry {
         IEditorPanel* panel;
         int priority;
     };
@@ -29,7 +29,7 @@ private:
     void Capture(IEditorPanel* panel, int button);
     void ReleaseCapture();
 
-    std::vector<Entry> m_entries;
+    std::vector<PanelEntry> m_panels;
     IEditorPanel* m_capturedPanel = nullptr;
     int m_capturedButton = -1;
 };

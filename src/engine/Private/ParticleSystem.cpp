@@ -106,19 +106,14 @@ void ParticleEmitter::Update(float deltaTime) {
 }
 
 void ParticleEmitter::Render(Renderer& renderer) const {
-    float colorArr[4];
     Texture* tex = m_texture.get();
 
     for (const Particle& p : m_particles) {
         if (!p.active) continue;
 
-        colorArr[0] = p.color.x;
-        colorArr[1] = p.color.y;
-        colorArr[2] = p.color.z;
-        colorArr[3] = p.color.w;
-
         renderer.DrawQuad(p.position, Vec3(p.size, p.size, 1.0f),
-                          p.rotation, tex, colorArr);
+                          p.rotation,
+                          Color(p.color.x, p.color.y, p.color.z, p.color.w), tex);
     }
 }
 

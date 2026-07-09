@@ -169,7 +169,7 @@ void TileMap::Render(Renderer& renderer, const Vec2& offset) const {
     for (const auto& layer : m_layers) {
         if (!layer.visible) continue;
 
-        float layerOpacity[4] = { 1.0f, 1.0f, 1.0f, layer.opacity };
+        Color layerOpacity(1.0f, 1.0f, 1.0f, layer.opacity);
 
         for (int y = 0; y < layer.height; ++y) {
             for (int x = 0; x < layer.width; ++x) {
@@ -194,8 +194,7 @@ void TileMap::Render(Renderer& renderer, const Vec2& offset) const {
                 renderer.DrawQuad(position,
                                   Vec3(static_cast<float>(m_tileWidth), static_cast<float>(m_tileHeight), 1.0f),
                                   0.0f,
-                                  m_tileSet.texture.get(),
-                                  layerOpacity,
+                                  layerOpacity, m_tileSet.texture.get(),
                                   texOffsetX, texOffsetY,
                                   texTileScaleX, texTileScaleY);
             }

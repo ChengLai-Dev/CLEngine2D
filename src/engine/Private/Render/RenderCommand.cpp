@@ -10,6 +10,8 @@ void RenderCommand::Clear() {
 }
 
 void RenderCommand::SetViewport(int x, int y, int width, int height) {
+    if (width < 0) width = 0;
+    if (height < 0) height = 0;
     glViewport(x, y, width, height);
 }
 
@@ -39,5 +41,7 @@ void RenderCommand::SetScissor(bool enabled) {
 }
 
 void RenderCommand::SetScissorRect(int x, int y, int width, int height) {
+    if (width < 0) width = 0;
+    if (height < 0) height = 0;
     glScissor(x, y, width, height);
 }

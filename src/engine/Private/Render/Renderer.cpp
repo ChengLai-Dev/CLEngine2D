@@ -161,7 +161,7 @@ void Renderer::EndScene() {
 }
 
 void Renderer::DrawQuad(const Vec3& position, const Vec3& size, float rotation,
-                        Texture* texture, const float color[4],
+                        const Color& color, Texture* texture,
                         float texOffsetX, float texOffsetY,
                         float texScaleX, float texScaleY) {
     Mat4 transform =
@@ -170,13 +170,13 @@ void Renderer::DrawQuad(const Vec3& position, const Vec3& size, float rotation,
         Mat4::Scale(size);
 
     DrawQuad(transform, Vec2(size.x, size.y),
-             texture, color,
+             color, texture,
              texOffsetX, texOffsetY,
              texScaleX, texScaleY);
 }
 
 void Renderer::DrawQuad(const Mat4& worldTransform, const Vec2& contentSize,
-                        Texture* texture, const float color[4],
+                        const Color& color, Texture* texture,
                         float texOffsetX, float texOffsetY,
                         float texScaleX, float texScaleY) {
     if (m_quadCount >= m_maxQuads) {
@@ -236,16 +236,16 @@ void Renderer::DrawQuad(const Mat4& worldTransform, const Vec2& contentSize,
         m_quadVertexBuffer[start + i].TexCoord[0] = uvs[i][0];
         m_quadVertexBuffer[start + i].TexCoord[1] = uvs[i][1];
         m_quadVertexBuffer[start + i].TexIndex = static_cast<float>(texIndex);
-        m_quadVertexBuffer[start + i].Color[0] = color[0];
-        m_quadVertexBuffer[start + i].Color[1] = color[1];
-        m_quadVertexBuffer[start + i].Color[2] = color[2];
-        m_quadVertexBuffer[start + i].Color[3] = color[3];
+        m_quadVertexBuffer[start + i].Color[0] = color.r;
+        m_quadVertexBuffer[start + i].Color[1] = color.g;
+        m_quadVertexBuffer[start + i].Color[2] = color.b;
+        m_quadVertexBuffer[start + i].Color[3] = color.a;
     }
 
     ++m_quadCount;
 }
 
-void Renderer::DrawLine(const Vec3& from, const Vec3& to, const float color[4]) {
+void Renderer::DrawLine(const Vec3& from, const Vec3& to, const Color& color) {
     if (m_lineCount >= m_maxLines) {
         Flush();
     }
@@ -259,10 +259,10 @@ void Renderer::DrawLine(const Vec3& from, const Vec3& to, const float color[4]) 
         m_lineVertexBuffer[start + i].TexCoord[0] = 0.0f;
         m_lineVertexBuffer[start + i].TexCoord[1] = 0.0f;
         m_lineVertexBuffer[start + i].TexIndex = 0.0f;
-        m_lineVertexBuffer[start + i].Color[0] = color[0];
-        m_lineVertexBuffer[start + i].Color[1] = color[1];
-        m_lineVertexBuffer[start + i].Color[2] = color[2];
-        m_lineVertexBuffer[start + i].Color[3] = color[3];
+        m_lineVertexBuffer[start + i].Color[0] = color.r;
+        m_lineVertexBuffer[start + i].Color[1] = color.g;
+        m_lineVertexBuffer[start + i].Color[2] = color.b;
+        m_lineVertexBuffer[start + i].Color[3] = color.a;
     }
 
     ++m_lineCount;

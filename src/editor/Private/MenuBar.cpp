@@ -44,29 +44,25 @@ void MenuBar::DrawDropdown(Renderer& renderer, float dropX, float dropY,
                            const char* const* items, const MenuBarAction* actions, int count) {
     (void)items;
     (void)actions;
-    float bgColor[4] = { 0.15f, 0.15f, 0.17f, 1.0f };
-    float itemColor[4] = { 0.12f, 0.12f, 0.14f, 1.0f };
-    float textColor[4] = { 0.85f, 0.85f, 0.85f, 1.0f };
-    (void)textColor;
+    Color bgColor(0.15f, 0.15f, 0.17f, 1.0f);
+    Color itemColor(0.12f, 0.12f, 0.14f, 1.0f);
 
     float itemH = 22.0f;
     float menuW = 160.0f;
     float totalH = static_cast<float>(count) * itemH;
 
     Mat4 bg = Mat4::Translate(Vec3(dropX + menuW * 0.5f, dropY + totalH * 0.5f, 0.0f));
-    renderer.DrawQuad(bg, Vec2(menuW, totalH), nullptr, bgColor, 0.0f, 0.0f, 1.0f, 1.0f);
+    renderer.DrawQuad(bg, Vec2(menuW, totalH));
 
     for (int i = 0; i < count; ++i) {
         float iy = dropY + static_cast<float>(i) * itemH;
         Mat4 itemBg = Mat4::Translate(Vec3(dropX + menuW * 0.5f, iy + itemH * 0.5f, 0.0f));
-        renderer.DrawQuad(itemBg, Vec2(menuW - 2.0f, itemH - 1.0f), nullptr, itemColor, 0.0f, 0.0f, 1.0f, 1.0f);
+        renderer.DrawQuad(itemBg, Vec2(menuW - 2.0f, itemH - 1.0f));
     }
 }
 
 void MenuBar::OnRender(Renderer& renderer) {
-    float bgColor[4] = { 0.06f, 0.06f, 0.08f, 1.0f };
-    float titleColor[4] = { 0.8f, 0.8f, 0.8f, 1.0f };
-    (void)titleColor;
+    Color bgColor(0.06f, 0.06f, 0.08f, 1.0f);
 
     float vpY = static_cast<float>(m_windowHeight) - m_rectTop - m_rectHeight;
 
@@ -80,13 +76,13 @@ void MenuBar::OnRender(Renderer& renderer) {
     renderer.BeginScene(*m_camera);
 
     Mat4 bg = Mat4::Translate(Vec3(m_rectWidth * 0.5f, m_rectHeight * 0.5f, 0.0f));
-    renderer.DrawQuad(bg, Vec2(m_rectWidth, m_rectHeight), nullptr, bgColor, 0.0f, 0.0f, 1.0f, 1.0f);
+    renderer.DrawQuad(bg, Vec2(m_rectWidth, m_rectHeight));
 
     float labelX = 12.0f;
     float labelW = 60.0f;
     for (int i = 0; i < MENU_COUNT; ++i) {
         Mat4 labelBg = Mat4::Translate(Vec3(labelX + labelW * 0.5f, m_rectHeight * 0.5f, 0.0f));
-        renderer.DrawQuad(labelBg, Vec2(labelW, m_rectHeight), nullptr, bgColor, 0.0f, 0.0f, 1.0f, 1.0f);
+        renderer.DrawQuad(labelBg, Vec2(labelW, m_rectHeight));
         labelX += labelW;
     }
 

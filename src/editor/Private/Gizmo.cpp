@@ -121,7 +121,8 @@ void Gizmo::Draw(Renderer& renderer, const OrthographicCamera& camera) {
 
     GizmoData data = ComputeGizmoData();
 
-    float selectColor[4] = { 1.0f, 0.5f, 0.0f, 1.0f };
+    Color selectColor(0.2f, 0.8f, 0.2f, 1.0f);
+    float edgeThickness = 3.0f / m_zoomLevel;
 
     for (int e = 0; e < 4; ++e) {
         Vec3 mid = Vec3(
@@ -131,19 +132,19 @@ void Gizmo::Draw(Renderer& renderer, const OrthographicCamera& camera) {
         );
         if (data.edgeLengths[e] > 0.0f) {
             Mat4 edgeTransform = Mat4::Translate(mid) * Mat4::RotateZ(data.edgeAngles[e]);
-            renderer.DrawQuad(edgeTransform, Vec2(data.edgeLengths[e], 3.0f),
-                              nullptr, selectColor,
-                              0.0f, 0.0f, 1.0f, 1.0f);
+            renderer.DrawQuad(edgeTransform, Vec2(data.edgeLengths[e], edgeThickness),
+                              selectColor);
         }
     }
 
-    float handleColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
     for (int i = 0; i < 8; ++i) {
         Mat4 handleTransform = Mat4::Translate(data.handlePositions[i]) * Mat4::Scale(Vec3(6.0f, 6.0f, 1.0f));
-        renderer.DrawQuad(handleTransform, Vec2(6.0f, 6.0f),
-                          nullptr, handleColor,
-                          0.0f, 0.0f, 1.0f, 1.0f);
+        renderer.DrawQuad(handleTransform, Vec2(6.0f, 6.0f));
     }
+}
+
+void Gizmo::SetZoomLevel(float zoom) {
+    m_zoomLevel = zoom;
 }
 
 bool Gizmo::IsDragging() const {

@@ -58,7 +58,7 @@ void PropertyPanel::DrawProperty(const char* label, float value, float minVal, f
 }
 
 void PropertyPanel::OnRender(Renderer& renderer) {
-    float bgColor[4] = { 0.12f, 0.12f, 0.14f, 1.0f };
+    Color bgColor(0.12f, 0.12f, 0.14f, 1.0f);
 
     float vpY = static_cast<float>(m_windowHeight) - m_rectTop - m_rectHeight;
     RenderCommand::SetViewport(
@@ -72,14 +72,12 @@ void PropertyPanel::OnRender(Renderer& renderer) {
 
     Mat4 bgTransform = Mat4::Translate(Vec3(m_rectWidth * 0.5f, m_rectHeight * 0.5f, 0.0f));
     renderer.DrawQuad(bgTransform, Vec2(m_rectWidth, m_rectHeight),
-                      nullptr, bgColor,
-                      0.0f, 0.0f, 1.0f, 1.0f);
+                      bgColor);
 
     if (m_target) {
         float y = 20.0f;
 
-        float labelColor[4] = { 0.9f, 0.6f, 0.2f, 1.0f };
-        (void)labelColor;
+        Color labelColor(0.9f, 0.6f, 0.2f, 1.0f);
 
         Vec3 pos = m_target->GetPosition();
         Vec2 size = m_target->GetContentSize();
@@ -88,8 +86,7 @@ void PropertyPanel::OnRender(Renderer& renderer) {
 
         Mat4 labelBg = Mat4::Translate(Vec3(10.0f + 40.0f, y, 0.0f));
         renderer.DrawQuad(labelBg, Vec2(80.0f, 20.0f),
-                          nullptr, labelColor,
-                          0.0f, 0.0f, 1.0f, 1.0f);
+                          labelColor);
     }
 
     renderer.EndScene();

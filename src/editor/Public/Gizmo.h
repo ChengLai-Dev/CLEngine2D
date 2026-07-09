@@ -35,6 +35,9 @@ public:
 
     void Draw(Renderer& renderer, const OrthographicCamera& camera);
 
+    void SetZoomLevel(float zoom);
+    float GetZoomLevel() const { return m_zoomLevel; }
+
     bool IsDragging() const;
 
 private:
@@ -57,5 +60,6 @@ private:
 
     Node* m_target = nullptr;
     GizmoMode m_mode = GizmoMode::TRANSLATE;
+    float m_zoomLevel = 1.0f;
     DragState m_drag;
 };

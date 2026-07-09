@@ -3,6 +3,7 @@
 #include "Math/Vec2.h"
 #include "Math/Vec3.h"
 #include "Math/Mat4.h"
+#include "Types/Color.h"
 
 #include <glad/glad.h>
 
@@ -40,16 +41,18 @@ public:
     void EndScene();
 
     void DrawQuad(const Vec3& position, const Vec3& size, float rotation,
-                  Texture* texture, const float color[4],
+                  const Color& color = Color(),
+                  Texture* texture = nullptr,
                   float texOffsetX = 0.0f, float texOffsetY = 0.0f,
                   float texScaleX = 1.0f, float texScaleY = 1.0f);
 
     void DrawQuad(const Mat4& worldTransform, const Vec2& contentSize,
-                  Texture* texture, const float color[4],
+                  const Color& color = Color(),
+                  Texture* texture = nullptr,
                   float texOffsetX = 0.0f, float texOffsetY = 0.0f,
                   float texScaleX = 1.0f, float texScaleY = 1.0f);
 
-    void DrawLine(const Vec3& from, const Vec3& to, const float color[4]);
+    void DrawLine(const Vec3& from, const Vec3& to, const Color& color);
 
     void DrawTriangles(const QuadVertex* vertices, unsigned int vertexCount,
                        const unsigned int* indices, unsigned int indexCount,

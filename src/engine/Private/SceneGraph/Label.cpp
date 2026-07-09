@@ -35,14 +35,8 @@ void Label::SetBackground(std::shared_ptr<Texture> texture) {
 }
 
 void Label::OnDraw(Renderer& renderer, const Mat4& worldTransform, float worldOpacity) {
-    float bgColor[4] = {
-        m_color.x,
-        m_color.y,
-        m_color.z,
-        m_color.w * worldOpacity
-    };
+    Color bgColor(m_color.x, m_color.y, m_color.z, m_color.w * worldOpacity);
 
     renderer.DrawQuad(worldTransform, m_contentSize,
-                      m_background.get(), bgColor,
-                      0.0f, 0.0f, 1.0f, 1.0f);
+                    bgColor, m_background.get());
 }

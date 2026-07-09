@@ -4,15 +4,15 @@
 #include <algorithm>
 
 void EditorUISystem::Register(IEditorPanel* panel, int priority) {
-    m_entries.push_back({panel, priority});
-    std::sort(m_entries.begin(), m_entries.end(),
-        [](const Entry& a, const Entry& b) { return a.priority < b.priority; });
+    m_panels.push_back({panel, priority});
+    std::sort(m_panels.begin(), m_panels.end(),
+        [](const PanelEntry& a, const PanelEntry& b) { return a.priority < b.priority; });
 }
 
 void EditorUISystem::Unregister(IEditorPanel* panel) {
-    auto it = std::remove_if(m_entries.begin(), m_entries.end(),
-        [panel](const Entry& e) { return e.panel == panel; });
-    m_entries.erase(it, m_entries.end());
+    auto it = std::remove_if(m_panels.begin(), m_panels.end(),
+        [panel](const PanelEntry& e) { return e.panel == panel; });
+    m_panels.erase(it, m_panels.end());
     if (m_capturedPanel == panel) {
         m_capturedPanel = nullptr;
     }
@@ -40,12 +40,22 @@ void EditorUISystem::ProcessInput() {
     float scroll = RawInput::GetScrollDeltaY();
 
     if (scroll != 0.0f) {
-        for (const auto& entry : m_entries) {
-            auto hit = entry.panel->GetHitRect();
+        for (const PanelEntry& entry : m_panels) {
+            IEditorPanel::HitRect hit = entry.panel->GetHitRect();
             if (hit.Contains(pos.x, pos.y)) {
                 MouseEvent ev{ MouseEvent::Scroll, pos, 0, scroll };
                 if (entry.panel->OnMouseEvent(ev)) break;
             }
+        }
+    }
+
+    // Hover: 始终向光标下方面板发送 Move 事件（button=-1 表示非按键移动）
+    for (const PanelEntry& entry : m_panels) {
+        IEditorPanel::HitRect hit = entry.panel->GetHitRect();
+        if (hit.Contains(pos.x, pos.y)) {
+            MouseEvent ev{ MouseEvent::Move, pos, -1, 0.0f };
+            entry.panel->OnMouseEvent(ev);
+            break;
         }
     }
 
@@ -65,8 +75,8 @@ void EditorUISystem::ProcessInput() {
     }
 
     if (leftPressed) {
-        for (const auto& entry : m_entries) {
-            auto hit = entry.panel->GetHitRect();
+        for (const PanelEntry& entry : m_panels) {
+            IEditorPanel::HitRect hit = entry.panel->GetHitRect();
             if (hit.Contains(pos.x, pos.y)) {
                 MouseEvent ev{ MouseEvent::Down, pos, 0, 0.0f };
                 if (entry.panel->OnMouseEvent(ev)) {
@@ -80,8 +90,8 @@ void EditorUISystem::ProcessInput() {
     }
 
     if (rightPressed) {
-        for (const auto& entry : m_entries) {
-            auto hit = entry.panel->GetHitRect();
+        for (const PanelEntry& entry : m_panels) {
+            IEditorPanel::HitRect hit = entry.panel->GetHitRect();
             if (hit.Contains(pos.x, pos.y)) {
                 MouseEvent ev{ MouseEvent::Down, pos, 1, 0.0f };
                 if (entry.panel->OnMouseEvent(ev)) {
@@ -96,13 +106,13 @@ void EditorUISystem::ProcessInput() {
 }
 
 void EditorUISystem::UpdatePanels(float deltaTime) {
-    for (const auto& entry : m_entries) {
+    for (const PanelEntry& entry : m_panels) {
         entry.panel->OnUpdate(deltaTime);
     }
 }
 
 void EditorUISystem::RenderPanels(Renderer& renderer) {
-    for (const auto& entry : m_entries) {
+    for (const PanelEntry& entry : m_panels) {
         entry.panel->OnRender(renderer);
     }
 }
@@ -112,12 +122,12 @@ void EditorUISystem::SetPanelRect(IEditorPanel* panel, float x, float y, float w
 }
 
 void EditorUISystem::SetAllWindowHeight(int h) {
-    for (const auto& entry : m_entries) {
+    for (const PanelEntry& entry : m_panels) {
         entry.panel->SetWindowHeight(h);
     }
 }
 
 void EditorUISystem::Clear() {
-    m_entries.clear();
+    m_panels.clear();
     ReleaseCapture();
 }

@@ -23,15 +23,10 @@ void Sprite::SetTexScale(float x, float y) {
 }
 
 void Sprite::OnDraw(Renderer& renderer, const Mat4& worldTransform, float worldOpacity) {
-    float finalColor[4] = {
-        m_color.x,
-        m_color.y,
-        m_color.z,
-        m_color.w * worldOpacity
-    };
+    Color finalColor(m_color.x, m_color.y, m_color.z, m_color.w * worldOpacity);
 
     renderer.DrawQuad(worldTransform, m_contentSize,
-                      m_texture.get(), finalColor,
+                      finalColor, m_texture.get(),
                       m_texOffsetX, m_texOffsetY,
                       m_texScaleX, m_texScaleY);
 }

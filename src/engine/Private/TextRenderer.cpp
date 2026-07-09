@@ -126,17 +126,9 @@ void TextRenderer::RenderString(Renderer& renderer, const std::string& text,
 {
     if (!m_loaded || !m_atlas) return;
 
-    float finalColor[4];
+    Color finalColor;
     if (color) {
-        finalColor[0] = color[0];
-        finalColor[1] = color[1];
-        finalColor[2] = color[2];
-        finalColor[3] = color[3];
-    } else {
-        finalColor[0] = 1.0f;
-        finalColor[1] = 1.0f;
-        finalColor[2] = 1.0f;
-        finalColor[3] = 1.0f;
+        finalColor = Color(color[0], color[1], color[2], color[3]);
     }
 
     if (align != Align::Left) {
@@ -189,7 +181,7 @@ void TextRenderer::RenderString(Renderer& renderer, const std::string& text,
             float texScaleY = (g.t1 - g.t0);
 
             renderer.DrawQuad(transform, Vec2(1.0f, 1.0f),
-                              m_atlas.get(), finalColor,
+                              finalColor, m_atlas.get(),
                               g.s0, g.t0,
                               texScaleX, texScaleY);
         }

@@ -3,9 +3,11 @@
 #include <Scene.h>
 #include <SceneGraph/UISystem.h>
 #include <SceneGraph/Node.h>
+#include <SceneGraph/Widget.h>
 #include <Render/Renderer.h>
 #include <Render/OrthographicCamera.h>
 #include <Render/RenderCommand.h>
+#include <Input/RawInput.h>
 #include <glad/glad.h>
 
 CanvasView::CanvasView() {
@@ -93,6 +95,11 @@ bool CanvasView::OnMouseEvent(const MouseEvent& event) {
             return false;
 
         case MouseEvent::Move:
+            if (event.button == -1) {
+                Widget* hit = UISystem::GetInstance().HitTestScene(worldPos);
+                m_hoveredWidget = hit;
+                return false;
+            }
             if (event.button == 0 && m_isGizmoDragging) {
                 m_gizmo->Drag(worldPos);
                 return true;
@@ -129,8 +136,8 @@ void CanvasView::OnUpdate(float deltaTime) {
 }
 
 void CanvasView::DrawGrid(Renderer& renderer) {
-    float gridColor[4] = { 0.3f, 0.3f, 0.35f, 0.5f };
-    float centerColor[4] = { 0.5f, 0.5f, 0.6f, 0.8f };
+    Color gridColor(0.3f, 0.3f, 0.35f, 0.5f);
+    Color centerColor(0.5f, 0.5f, 0.6f, 0.8f);
 
     float halfW = m_rectWidth * 0.5f / m_zoomLevel;
     float halfH = m_rectHeight * 0.5f / m_zoomLevel;
@@ -184,13 +191,72 @@ void CanvasView::OnRender(Renderer& renderer) {
         static_cast<int>(m_rectHeight)
     );
 
+    // Hover outline: 鼠标离开 CanvasView 时清除残留
+    Vec2 mousePos = RawInput::GetMousePosition();
+    HitRect myHit = GetHitRect();
+    if (!myHit.Contains(mousePos.x, mousePos.y)) {
+        m_hoveredWidget = nullptr;
+    }
+
     renderer.BeginScene(*m_camera);
     DrawGrid(renderer);
     m_editedScene->OnRender(renderer);
+
+    float thickness = 3.0f / m_zoomLevel;
+
+    if (m_hoveredWidget && m_hoveredWidget != m_gizmo->GetTarget()) {
+        Color hoverColor(0.2f, 0.5f, 1.0f, 1.0f);
+        DrawWidgetOutline(renderer, m_hoveredWidget, hoverColor, thickness);
+    }
+
+    m_gizmo->SetZoomLevel(m_zoomLevel);
     m_gizmo->Draw(renderer, *m_camera);
     renderer.EndScene();
 
     RenderCommand::SetScissor(false);
+}
+
+void CanvasView::DrawWidgetOutline(Renderer& renderer, Node* target, const Color& color, float thickness) {
+    if (!target) return;
+
+    Vec2 size = target->GetContentSize();
+    const Mat4& world = const_cast<Node*>(target)->GetWorldTransform();
+
+    float halfW = size.x * 0.5f;
+    float halfH = size.y * 0.5f;
+    Vec3 localCorners[4] = {
+        Vec3(-halfW, -halfH, 0.0f),
+        Vec3( halfW, -halfH, 0.0f),
+        Vec3( halfW,  halfH, 0.0f),
+        Vec3(-halfW,  halfH, 0.0f)
+    };
+
+    Vec3 corners[4];
+    for (int i = 0; i < 4; ++i) {
+        corners[i] = world.TransformPoint(localCorners[i]);
+    }
+
+    Vec3 edgePairs[4][2] = {
+        { corners[0], corners[1] },
+        { corners[1], corners[2] },
+        { corners[2], corners[3] },
+        { corners[3], corners[0] }
+    };
+
+    for (int e = 0; e < 4; ++e) {
+        Vec3 from = edgePairs[e][0];
+        Vec3 to = edgePairs[e][1];
+        float dx = to.x - from.x;
+        float dy = to.y - from.y;
+        float length = std::sqrt(dx * dx + dy * dy);
+        if (length <= 0.0f) continue;
+
+        float angle = std::atan2(dy, dx);
+        Vec3 mid = Vec3((from.x + to.x) * 0.5f, (from.y + to.y) * 0.5f, 0.0f);
+        Mat4 edgeTransform = Mat4::Translate(mid) * Mat4::RotateZ(angle);
+        renderer.DrawQuad(edgeTransform, Vec2(length, thickness),
+                          color);
+    }
 }
 
 Gizmo* CanvasView::GetGizmo() const {

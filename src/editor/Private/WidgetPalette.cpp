@@ -66,8 +66,8 @@ bool WidgetPalette::OnMouseEvent(const MouseEvent& event) {
 }
 
 void WidgetPalette::OnRender(Renderer& renderer) {
-    float bgColor[4] = { 0.08f, 0.08f, 0.1f, 1.0f };
-    float btnColor[4] = { 0.2f, 0.25f, 0.3f, 1.0f };
+    Color bgColor(0.08f, 0.08f, 0.1f, 1.0f);
+    Color btnColor(0.2f, 0.25f, 0.3f, 1.0f);
 
     float vpY = static_cast<float>(m_windowHeight) - m_rectTop - m_rectHeight;
 
@@ -82,7 +82,7 @@ void WidgetPalette::OnRender(Renderer& renderer) {
 
     Mat4 bgTransform = Mat4::Translate(Vec3(m_rectWidth * 0.5f, m_rectHeight * 0.5f, 0.0f));
     renderer.DrawQuad(bgTransform, Vec2(m_rectWidth, m_rectHeight),
-                      nullptr, bgColor, 0.0f, 0.0f, 1.0f, 1.0f);
+                      bgColor);
 
     float padding = 5.0f;
     float btnWidth = 46.0f;
@@ -92,7 +92,7 @@ void WidgetPalette::OnRender(Renderer& renderer) {
     for (int i = 0; i < 5; ++i) {
         Mat4 btnTransform = Mat4::Translate(Vec3(bx + btnWidth * 0.5f, m_rectHeight * 0.5f, 0.0f));
         renderer.DrawQuad(btnTransform, Vec2(btnWidth - 2.0f, btnHeight),
-                          nullptr, btnColor, 0.0f, 0.0f, 1.0f, 1.0f);
+                          btnColor);
         bx += btnWidth;
     }
 

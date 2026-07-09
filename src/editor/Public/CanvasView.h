@@ -7,6 +7,7 @@
 #include <functional>
 
 class Renderer;
+struct Color;
 class OrthographicCamera;
 class Scene;
 class Node;
@@ -48,6 +49,7 @@ public:
 
 private:
     void DrawGrid(Renderer& renderer);
+    void DrawWidgetOutline(Renderer& renderer, Node* target, const Color& color, float thickness);
 
     Scene* m_editedScene = nullptr;
     std::unique_ptr<OrthographicCamera> m_camera;
@@ -69,4 +71,6 @@ private:
     Vec2 m_panLastPos;
 
     WidgetClickCallback m_onWidgetClicked;
+
+    Widget* m_hoveredWidget = nullptr;
 };
