@@ -74,7 +74,7 @@ bool CanvasView::OnMouseEvent(const MouseEvent& event) {
 
     switch (event.type) {
         case MouseEvent::Down:
-            if (event.button == 0) {
+            if (event.button == MouseEvent::Left) {
                 GizmoHandle::Type handle = m_gizmo->HitTestHandle(worldPos);
                 if (handle != GizmoHandle::NONE) {
                     m_gizmo->BeginDrag(handle, worldPos);
@@ -87,7 +87,7 @@ bool CanvasView::OnMouseEvent(const MouseEvent& event) {
                 }
                 return true;
             }
-            if (event.button == 1) {
+            if (event.button == MouseEvent::Right) {
                 m_isPanning = true;
                 m_panLastPos = event.screenPos;
                 return true;
@@ -95,16 +95,16 @@ bool CanvasView::OnMouseEvent(const MouseEvent& event) {
             return false;
 
         case MouseEvent::Move:
-            if (event.button == -1) {
+            if (event.button == MouseEvent::None) {
                 Widget* hit = UISystem::GetInstance().HitTestScene(worldPos);
                 m_hoveredWidget = hit;
                 return false;
             }
-            if (event.button == 0 && m_isGizmoDragging) {
+            if (event.button == MouseEvent::Left && m_isGizmoDragging) {
                 m_gizmo->Drag(worldPos);
                 return true;
             }
-            if (event.button == 1 && m_isPanning) {
+            if (event.button == MouseEvent::Right && m_isPanning) {
                 Vec2 delta = event.screenPos - m_panLastPos;
                 Pan(Vec2(-delta.x, delta.y) * 0.5f);
                 m_panLastPos = event.screenPos;
@@ -113,12 +113,12 @@ bool CanvasView::OnMouseEvent(const MouseEvent& event) {
             return false;
 
         case MouseEvent::Up:
-            if (event.button == 0 && m_isGizmoDragging) {
+            if (event.button == MouseEvent::Left && m_isGizmoDragging) {
                 m_gizmo->EndDrag();
                 m_isGizmoDragging = false;
                 return true;
             }
-            if (event.button == 1 && m_isPanning) {
+            if (event.button == MouseEvent::Right && m_isPanning) {
                 m_isPanning = false;
                 return true;
             }

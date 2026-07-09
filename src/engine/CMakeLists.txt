@@ -36,6 +36,7 @@ add_library(engine STATIC
     Public/Scene.h
     Private/Scene.cpp
     Public/Input/InputCodes.h
+    Public/Input/MouseEvent.h
     Public/Input/RawInput.h
     Public/Input/InputAction.h
     Public/Input/InputSystem.h

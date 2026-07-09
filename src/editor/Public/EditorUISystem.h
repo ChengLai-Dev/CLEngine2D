@@ -26,10 +26,10 @@ private:
         int priority;
     };
 
-    void Capture(IEditorPanel* panel, int button);
+    void Capture(IEditorPanel* panel, MouseEvent::ButtonType button);
     void ReleaseCapture();
 
     std::vector<PanelEntry> m_panels;
     IEditorPanel* m_capturedPanel = nullptr;
-    int m_capturedButton = -1;
+    MouseEvent::ButtonType m_capturedButton = MouseEvent::None;
 };

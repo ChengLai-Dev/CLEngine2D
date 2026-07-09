@@ -18,14 +18,14 @@ void EditorUISystem::Unregister(IEditorPanel* panel) {
     }
 }
 
-void EditorUISystem::Capture(IEditorPanel* panel, int button) {
+void EditorUISystem::Capture(IEditorPanel* panel, MouseEvent::ButtonType button) {
     m_capturedPanel = panel;
     m_capturedButton = button;
 }
 
 void EditorUISystem::ReleaseCapture() {
     m_capturedPanel = nullptr;
-    m_capturedButton = -1;
+    m_capturedButton = MouseEvent::None;
 }
 
 void EditorUISystem::ProcessInput() {
@@ -43,7 +43,7 @@ void EditorUISystem::ProcessInput() {
         for (const PanelEntry& entry : m_panels) {
             IEditorPanel::HitRect hit = entry.panel->GetHitRect();
             if (hit.Contains(pos.x, pos.y)) {
-                MouseEvent ev{ MouseEvent::Scroll, pos, 0, scroll };
+                MouseEvent ev{ MouseEvent::Scroll, pos, MouseEvent::None, scroll };
                 if (entry.panel->OnMouseEvent(ev)) break;
             }
         }
@@ -53,15 +53,15 @@ void EditorUISystem::ProcessInput() {
     for (const PanelEntry& entry : m_panels) {
         IEditorPanel::HitRect hit = entry.panel->GetHitRect();
         if (hit.Contains(pos.x, pos.y)) {
-            MouseEvent ev{ MouseEvent::Move, pos, -1, 0.0f };
+            MouseEvent ev{ MouseEvent::Move, pos, MouseEvent::None, 0.0f };
             entry.panel->OnMouseEvent(ev);
             break;
         }
     }
 
     if (m_capturedPanel) {
-        bool held = (m_capturedButton == 0) ? leftDown : rightDown;
-        bool released = (m_capturedButton == 0) ? leftReleased : rightReleased;
+        bool held = (m_capturedButton == MouseEvent::Left) ? leftDown : rightDown;
+        bool released = (m_capturedButton == MouseEvent::Left) ? leftReleased : rightReleased;
 
         if (released) {
             MouseEvent ev{ MouseEvent::Up, pos, m_capturedButton, 0.0f };
@@ -78,10 +78,10 @@ void EditorUISystem::ProcessInput() {
         for (const PanelEntry& entry : m_panels) {
             IEditorPanel::HitRect hit = entry.panel->GetHitRect();
             if (hit.Contains(pos.x, pos.y)) {
-                MouseEvent ev{ MouseEvent::Down, pos, 0, 0.0f };
+                MouseEvent ev{ MouseEvent::Down, pos, MouseEvent::Left, 0.0f };
                 if (entry.panel->OnMouseEvent(ev)) {
                     if (entry.panel->IsCapturing()) {
-                        Capture(entry.panel, 0);
+                        Capture(entry.panel, MouseEvent::Left);
                     }
                     break;
                 }
@@ -93,10 +93,10 @@ void EditorUISystem::ProcessInput() {
         for (const PanelEntry& entry : m_panels) {
             IEditorPanel::HitRect hit = entry.panel->GetHitRect();
             if (hit.Contains(pos.x, pos.y)) {
-                MouseEvent ev{ MouseEvent::Down, pos, 1, 0.0f };
+                MouseEvent ev{ MouseEvent::Down, pos, MouseEvent::Right, 0.0f };
                 if (entry.panel->OnMouseEvent(ev)) {
                     if (entry.panel->IsCapturing()) {
-                        Capture(entry.panel, 1);
+                        Capture(entry.panel, MouseEvent::Right);
                     }
                     break;
                 }

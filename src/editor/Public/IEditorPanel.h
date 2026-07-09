@@ -1,40 +1,22 @@
 #pragma once
 
-#include <Math/Vec2.h>
-#include <string>
+#include <Input/MouseEvent.h>
 #include <typeinfo>
 #include "Logger.h"
 
 class Renderer;
-
-struct MouseEvent {
-    enum Type { Down, Move, Up, Scroll };
-    Type type;
-    Vec2 screenPos;
-    int button = 0;
-    float scrollDelta = 0.0f;
-
-    std::string GetTypeString() const {
-        switch (type) {
-            case Down:   return "Down";
-            case Move:   return "Move";
-            case Up:     return "Up";
-            case Scroll: return "Scroll";
-            default:     return "Unknown";
-        }
-    }
-};
 
 class IEditorPanel {
 public:
     virtual ~IEditorPanel() = default;
 
     virtual bool OnMouseEvent(const MouseEvent& event) {
+        if (event.button == MouseEvent::None) return false;
         Logger::Debug("[{}] OnMouseEvent type={} pos=({},{}) btn={} scroll={}",
             typeid(*this).name(),
             event.GetTypeString(),
             event.screenPos.x, event.screenPos.y,
-            event.button, event.scrollDelta);
+            event.GetButtonString(), event.scrollDelta);
         return false;
     }
 

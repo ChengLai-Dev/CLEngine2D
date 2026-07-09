@@ -33,7 +33,7 @@ bool WidgetPalette::OnMouseEvent(const MouseEvent& event) {
     IEditorPanel::OnMouseEvent(event);
     switch (event.type) {
         case MouseEvent::Down: {
-            if (event.button != 0) return false;
+            if (event.button != MouseEvent::Left) return false;
             float localX = event.screenPos.x - m_rectLeft;
             float btnWidth = 46.0f;
             float padding = 5.0f;
