@@ -115,6 +115,9 @@ void EditorApp::OnInit() {
 void EditorApp::OnUpdate(float deltaTime) {
     m_uiSystem.ProcessInput();
     m_uiSystem.UpdatePanels(deltaTime);
+
+    float fps = 1.0f / deltaTime;
+    GetWindow()->SetTitle(std::format("CLEngine2D UI Editor - FPS: {:.0f}", fps));
 }
 
 void EditorApp::OnRender() {

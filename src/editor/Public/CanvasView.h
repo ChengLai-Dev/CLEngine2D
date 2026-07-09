@@ -68,7 +68,8 @@ private:
 
     bool m_isGizmoDragging = false;
     bool m_isPanning = false;
-    Vec2 m_panLastPos;
+    Vec2 m_panStartViewCenter;
+    Vec2 m_panStartMousePos;
 
     WidgetClickCallback m_onWidgetClicked;
 

@@ -89,7 +89,8 @@ bool CanvasView::OnMouseEvent(const MouseEvent& event) {
             }
             if (event.button == MouseEvent::Right) {
                 m_isPanning = true;
-                m_panLastPos = event.screenPos;
+                m_panStartViewCenter = m_viewCenter;
+                m_panStartMousePos = event.screenPos;
                 return true;
             }
             return false;
@@ -105,9 +106,8 @@ bool CanvasView::OnMouseEvent(const MouseEvent& event) {
                 return true;
             }
             if (event.button == MouseEvent::Right && m_isPanning) {
-                Vec2 delta = event.screenPos - m_panLastPos;
-                Pan(Vec2(-delta.x, delta.y) * 0.5f);
-                m_panLastPos = event.screenPos;
+                Vec2 totalDelta = event.screenPos - m_panStartMousePos;
+                m_viewCenter = m_panStartViewCenter + Vec2(-totalDelta.x, totalDelta.y) / m_zoomLevel;
                 return true;
             }
             return false;
