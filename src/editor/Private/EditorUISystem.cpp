@@ -111,22 +111,6 @@ void EditorUISystem::UpdatePanels(float deltaTime) {
     }
 }
 
-void EditorUISystem::RenderPanels(Renderer& renderer) {
-    for (const PanelEntry& entry : m_panels) {
-        entry.panel->OnRender(renderer);
-    }
-}
-
-void EditorUISystem::SetPanelRect(IEditorPanel* panel, float x, float y, float w, float h) {
-    panel->SetRect(x, y, w, h);
-}
-
-void EditorUISystem::SetAllWindowHeight(int h) {
-    for (const PanelEntry& entry : m_panels) {
-        entry.panel->SetWindowHeight(h);
-    }
-}
-
 void EditorUISystem::Clear() {
     m_panels.clear();
     ReleaseCapture();

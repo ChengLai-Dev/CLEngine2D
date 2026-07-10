@@ -19,6 +19,8 @@ add_executable(editor
     Private/Gizmo.cpp
     Public/Serializer.h
     Private/Serializer.cpp
+    Public/EditorLayoutConfig.h
+    Private/EditorLayoutConfig.cpp
     Public/UndoRedo.h
     Private/UndoRedo.cpp
 )

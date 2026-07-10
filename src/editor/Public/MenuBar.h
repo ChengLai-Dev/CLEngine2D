@@ -5,7 +5,6 @@
 #include <functional>
 
 class Renderer;
-class OrthographicCamera;
 
 enum class MenuBarAction {
     FILE_NEW, FILE_OPEN, FILE_SAVE,
@@ -16,9 +15,6 @@ class MenuBar : public IEditorPanel {
 public:
     MenuBar();
     ~MenuBar();
-
-    void SetRect(float x, float y, float width, float height) override;
-    void SetWindowHeight(int height) override;
 
     void OnRender(Renderer& renderer) override;
 
@@ -33,13 +29,7 @@ private:
                       const char* const* items, const MenuBarAction* actions, int count);
     bool HandleClick(float mx, float my);
 
-    float m_rectLeft = 0.0f;
-    float m_rectTop = 0.0f;
-    float m_rectWidth = 1280.0f;
-    float m_rectHeight = 24.0f;
-    int m_windowHeight = 0;
     int m_openMenu = -1;
 
     ActionCallback m_onAction;
-    std::unique_ptr<OrthographicCamera> m_camera;
 };

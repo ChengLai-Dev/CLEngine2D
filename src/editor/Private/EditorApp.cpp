@@ -21,7 +21,6 @@
 #include <Input/InputSystem.h>
 #include <Render/Renderer.h>
 #include <Render/RenderCommand.h>
-#include <Render/OrthographicCamera.h>
 #include <Platform/Window.h>
 #include <Logger.h>
 
@@ -108,7 +107,7 @@ void EditorApp::OnInit() {
 
     int winWidth = GetWindow()->GetWidth();
     int winHeight = GetWindow()->GetHeight();
-    m_editorCamera = std::make_unique<OrthographicCamera>(0.0f, static_cast<float>(winWidth), static_cast<float>(winHeight), 0.0f);
+    LoadLayout();
     RecalculateLayout(winWidth, winHeight);
 }
 
@@ -123,17 +122,33 @@ void EditorApp::OnUpdate(float deltaTime) {
 void EditorApp::OnRender() {
     RenderCommand::Clear();
 
-    m_renderer->BeginScene(*m_editorCamera);
-
-    m_uiSystem.RenderPanels(*m_renderer);
-
-    m_renderer->EndScene();
+    RenderPanel(m_widgetPalette.get());
+    RenderPanel(m_menuBar.get());
+    RenderPanel(m_propertyPanel.get());
+    RenderPanel(m_widgetTreePanel.get());
+    RenderPanel(m_canvasView.get(), true);
 
     RenderCommand::SetViewport(0, 0, GetWindow()->GetWidth(), GetWindow()->GetHeight());
 }
 
+void EditorApp::RenderPanel(IEditorPanel* panel, bool useCustomProj) {
+    auto r = panel->GetHitRect();
+    int winH = GetWindow()->GetHeight();
+    int vpY = winH - static_cast<int>(r.y) - static_cast<int>(r.h);
+    RenderCommand::SetViewport(static_cast<int>(r.x), vpY,
+                               static_cast<int>(r.w), static_cast<int>(r.h));
+    if (useCustomProj) {
+        m_renderer->BeginScene(m_canvasView->GetProjection());
+    } else {
+        m_renderer->BeginScene(Mat4::Ortho(0, r.w, r.h, 0, -1, 1));
+    }
+    panel->OnRender(*m_renderer);
+    m_renderer->EndScene();
+}
+
 void EditorApp::OnShutdown() {
     Logger::Info("UI Editor shutting down");
+    SaveLayout();
     m_uiSystem.Clear();
     m_canvasView.reset();
     m_menuBar.reset();
@@ -142,7 +157,6 @@ void EditorApp::OnShutdown() {
     m_widgetTreePanel.reset();
     m_editedScene.reset();
     m_renderer.reset();
-    m_editorCamera.reset();
 }
 
 void EditorApp::SelectWidget(Widget* widget) {
@@ -152,27 +166,60 @@ void EditorApp::SelectWidget(Widget* widget) {
 }
 
 void EditorApp::RecalculateLayout(int windowWidth, int windowHeight) {
-    const float menuBarHeight = 24.0f;
-    const float paletteHeight = 50.0f;
-    const float leftPanelWidth = 250.0f;
-    const float rightPanelWidth = 300.0f;
+    const EditorLayoutConfig& config = m_layoutConfig;
 
-    float ww = static_cast<float>(windowWidth);
-    float wh = static_cast<float>(windowHeight);
+    m_menuBar->SetRect(0.0f,
+                       0.0f,
+                       static_cast<float>(windowWidth),
+                       config.menuBarHeight);
 
-    m_menuBar->SetRect(0.0f, 0.0f, ww, menuBarHeight);
-    m_widgetPalette->SetRect(0.0f, menuBarHeight, leftPanelWidth, paletteHeight);
-    m_widgetTreePanel->SetRect(0.0f, menuBarHeight + paletteHeight, leftPanelWidth,
-                                wh - menuBarHeight - paletteHeight);
-    m_propertyPanel->SetRect(ww - rightPanelWidth, menuBarHeight, rightPanelWidth,
-                              wh - menuBarHeight);
-    m_canvasView->SetRect(leftPanelWidth, menuBarHeight,
-                          ww - leftPanelWidth - rightPanelWidth,
-                          wh - menuBarHeight);
+    m_widgetPalette->SetRect(
+        0.0f,
+        config.menuBarHeight,
+        config.leftPanelWidth,
+        config.paletteHeight);
 
-    m_uiSystem.SetAllWindowHeight(windowHeight);
+    m_widgetTreePanel->SetRect(
+        0.0f,
+        config.menuBarHeight + config.paletteHeight,
+        config.leftPanelWidth,
+        static_cast<float>(windowHeight) - config.menuBarHeight - config.paletteHeight);
 
-    m_editorCamera->SetProjection(0.0f, ww, wh, 0.0f);
+    m_propertyPanel->SetRect(
+        static_cast<float>(windowWidth) - config.rightPanelWidth,
+        config.menuBarHeight,
+        config.rightPanelWidth,
+        static_cast<float>(windowHeight) - config.menuBarHeight);
+
+    m_canvasView->SetRect(
+        config.leftPanelWidth,
+        config.menuBarHeight,
+        static_cast<float>(windowWidth) - config.leftPanelWidth - config.rightPanelWidth,
+        static_cast<float>(windowHeight) - config.menuBarHeight);
+
+    m_menuBar->SetWindowHeight(windowHeight);
+    m_widgetPalette->SetWindowHeight(windowHeight);
+    m_widgetTreePanel->SetWindowHeight(windowHeight);
+    m_propertyPanel->SetWindowHeight(windowHeight);
+    m_canvasView->SetWindowHeight(windowHeight);
+}
+
+void EditorApp::SaveLayout() {
+    std::string filepath = "assets/editor/editor_layout.json";
+    if (m_layoutConfig.SaveToFile(filepath)) {
+        Logger::Info("Editor layout saved to {}", filepath);
+    } else {
+        Logger::Error("Failed to save editor layout");
+    }
+}
+
+void EditorApp::LoadLayout() {
+    std::string filepath = "assets/editor/editor_layout.json";
+    if (EditorLayoutConfig::LoadFromFile(filepath, m_layoutConfig)) {
+        Logger::Info("Editor layout loaded from {}", filepath);
+    } else {
+        Logger::Info("No saved editor layout found, using defaults");
+    }
 }
 
 void EditorApp::OnWindowResize(int width, int height) {

@@ -2,7 +2,7 @@
 #include <SceneGraph/Node.h>
 #include <SceneGraph/Widget.h>
 #include <Render/Renderer.h>
-#include <Render/OrthographicCamera.h>
+
 
 Gizmo::Gizmo() = default;
 Gizmo::~Gizmo() = default;
@@ -116,7 +116,7 @@ void Gizmo::EndDrag() {
     m_drag = DragState();
 }
 
-void Gizmo::Draw(Renderer& renderer, const OrthographicCamera& camera) {
+void Gizmo::Draw(Renderer& renderer) {
     if (!m_target) return;
 
     GizmoData data = ComputeGizmoData();

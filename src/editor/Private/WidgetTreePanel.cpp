@@ -2,11 +2,10 @@
 #include <SceneGraph/Node.h>
 #include <SceneGraph/Widget.h>
 #include <Render/Renderer.h>
-#include <Render/OrthographicCamera.h>
-#include <Render/RenderCommand.h>
 
 WidgetTreePanel::WidgetTreePanel() {
-    m_camera = std::make_unique<OrthographicCamera>(0.0f, 100.0f, 100.0f, 0.0f);
+    m_rectWidth = 250.0f;
+    m_rectHeight = 720.0f;
 }
 
 WidgetTreePanel::~WidgetTreePanel() = default;
@@ -15,24 +14,8 @@ void WidgetTreePanel::SetRoot(Node* root) {
     m_root = root;
 }
 
-void WidgetTreePanel::SetRect(float x, float y, float width, float height) {
-    m_rectLeft = x;
-    m_rectTop = y;
-    m_rectWidth = width;
-    m_rectHeight = height;
-    m_camera->SetProjection(0.0f, width, height, 0.0f);
-}
-
-void WidgetTreePanel::SetWindowHeight(int height) {
-    m_windowHeight = height;
-}
-
 void WidgetTreePanel::OnSelectionChanged(SelectionChangedCallback cb) {
     m_onSelectionChanged = std::move(cb);
-}
-
-IEditorPanel::HitRect WidgetTreePanel::GetHitRect() const {
-    return { m_rectLeft, m_rectTop, m_rectWidth, m_rectHeight };
 }
 
 Node* WidgetTreePanel::GetSelectedNode() const {
@@ -64,16 +47,6 @@ void WidgetTreePanel::VisitNode(Node* node, Renderer& renderer, float& y, int de
 void WidgetTreePanel::OnRender(Renderer& renderer) {
     Color bgColor(0.1f, 0.1f, 0.12f, 1.0f);
 
-    float vpY = static_cast<float>(m_windowHeight) - m_rectTop - m_rectHeight;
-    RenderCommand::SetViewport(
-        static_cast<int>(m_rectLeft),
-        static_cast<int>(vpY),
-        static_cast<int>(m_rectWidth),
-        static_cast<int>(m_rectHeight)
-    );
-
-    renderer.BeginScene(*m_camera);
-
     Mat4 bgTransform = Mat4::Translate(Vec3(m_rectWidth * 0.5f, m_rectHeight * 0.5f, 0.0f));
     renderer.DrawQuad(bgTransform, Vec2(m_rectWidth, m_rectHeight));
 
@@ -81,6 +54,4 @@ void WidgetTreePanel::OnRender(Renderer& renderer) {
         float y = 0.0f;
         VisitNode(m_root, renderer, y, 0);
     }
-
-    renderer.EndScene();
 }

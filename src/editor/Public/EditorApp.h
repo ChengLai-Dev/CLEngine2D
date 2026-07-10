@@ -1,6 +1,7 @@
 #pragma once
 
 #include "EditorUISystem.h"
+#include "EditorLayoutConfig.h"
 #include <Application.h>
 #include <Math/Vec2.h>
 #include <Math/Vec3.h>
@@ -10,7 +11,6 @@
 #include <SceneGraph/Widget.h>
 
 class Renderer;
-class OrthographicCamera;
 
 class CanvasView;
 class MenuBar;
@@ -31,15 +31,17 @@ protected:
     void OnWindowResize(int width, int height) override;
 
 private:
+    void RenderPanel(IEditorPanel* panel, bool useCustomProj = false);
     void RecalculateLayout(int windowWidth, int windowHeight);
     void SelectWidget(Widget* widget);
     void AddWidgetToScene(const std::string& type, const Vec3& position);
     void DeleteSelected();
     void SaveScene();
     void LoadScene();
+    void SaveLayout();
+    void LoadLayout();
 
     std::unique_ptr<Renderer> m_renderer;
-    std::unique_ptr<OrthographicCamera> m_editorCamera;
 
     std::unique_ptr<Scene> m_editedScene;
 
@@ -50,6 +52,7 @@ private:
     std::unique_ptr<WidgetTreePanel> m_widgetTreePanel;
 
     EditorUISystem m_uiSystem;
+    EditorLayoutConfig m_layoutConfig;
 
     Widget* m_selectedWidget = nullptr;
 };

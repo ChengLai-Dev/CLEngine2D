@@ -38,6 +38,7 @@ public:
     void Shutdown();
 
     void BeginScene(const OrthographicCamera& camera);
+    void BeginScene(const Mat4& viewProjection);
     void EndScene();
 
     void DrawQuad(const Vec3& position, const Vec3& size, float rotation,

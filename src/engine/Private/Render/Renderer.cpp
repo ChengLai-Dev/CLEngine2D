@@ -156,6 +156,12 @@ void Renderer::BeginScene(const OrthographicCamera& camera) {
     ResetBatch();
 }
 
+void Renderer::BeginScene(const Mat4& viewProjection) {
+    m_shader->Bind();
+    m_shader->SetMat4("u_ViewProjection", viewProjection);
+    ResetBatch();
+}
+
 void Renderer::EndScene() {
     Flush();
 }

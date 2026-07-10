@@ -26,13 +26,26 @@ public:
             return px >= x && px < x + w && py >= y && py < y + h;
         }
     };
-    virtual HitRect GetHitRect() const = 0;
+
+    void SetRect(float x, float y, float w, float h) {
+        m_rectLeft = x; m_rectTop = y;
+        m_rectWidth = w; m_rectHeight = h;
+    }
+    void SetWindowHeight(int h) { m_windowHeight = h; }
+
+    virtual HitRect GetHitRect() const {
+        return { m_rectLeft, m_rectTop, m_rectWidth, m_rectHeight };
+    }
 
     virtual bool IsCapturing() const { return false; }
 
     virtual void OnUpdate(float deltaTime) { (void)deltaTime; }
     virtual void OnRender(Renderer& renderer) = 0;
 
-    virtual void SetRect(float x, float y, float w, float h) = 0;
-    virtual void SetWindowHeight(int h) { (void)h; }
+protected:
+    float m_rectLeft = 0.0f;
+    float m_rectTop = 0.0f;
+    float m_rectWidth = 250.0f;
+    float m_rectHeight = 50.0f;
+    int m_windowHeight = 0;
 };

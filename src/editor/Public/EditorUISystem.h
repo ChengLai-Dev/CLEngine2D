@@ -4,8 +4,6 @@
 #include <vector>
 #include <cstddef>
 
-class Renderer;
-
 class EditorUISystem {
 public:
     void Register(IEditorPanel* panel, int priority = 0);
@@ -13,10 +11,6 @@ public:
 
     void ProcessInput();
     void UpdatePanels(float deltaTime);
-    void RenderPanels(Renderer& renderer);
-
-    void SetPanelRect(IEditorPanel* panel, float x, float y, float w, float h);
-    void SetAllWindowHeight(int h);
 
     void Clear();
 

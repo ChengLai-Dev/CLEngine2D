@@ -5,13 +5,12 @@
 #include <SceneGraph/Node.h>
 #include <SceneGraph/Widget.h>
 #include <Render/Renderer.h>
-#include <Render/OrthographicCamera.h>
 #include <Render/RenderCommand.h>
 #include <Input/RawInput.h>
-#include <glad/glad.h>
 
 CanvasView::CanvasView() {
-    m_camera = std::make_unique<OrthographicCamera>(0.0f, 100.0f, 100.0f, 0.0f);
+    m_rectWidth = 1280.0f;
+    m_rectHeight = 720.0f;
     m_gizmo = std::make_unique<Gizmo>();
 }
 
@@ -23,17 +22,6 @@ void CanvasView::SetEditedScene(Scene* scene) {
 
 Scene* CanvasView::GetEditedScene() const {
     return m_editedScene;
-}
-
-void CanvasView::SetRect(float x, float y, float w, float h) {
-    m_rectLeft = x;
-    m_rectTop = y;
-    m_rectWidth = w;
-    m_rectHeight = h;
-}
-
-void CanvasView::SetWindowHeight(int height) {
-    m_windowHeight = height;
 }
 
 void CanvasView::Zoom(float factor) {
@@ -64,8 +52,14 @@ Vec3 CanvasView::ScreenToWorld(const Vec2& screenPos) const {
     return Vec3(worldX, worldY, 0.0f);
 }
 
-IEditorPanel::HitRect CanvasView::GetHitRect() const {
-    return { m_rectLeft, m_rectTop, m_rectWidth, m_rectHeight };
+Mat4 CanvasView::GetProjection() const {
+    float halfW = m_rectWidth * 0.5f / m_zoomLevel;
+    float halfH = m_rectHeight * 0.5f / m_zoomLevel;
+    return Mat4::Ortho(
+        -halfW + m_viewCenter.x,  halfW + m_viewCenter.x,
+        -halfH + m_viewCenter.y,  halfH + m_viewCenter.y,
+        -1.0f, 1.0f
+    );
 }
 
 bool CanvasView::OnMouseEvent(const MouseEvent& event) {
@@ -168,21 +162,8 @@ void CanvasView::DrawGrid(Renderer& renderer) {
 void CanvasView::OnRender(Renderer& renderer) {
     if (!m_editedScene) return;
 
-    m_camera->SetProjection(
-        -m_rectWidth * 0.5f / m_zoomLevel + m_viewCenter.x,
-        m_rectWidth * 0.5f / m_zoomLevel + m_viewCenter.x,
-        -m_rectHeight * 0.5f / m_zoomLevel + m_viewCenter.y,
-        m_rectHeight * 0.5f / m_zoomLevel + m_viewCenter.y
-    );
-
+    // Scissor: 限制场景内容不溢出 CanvasView 面板边界
     float vpY = static_cast<float>(m_windowHeight) - m_rectTop - m_rectHeight;
-    RenderCommand::SetViewport(
-        static_cast<int>(m_rectLeft),
-        static_cast<int>(vpY),
-        static_cast<int>(m_rectWidth),
-        static_cast<int>(m_rectHeight)
-    );
-
     RenderCommand::SetScissor(true);
     RenderCommand::SetScissorRect(
         static_cast<int>(m_rectLeft),
@@ -191,14 +172,12 @@ void CanvasView::OnRender(Renderer& renderer) {
         static_cast<int>(m_rectHeight)
     );
 
-    // Hover outline: 鼠标离开 CanvasView 时清除残留
+    // Hover outline: 鼠标离开时清除残留
     Vec2 mousePos = RawInput::GetMousePosition();
-    HitRect myHit = GetHitRect();
-    if (!myHit.Contains(mousePos.x, mousePos.y)) {
+    if (!GetHitRect().Contains(mousePos.x, mousePos.y)) {
         m_hoveredWidget = nullptr;
     }
 
-    renderer.BeginScene(*m_camera);
     DrawGrid(renderer);
     m_editedScene->OnRender(renderer);
 
@@ -210,8 +189,7 @@ void CanvasView::OnRender(Renderer& renderer) {
     }
 
     m_gizmo->SetZoomLevel(m_zoomLevel);
-    m_gizmo->Draw(renderer, *m_camera);
-    renderer.EndScene();
+    m_gizmo->Draw(renderer);
 
     RenderCommand::SetScissor(false);
 }

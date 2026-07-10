@@ -1,7 +1,5 @@
 #include "MenuBar.h"
 #include <Render/Renderer.h>
-#include <Render/OrthographicCamera.h>
-#include <Render/RenderCommand.h>
 #include <Input/RawInput.h>
 #include <Input/InputCodes.h>
 
@@ -19,22 +17,11 @@ static const char* MENU_LABELS[] = { "File", "Edit" };
 static const int MENU_COUNT = 2;
 
 MenuBar::MenuBar() {
-    m_camera = std::make_unique<OrthographicCamera>(0.0f, 100.0f, 100.0f, 0.0f);
+    m_rectWidth = 1280.0f;
+    m_rectHeight = 24.0f;
 }
 
 MenuBar::~MenuBar() = default;
-
-void MenuBar::SetRect(float x, float y, float width, float height) {
-    m_rectLeft = x;
-    m_rectTop = y;
-    m_rectWidth = width;
-    m_rectHeight = height;
-    m_camera->SetProjection(0.0f, width, height, 0.0f);
-}
-
-void MenuBar::SetWindowHeight(int height) {
-    m_windowHeight = height;
-}
 
 void MenuBar::OnAction(ActionCallback cb) {
     m_onAction = std::move(cb);
@@ -64,17 +51,6 @@ void MenuBar::DrawDropdown(Renderer& renderer, float dropX, float dropY,
 void MenuBar::OnRender(Renderer& renderer) {
     Color bgColor(0.06f, 0.06f, 0.08f, 1.0f);
 
-    float vpY = static_cast<float>(m_windowHeight) - m_rectTop - m_rectHeight;
-
-    RenderCommand::SetViewport(
-        static_cast<int>(m_rectLeft),
-        static_cast<int>(vpY),
-        static_cast<int>(m_rectWidth),
-        static_cast<int>(m_rectHeight)
-    );
-
-    renderer.BeginScene(*m_camera);
-
     Mat4 bg = Mat4::Translate(Vec3(m_rectWidth * 0.5f, m_rectHeight * 0.5f, 0.0f));
     renderer.DrawQuad(bg, Vec2(m_rectWidth, m_rectHeight));
 
@@ -91,8 +67,6 @@ void MenuBar::OnRender(Renderer& renderer) {
     } else if (m_openMenu == 1) {
         DrawDropdown(renderer, 60.0f, m_rectHeight, EDIT_LABELS, EDIT_ACTIONS, 3);
     }
-
-    renderer.EndScene();
 }
 
 IEditorPanel::HitRect MenuBar::GetHitRect() const {

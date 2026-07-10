@@ -4,7 +4,6 @@
 #include <Math/Mat4.h>
 
 class Renderer;
-class OrthographicCamera;
 class Node;
 class Widget;
 
@@ -33,7 +32,7 @@ public:
     void Drag(const Vec3& worldCurrent);
     void EndDrag();
 
-    void Draw(Renderer& renderer, const OrthographicCamera& camera);
+    void Draw(Renderer& renderer);
 
     void SetZoomLevel(float zoom);
     float GetZoomLevel() const { return m_zoomLevel; }

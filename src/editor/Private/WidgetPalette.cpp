@@ -1,32 +1,11 @@
 #include "WidgetPalette.h"
 #include <Render/Renderer.h>
-#include <Render/OrthographicCamera.h>
-#include <Render/RenderCommand.h>
 
-WidgetPalette::WidgetPalette() {
-    m_camera = std::make_unique<OrthographicCamera>(0.0f, 100.0f, 100.0f, 0.0f);
-}
-
+WidgetPalette::WidgetPalette() = default;
 WidgetPalette::~WidgetPalette() = default;
-
-void WidgetPalette::SetRect(float x, float y, float width, float height) {
-    m_rectLeft = x;
-    m_rectTop = y;
-    m_rectWidth = width;
-    m_rectHeight = height;
-    m_camera->SetProjection(0.0f, width, height, 0.0f);
-}
-
-void WidgetPalette::SetWindowHeight(int height) {
-    m_windowHeight = height;
-}
 
 void WidgetPalette::OnAction(ActionCallback cb) {
     m_onAction = std::move(cb);
-}
-
-IEditorPanel::HitRect WidgetPalette::GetHitRect() const {
-    return { m_rectLeft, m_rectTop, m_rectWidth, m_rectHeight };
 }
 
 bool WidgetPalette::OnMouseEvent(const MouseEvent& event) {
@@ -69,20 +48,8 @@ void WidgetPalette::OnRender(Renderer& renderer) {
     Color bgColor(0.08f, 0.08f, 0.1f, 1.0f);
     Color btnColor(0.2f, 0.25f, 0.3f, 1.0f);
 
-    float vpY = static_cast<float>(m_windowHeight) - m_rectTop - m_rectHeight;
-
-    RenderCommand::SetViewport(
-        static_cast<int>(m_rectLeft),
-        static_cast<int>(vpY),
-        static_cast<int>(m_rectWidth),
-        static_cast<int>(m_rectHeight)
-    );
-
-    renderer.BeginScene(*m_camera);
-
     Mat4 bgTransform = Mat4::Translate(Vec3(m_rectWidth * 0.5f, m_rectHeight * 0.5f, 0.0f));
-    renderer.DrawQuad(bgTransform, Vec2(m_rectWidth, m_rectHeight),
-                      bgColor);
+    renderer.DrawQuad(bgTransform, Vec2(m_rectWidth, m_rectHeight), bgColor);
 
     float padding = 5.0f;
     float btnWidth = 46.0f;
@@ -91,10 +58,7 @@ void WidgetPalette::OnRender(Renderer& renderer) {
 
     for (int i = 0; i < 5; ++i) {
         Mat4 btnTransform = Mat4::Translate(Vec3(bx + btnWidth * 0.5f, m_rectHeight * 0.5f, 0.0f));
-        renderer.DrawQuad(btnTransform, Vec2(btnWidth - 2.0f, btnHeight),
-                          btnColor);
+        renderer.DrawQuad(btnTransform, Vec2(btnWidth - 2.0f, btnHeight), btnColor);
         bx += btnWidth;
     }
-
-    renderer.EndScene();
 }
