@@ -1,4 +1,5 @@
 #include "Application.h"
+#include "Cursor.h"
 #include "Input/InputSystem.h"
 #include "Logger.h"
 #include "Platform/Window.h"
@@ -18,9 +19,11 @@ Application::Application() {
     }
 
     AudioEngine::GetInstance().Init();
+    CursorManager::Init(m_window->GetNativeWindow());
 }
 
 Application::~Application() {
+    CursorManager::Shutdown();
 }
 
 void Application::Run() {

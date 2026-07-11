@@ -104,9 +104,9 @@ bool TextRenderer::LoadFont(const std::string& filepath, float pixelHeight) {
         GlyphData& dst = m_glyphs[i];
 
         dst.s0 = static_cast<float>(dst.x0) / static_cast<float>(atlasW);
-        dst.t0 = static_cast<float>(dst.y0) / static_cast<float>(atlasH);
+        dst.t0 = static_cast<float>(dst.y1) / static_cast<float>(atlasH);
         dst.s1 = static_cast<float>(dst.x1) / static_cast<float>(atlasW);
-        dst.t1 = static_cast<float>(dst.y1) / static_cast<float>(atlasH);
+        dst.t1 = static_cast<float>(dst.y0) / static_cast<float>(atlasH);
     }
 
     m_loaded = true;
@@ -174,7 +174,7 @@ void TextRenderer::RenderString(Renderer& renderer, const std::string& text,
 
         if (charW > 0.0f && charH > 0.0f) {
             Mat4 transform =
-                Mat4::Translate(Vec3(charX, charY, 0.0f)) *
+                Mat4::Translate(Vec3(charX + charW * 0.5f, charY + charH * 0.5f, 0.0f)) *
                 Mat4::Scale(Vec3(charW, charH, 1.0f));
 
             float texScaleX = (g.s1 - g.s0);
@@ -188,6 +188,33 @@ void TextRenderer::RenderString(Renderer& renderer, const std::string& text,
 
         cursorX += g.xadvance * scale;
     }
+}
+
+void TextRenderer::RenderStringInRect(Renderer& renderer, const std::string& text,
+                                      float rectLeft, float rectTop, float rectW, float rectH,
+                                      float scale, const float color[4],
+                                      Align hAlign, VAlign vAlign)
+{
+    Vec2 textSize = MeasureString(text, scale);
+    float ascent = GetBaselineOffset(scale);
+
+    float x = rectLeft;
+    if (hAlign == Align::Center) {
+        x = rectLeft + (rectW - textSize.x) * 0.5f;
+    } else if (hAlign == Align::Right) {
+        x = rectLeft + rectW - textSize.x;
+    }
+
+    float y = rectTop;
+    if (vAlign == VAlign::Middle) {
+        y = rectTop + rectH * 0.5f + ascent - textSize.y * 0.5f;
+    } else if (vAlign == VAlign::Bottom) {
+        y = rectTop + rectH - (textSize.y - ascent);
+    } else {
+        y = rectTop + ascent;
+    }
+
+    RenderString(renderer, text, x, y, scale, color, Align::Left);
 }
 
 Vec2 TextRenderer::MeasureString(const std::string& text, float scale) const {

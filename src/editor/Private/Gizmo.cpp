@@ -2,9 +2,31 @@
 #include <SceneGraph/Node.h>
 #include <SceneGraph/Widget.h>
 #include <Render/Renderer.h>
+#include <Render/Texture.h>
+#include <vector>
+#include <cmath>
 
 
-Gizmo::Gizmo() = default;
+Gizmo::Gizmo() {
+    static constexpr int S = 16;
+    std::vector<unsigned char> pixels(static_cast<size_t>(S) * S * 4, 0);
+    int cx = S / 2, cy = S / 2, r = S / 2 - 1;
+    for (int y = 0; y < S; ++y) {
+        for (int x = 0; x < S; ++x) {
+            float dx = static_cast<float>(x - cx);
+            float dy = static_cast<float>(y - cy);
+            if (dx * dx + dy * dy <= r * r) {
+                int idx = (y * S + x) * 4;
+                pixels[idx + 0] = 255;
+                pixels[idx + 1] = 255;
+                pixels[idx + 2] = 255;
+                pixels[idx + 3] = 255;
+            }
+        }
+    }
+    m_handleDot = std::make_unique<Texture>(S, S, pixels.data());
+}
+
 Gizmo::~Gizmo() = default;
 
 void Gizmo::SetTarget(Node* target) {
@@ -75,7 +97,7 @@ GizmoHandle::Type Gizmo::HitTestHandle(const Vec3& worldPoint) const {
 
     GizmoData data = ComputeGizmoData();
 
-    float handleSize = 8.0f;
+    float handleSize = 8.0f / m_zoomLevel;
     for (int i = 0; i < 8; ++i) {
         float dx = worldPoint.x - data.handlePositions[i].x;
         float dy = worldPoint.y - data.handlePositions[i].y;
@@ -94,20 +116,66 @@ void Gizmo::BeginDrag(GizmoHandle::Type handle, const Vec3& worldStart) {
     m_drag.startPos = m_target->GetPosition();
     m_drag.startSize = m_target->GetContentSize();
     m_drag.startScale = m_target->GetScale();
-    m_drag.dragOffset = worldStart;
+    m_drag.dragStart = worldStart;
 }
 
 void Gizmo::Drag(const Vec3& worldCurrent) {
     if (!m_target || m_drag.handle == GizmoHandle::NONE) return;
 
-    Vec3 delta = worldCurrent - m_drag.dragOffset;
+    Vec3 delta = worldCurrent - m_drag.dragStart;
 
     if (m_mode == GizmoMode::TRANSLATE) {
         m_target->SetPosition(m_drag.startPos + delta);
     } else if (m_mode == GizmoMode::SCALE) {
-        Vec2 newSize = m_drag.startSize + Vec2(delta.x, delta.y);
+        Vec2 anchor = m_target->GetAnchor();
+        constexpr float eps = 0.001f;
+        if (anchor.x < eps) anchor.x = eps;
+        if (anchor.x > 1.0f - eps) anchor.x = 1.0f - eps;
+        if (anchor.y < eps) anchor.y = eps;
+        if (anchor.y > 1.0f - eps) anchor.y = 1.0f - eps;
+
+        float dx = 1.0f, dy = 1.0f;
+
+        switch (m_drag.handle) {
+            case GizmoHandle::TOP_LEFT:
+                dx = -1.0f / anchor.x;
+                dy = -1.0f / anchor.y;
+                break;
+            case GizmoHandle::TOP_CENTER:
+                dx = 0.0f;
+                dy = -1.0f / anchor.y;
+                break;
+            case GizmoHandle::TOP_RIGHT:
+                dx = 1.0f / (1.0f - anchor.x);
+                dy = -1.0f / anchor.y;
+                break;
+            case GizmoHandle::MIDDLE_LEFT:
+                dx = -1.0f / anchor.x;
+                dy = 0.0f;
+                break;
+            case GizmoHandle::MIDDLE_RIGHT:
+                dx = 1.0f / (1.0f - anchor.x);
+                dy = 0.0f;
+                break;
+            case GizmoHandle::BOTTOM_LEFT:
+                dx = -1.0f / anchor.x;
+                dy = 1.0f / (1.0f - anchor.y);
+                break;
+            case GizmoHandle::BOTTOM_CENTER:
+                dx = 0.0f;
+                dy = 1.0f / (1.0f - anchor.y);
+                break;
+            case GizmoHandle::BOTTOM_RIGHT:
+                dx = 1.0f / (1.0f - anchor.x);
+                dy = 1.0f / (1.0f - anchor.y);
+                break;
+            default: break;
+        }
+
+        Vec2 newSize = m_drag.startSize + Vec2(delta.x * dx, delta.y * dy);
         if (newSize.x < 5.0f) newSize.x = 5.0f;
         if (newSize.y < 5.0f) newSize.y = 5.0f;
+
         m_target->SetContentSize(newSize);
     }
 }
@@ -137,9 +205,12 @@ void Gizmo::Draw(Renderer& renderer) {
         }
     }
 
+    Color white(1.0f, 1.0f, 1.0f, 1.0f);
+    float handleScreenSize = 14.0f / m_zoomLevel;
     for (int i = 0; i < 8; ++i) {
-        Mat4 handleTransform = Mat4::Translate(data.handlePositions[i]) * Mat4::Scale(Vec3(6.0f, 6.0f, 1.0f));
-        renderer.DrawQuad(handleTransform, Vec2(6.0f, 6.0f));
+        Mat4 handleTransform = Mat4::Translate(data.handlePositions[i]);
+        renderer.DrawQuad(handleTransform, Vec2(handleScreenSize, handleScreenSize),
+                          white, m_handleDot.get());
     }
 }
 
@@ -149,4 +220,23 @@ void Gizmo::SetZoomLevel(float zoom) {
 
 bool Gizmo::IsDragging() const {
     return m_drag.handle != GizmoHandle::NONE;
+}
+
+CursorType Gizmo::GetCursorForHandle(GizmoHandle::Type handle) const {
+    switch (handle) {
+        case GizmoHandle::TOP_LEFT:
+        case GizmoHandle::BOTTOM_RIGHT:
+            return CursorType::DiagResize2;
+        case GizmoHandle::TOP_RIGHT:
+        case GizmoHandle::BOTTOM_LEFT:
+            return CursorType::DiagResize1;
+        case GizmoHandle::TOP_CENTER:
+        case GizmoHandle::BOTTOM_CENTER:
+            return CursorType::VResize;
+        case GizmoHandle::MIDDLE_LEFT:
+        case GizmoHandle::MIDDLE_RIGHT:
+            return CursorType::HResize;
+        default:
+            return CursorType::Default;
+    }
 }

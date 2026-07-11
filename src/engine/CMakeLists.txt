@@ -77,6 +77,8 @@ add_library(engine STATIC
     Private/Physics2D.cpp
     Public/CameraController.h
     Private/CameraController.cpp
+    Public/Cursor.h
+    Private/Cursor.cpp
     Public/Animator.h
     Private/Animator.cpp
     Public/TiledMap.h

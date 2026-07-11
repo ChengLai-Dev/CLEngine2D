@@ -1,11 +1,15 @@
 #pragma once
 
+#include <Cursor.h>
 #include <Math/Vec2.h>
 #include <Math/Mat4.h>
+
+#include <memory>
 
 class Renderer;
 class Node;
 class Widget;
+class Texture;
 
 enum class GizmoMode { NONE, TRANSLATE, SCALE, ROTATE };
 
@@ -27,6 +31,7 @@ public:
     GizmoMode GetMode() const;
 
     GizmoHandle::Type HitTestHandle(const Vec3& worldPoint) const;
+    CursorType GetCursorForHandle(GizmoHandle::Type handle) const;
 
     void BeginDrag(GizmoHandle::Type handle, const Vec3& worldStart);
     void Drag(const Vec3& worldCurrent);
@@ -54,11 +59,12 @@ private:
         Vec3 startPos;
         Vec2 startSize;
         Vec3 startScale;
-        Vec3 dragOffset;
+        Vec3 dragStart;
     };
 
     Node* m_target = nullptr;
-    GizmoMode m_mode = GizmoMode::TRANSLATE;
+    GizmoMode m_mode = GizmoMode::SCALE;
     float m_zoomLevel = 1.0f;
     DragState m_drag;
+    std::unique_ptr<Texture> m_handleDot = nullptr;
 };

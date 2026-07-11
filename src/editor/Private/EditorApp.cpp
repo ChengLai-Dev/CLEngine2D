@@ -22,6 +22,7 @@
 #include <Render/Renderer.h>
 #include <Render/RenderCommand.h>
 #include <Platform/Window.h>
+#include <TextRenderer.h>
 #include <Logger.h>
 
 #include <glad/glad.h>
@@ -57,13 +58,20 @@ void EditorApp::OnInit() {
     canvasPanel->SetName("Root");
     m_editedScene->SetRoot(std::move(canvasPanel));
 
+    m_fontRenderer = std::make_unique<TextRenderer>();
+    if (!m_fontRenderer->LoadFont("assets/fonts/arial.ttf", 14.0f)) {
+        Logger::Warn("Failed to load font, text will not be rendered");
+    }
+
     InputSystem::GetInstance().SetInputMode(EInputMode::GameAndUI);
     UISystem::GetInstance().SetUIRoot(static_cast<Widget*>(m_editedScene->GetRoot()));
+    UISystem::GetInstance().SetFontRenderer(m_fontRenderer.get());
 
     EditorUISystem& ui = m_uiSystem;
 
     m_canvasView = std::make_unique<CanvasView>();
     m_canvasView->SetEditedScene(m_editedScene.get());
+    m_canvasView->SetFontRenderer(m_fontRenderer.get());
     m_canvasView->OnWidgetClicked([this](Widget* widget) {
         Logger::Info("[Editor] Clicked widget: {}", widget ? typeid(*widget).name() : "null");
         SelectWidget(widget);
@@ -71,6 +79,7 @@ void EditorApp::OnInit() {
     ui.Register(m_canvasView.get(), 3);
 
     m_menuBar = std::make_unique<MenuBar>();
+    m_menuBar->SetFontRenderer(m_fontRenderer.get());
     m_menuBar->OnAction([this](MenuBarAction action) {
         switch (action) {
             case MenuBarAction::FILE_SAVE: SaveScene(); break;
@@ -84,6 +93,7 @@ void EditorApp::OnInit() {
     ui.Register(m_menuBar.get(), 1);
 
     m_widgetPalette = std::make_unique<WidgetPalette>();
+    m_widgetPalette->SetFontRenderer(m_fontRenderer.get());
     m_widgetPalette->OnAction([this](WidgetPaletteAction action, float mx, float my) {
         auto hit = m_canvasView->GetHitRect();
         if (hit.Contains(mx, my)) {
@@ -94,9 +104,11 @@ void EditorApp::OnInit() {
     ui.Register(m_widgetPalette.get(), 0);
 
     m_propertyPanel = std::make_unique<PropertyPanel>();
+    m_propertyPanel->SetFontRenderer(m_fontRenderer.get());
     ui.Register(m_propertyPanel.get(), 2);
 
     m_widgetTreePanel = std::make_unique<WidgetTreePanel>();
+    m_widgetTreePanel->SetFontRenderer(m_fontRenderer.get());
     m_widgetTreePanel->SetRoot(m_editedScene->GetRoot());
     m_widgetTreePanel->OnSelectionChanged([this](Node* node) {
         SelectWidget(static_cast<Widget*>(node));
@@ -129,6 +141,7 @@ void EditorApp::OnRender() {
     RenderPanel(m_canvasView.get(), true);
 
     RenderCommand::SetViewport(0, 0, GetWindow()->GetWidth(), GetWindow()->GetHeight());
+    DrawPanelBorders();
 }
 
 void EditorApp::RenderPanel(IEditorPanel* panel, bool useCustomProj) {
@@ -143,6 +156,43 @@ void EditorApp::RenderPanel(IEditorPanel* panel, bool useCustomProj) {
         m_renderer->BeginScene(Mat4::Ortho(0, r.w, r.h, 0, -1, 1));
     }
     panel->OnRender(*m_renderer);
+    m_renderer->EndScene();
+}
+
+void EditorApp::DrawPanelBorders() {
+    float winW = static_cast<float>(GetWindow()->GetWidth());
+    float winH = static_cast<float>(GetWindow()->GetHeight());
+    const EditorLayoutConfig& cfg = m_layoutConfig;
+
+    Color borderColor(0.45f, 0.45f, 0.5f, 1.0f);
+    float t = 1.0f;
+
+    m_renderer->BeginScene(Mat4::Ortho(0, winW, winH, 0, -1, 1));
+
+    // 1. MenuBar bottom edge (full width)
+    m_renderer->DrawQuad(
+        Mat4::Translate(Vec3(winW * 0.5f, cfg.menuBarHeight - t * 0.5f, 0.0f)),
+        Vec2(winW, t), borderColor);
+
+    // 2. Left panel right edge (vertical, from menuBar bottom to window bottom)
+    float lx = cfg.leftPanelWidth;
+    float sideH = winH - cfg.menuBarHeight;
+    m_renderer->DrawQuad(
+        Mat4::Translate(Vec3(lx - t * 0.5f, cfg.menuBarHeight + sideH * 0.5f, 0.0f)),
+        Vec2(t, sideH), borderColor);
+
+    // 3. Property panel left edge (vertical, from menuBar bottom to window bottom)
+    float rx = winW - cfg.rightPanelWidth;
+    m_renderer->DrawQuad(
+        Mat4::Translate(Vec3(rx - t * 0.5f, cfg.menuBarHeight + sideH * 0.5f, 0.0f)),
+        Vec2(t, sideH), borderColor);
+
+    // 4. WidgetPalette bottom edge (horizontal, within left panel)
+    float palBot = cfg.menuBarHeight + cfg.paletteHeight;
+    m_renderer->DrawQuad(
+        Mat4::Translate(Vec3(cfg.leftPanelWidth * 0.5f, palBot - t * 0.5f, 0.0f)),
+        Vec2(cfg.leftPanelWidth, t), borderColor);
+
     m_renderer->EndScene();
 }
 

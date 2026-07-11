@@ -1,5 +1,6 @@
 #include "WidgetPalette.h"
 #include <Render/Renderer.h>
+#include <TextRenderer.h>
 
 WidgetPalette::WidgetPalette() = default;
 WidgetPalette::~WidgetPalette() = default;
@@ -56,9 +57,21 @@ void WidgetPalette::OnRender(Renderer& renderer) {
     float btnHeight = m_rectHeight - 8.0f;
     float bx = padding;
 
+    static const char* btnLabels[] = { "Button", "Label", "Image", "Panel", "Layout" };
+
     for (int i = 0; i < 5; ++i) {
         Mat4 btnTransform = Mat4::Translate(Vec3(bx + btnWidth * 0.5f, m_rectHeight * 0.5f, 0.0f));
-        renderer.DrawQuad(btnTransform, Vec2(btnWidth - 2.0f, btnHeight), btnColor);
+        renderer.DrawQuad(btnTransform, Vec2(btnWidth - 2.0f, btnHeight),
+                          btnColor);
+
+        if (m_fontRenderer) {
+            float textColor[4] = { 0.85f, 0.85f, 0.85f, 1.0f };
+            m_fontRenderer->RenderStringInRect(renderer, btnLabels[i],
+                bx, 0.0f, btnWidth, m_rectHeight,
+                1.0f, textColor,
+                TextRenderer::Align::Center, TextRenderer::VAlign::Middle);
+        }
+
         bx += btnWidth;
     }
 }

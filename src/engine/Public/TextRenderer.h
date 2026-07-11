@@ -13,11 +13,8 @@ class Renderer;
 
 class TextRenderer {
 public:
-    enum class Align {
-        Left,
-        Center,
-        Right
-    };
+    enum class Align { Left, Center, Right };
+    enum class VAlign { Top, Middle, Bottom };
 
     TextRenderer();
     ~TextRenderer();
@@ -29,6 +26,13 @@ public:
                       float x, float y, float scale = 1.0f,
                       const float color[4] = nullptr,
                       Align align = Align::Left);
+
+    void RenderStringInRect(Renderer& renderer, const std::string& text,
+                            float rectLeft, float rectTop, float rectW, float rectH,
+                            float scale = 1.0f,
+                            const float color[4] = nullptr,
+                            Align hAlign = Align::Center,
+                            VAlign vAlign = VAlign::Middle);
 
     Vec2 MeasureString(const std::string& text, float scale = 1.0f) const;
 

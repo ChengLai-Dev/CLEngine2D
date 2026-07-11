@@ -11,6 +11,7 @@
 #include <SceneGraph/Widget.h>
 
 class Renderer;
+class TextRenderer;
 
 class CanvasView;
 class MenuBar;
@@ -36,6 +37,7 @@ private:
     void SelectWidget(Widget* widget);
     void AddWidgetToScene(const std::string& type, const Vec3& position);
     void DeleteSelected();
+    void DrawPanelBorders();
     void SaveScene();
     void LoadScene();
     void SaveLayout();
@@ -55,4 +57,6 @@ private:
     EditorLayoutConfig m_layoutConfig;
 
     Widget* m_selectedWidget = nullptr;
+
+    std::unique_ptr<TextRenderer> m_fontRenderer;
 };

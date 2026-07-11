@@ -23,7 +23,7 @@ public:
     Node* GetSelectedNode() const;
 
 private:
-    void VisitNode(Node* node, Renderer& renderer, float& y, int depth);
+    void DrawWidgetTree(Node* node, Renderer& renderer, float& y, int depth);
 
     Node* m_root = nullptr;
     Node* m_selectedNode = nullptr;

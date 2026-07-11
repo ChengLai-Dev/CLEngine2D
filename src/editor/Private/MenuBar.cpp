@@ -2,6 +2,7 @@
 #include <Render/Renderer.h>
 #include <Input/RawInput.h>
 #include <Input/InputCodes.h>
+#include <TextRenderer.h>
 
 static const char* FILE_LABELS[] = { "New Project", "Open Project", "Save Project" };
 static const MenuBarAction FILE_ACTIONS[] = {
@@ -29,36 +30,53 @@ void MenuBar::OnAction(ActionCallback cb) {
 
 void MenuBar::DrawDropdown(Renderer& renderer, float dropX, float dropY,
                            const char* const* items, const MenuBarAction* actions, int count) {
-    (void)items;
     (void)actions;
-    Color bgColor(0.15f, 0.15f, 0.17f, 1.0f);
-    Color itemColor(0.12f, 0.12f, 0.14f, 1.0f);
+    Color bgColor(0.0f, 0.0f, 0.0f, 1.0f);
+    Color itemColor(0.1f, 0.1f, 0.1f, 1.0f);
+    float textColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
     float itemH = 22.0f;
     float menuW = 160.0f;
     float totalH = static_cast<float>(count) * itemH;
 
     Mat4 bg = Mat4::Translate(Vec3(dropX + menuW * 0.5f, dropY + totalH * 0.5f, 0.0f));
-    renderer.DrawQuad(bg, Vec2(menuW, totalH));
+    renderer.DrawQuad(bg, Vec2(menuW, totalH), bgColor);
 
     for (int i = 0; i < count; ++i) {
         float iy = dropY + static_cast<float>(i) * itemH;
         Mat4 itemBg = Mat4::Translate(Vec3(dropX + menuW * 0.5f, iy + itemH * 0.5f, 0.0f));
-        renderer.DrawQuad(itemBg, Vec2(menuW - 2.0f, itemH - 1.0f));
+        renderer.DrawQuad(itemBg, Vec2(menuW - 2.0f, itemH - 1.0f), itemColor);
+
+        if (m_fontRenderer && items[i]) {
+            float textH = m_fontRenderer->GetLineHeight(1.0f);
+            float base = m_fontRenderer->GetBaselineOffset(1.0f);
+            m_fontRenderer->RenderString(renderer, items[i],
+                dropX + 8.0f, iy + (itemH - textH) * 0.5f + base,
+                1.0f, textColor, TextRenderer::Align::Left);
+        }
     }
 }
 
 void MenuBar::OnRender(Renderer& renderer) {
-    Color bgColor(0.06f, 0.06f, 0.08f, 1.0f);
+    Color bgColor(0.0f, 0.0f, 0.0f, 1.0f);
+    float textColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
     Mat4 bg = Mat4::Translate(Vec3(m_rectWidth * 0.5f, m_rectHeight * 0.5f, 0.0f));
-    renderer.DrawQuad(bg, Vec2(m_rectWidth, m_rectHeight));
+    renderer.DrawQuad(bg, Vec2(m_rectWidth, m_rectHeight), bgColor);
 
     float labelX = 12.0f;
     float labelW = 60.0f;
     for (int i = 0; i < MENU_COUNT; ++i) {
         Mat4 labelBg = Mat4::Translate(Vec3(labelX + labelW * 0.5f, m_rectHeight * 0.5f, 0.0f));
-        renderer.DrawQuad(labelBg, Vec2(labelW, m_rectHeight));
+        renderer.DrawQuad(labelBg, Vec2(labelW, m_rectHeight), bgColor);
+
+        if (m_fontRenderer) {
+            m_fontRenderer->RenderStringInRect(renderer, MENU_LABELS[i],
+                labelX, 0.0f, labelW, m_rectHeight,
+                1.0f, textColor,
+                TextRenderer::Align::Center, TextRenderer::VAlign::Middle);
+        }
+
         labelX += labelW;
     }
 

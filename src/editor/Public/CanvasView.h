@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Gizmo.h"
 #include "IEditorPanel.h"
 #include <Math/Mat4.h>
 #include <Math/Vec2.h>
@@ -12,7 +13,6 @@ struct Color;
 class Scene;
 class Node;
 class Widget;
-class Gizmo;
 
 class CanvasView : public IEditorPanel {
 public:
@@ -49,6 +49,11 @@ private:
     void DrawGrid(Renderer& renderer);
     void DrawWidgetOutline(Renderer& renderer, Node* target, const Color& color, float thickness);
 
+    void DrawModeToolbar(Renderer& renderer);
+    int HitTestToolbar(const Vec2& screenPos) const;
+    static constexpr int TOOLBAR_HEIGHT = 28;
+    static constexpr int TOOLBAR_BTN_W = 60;
+
     Scene* m_editedScene = nullptr;
     std::unique_ptr<Gizmo> m_gizmo;
 
@@ -65,4 +70,6 @@ private:
     WidgetClickCallback m_onWidgetClicked;
 
     Widget* m_hoveredWidget = nullptr;
+
+    int m_hoveredToolBtn = -1;
 };

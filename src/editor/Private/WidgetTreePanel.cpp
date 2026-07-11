@@ -2,6 +2,7 @@
 #include <SceneGraph/Node.h>
 #include <SceneGraph/Widget.h>
 #include <Render/Renderer.h>
+#include <TextRenderer.h>
 
 WidgetTreePanel::WidgetTreePanel() {
     m_rectWidth = 250.0f;
@@ -22,7 +23,7 @@ Node* WidgetTreePanel::GetSelectedNode() const {
     return m_selectedNode;
 }
 
-void WidgetTreePanel::VisitNode(Node* node, Renderer& renderer, float& y, int depth) {
+void WidgetTreePanel::DrawWidgetTree(Node* node, Renderer& renderer, float& y, int depth) {
     if (!node) return;
 
     float itemHeight = 22.0f;
@@ -37,10 +38,19 @@ void WidgetTreePanel::VisitNode(Node* node, Renderer& renderer, float& y, int de
     renderer.DrawQuad(itemBg, Vec2(m_rectWidth - indent - 4.0f, itemHeight),
                       useColor);
 
+    if (m_fontRenderer && !node->GetName().empty()) {
+        float textColor[4] = { 0.8f, 0.8f, 0.8f, 1.0f };
+        float textH = m_fontRenderer->GetLineHeight(1.0f);
+        float base = m_fontRenderer->GetBaselineOffset(1.0f);
+        m_fontRenderer->RenderString(renderer, node->GetName(),
+            indent + 6.0f, y + (itemHeight - textH) * 0.5f + base,
+            1.0f, textColor, TextRenderer::Align::Left);
+    }
+
     y += itemHeight;
 
     for (size_t i = 0; i < node->GetChildCount(); ++i) {
-        VisitNode(node->GetChild(i), renderer, y, depth + 1);
+        DrawWidgetTree(node->GetChild(i), renderer, y, depth + 1);
     }
 }
 
@@ -52,6 +62,6 @@ void WidgetTreePanel::OnRender(Renderer& renderer) {
 
     if (m_root) {
         float y = 0.0f;
-        VisitNode(m_root, renderer, y, 0);
+        DrawWidgetTree(m_root, renderer, y, 0);
     }
 }

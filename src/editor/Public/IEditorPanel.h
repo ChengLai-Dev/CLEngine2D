@@ -5,6 +5,7 @@
 #include "Logger.h"
 
 class Renderer;
+class TextRenderer;
 
 class IEditorPanel {
 public:
@@ -42,10 +43,14 @@ public:
     virtual void OnUpdate(float deltaTime) { (void)deltaTime; }
     virtual void OnRender(Renderer& renderer) = 0;
 
+    void SetFontRenderer(TextRenderer* tr) { m_fontRenderer = tr; }
+
 protected:
     float m_rectLeft = 0.0f;
     float m_rectTop = 0.0f;
     float m_rectWidth = 250.0f;
     float m_rectHeight = 50.0f;
     int m_windowHeight = 0;
+
+    TextRenderer* m_fontRenderer = nullptr;
 };

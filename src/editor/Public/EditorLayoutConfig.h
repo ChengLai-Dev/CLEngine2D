@@ -16,3 +16,4 @@ public:
     bool SaveToFile(const std::string& filepath) const;
     static bool LoadFromFile(const std::string& filepath, EditorLayoutConfig& out);
 };
+ 

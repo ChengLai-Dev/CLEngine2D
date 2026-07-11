@@ -1,6 +1,8 @@
 #include "SceneGraph/Label.h"
+#include "SceneGraph/UISystem.h"
 #include "Render/Renderer.h"
 #include "Render/Texture.h"
+#include "TextRenderer.h"
 
 Label::Label() = default;
 
@@ -39,4 +41,27 @@ void Label::OnDraw(Renderer& renderer, const Mat4& worldTransform, float worldOp
 
     renderer.DrawQuad(worldTransform, m_contentSize,
                     bgColor, m_background.get());
+
+    TextRenderer* tr = UISystem::GetInstance().GetFontRenderer();
+    if (!tr || !tr->IsLoaded() || m_text.empty()) return;
+
+    float color[4] = {
+        m_textColor.x,
+        m_textColor.y,
+        m_textColor.z,
+        m_textColor.w * worldOpacity
+    };
+
+    Vec2 textSize = tr->MeasureString(m_text, 1.0f);
+    float scale = m_fontSize / 14.0f;
+
+    float centerX = worldTransform.m[3][0];
+    float centerY = worldTransform.m[3][1];
+    float textX = centerX - textSize.x * scale * 0.5f;
+    float ascent = tr->GetBaselineOffset(scale);
+    float textY = centerY + ascent - textSize.y * scale * 0.5f;
+
+    tr->RenderString(renderer, m_text,
+        textX, textY,
+        scale, color, TextRenderer::Align::Left);
 }
