@@ -6,7 +6,6 @@ JsonValue EditorLayoutConfig::ToJson() const {
     JsonValue json;
     json.Set("version", JsonValue(1));
     json.Set("menuBarHeight", JsonValue(static_cast<double>(menuBarHeight)));
-    json.Set("paletteHeight", JsonValue(static_cast<double>(paletteHeight)));
     json.Set("leftPanelWidth", JsonValue(static_cast<double>(leftPanelWidth)));
     json.Set("rightPanelWidth", JsonValue(static_cast<double>(rightPanelWidth)));
     return json;
@@ -16,8 +15,6 @@ EditorLayoutConfig EditorLayoutConfig::FromJson(const JsonValue& json) {
     EditorLayoutConfig config;
     if (json.Get("menuBarHeight").GetType() != JsonValue::Type::Null)
         config.menuBarHeight = static_cast<float>(json.Get("menuBarHeight").AsNumber());
-    if (json.Get("paletteHeight").GetType() != JsonValue::Type::Null)
-        config.paletteHeight = static_cast<float>(json.Get("paletteHeight").AsNumber());
     if (json.Get("leftPanelWidth").GetType() != JsonValue::Type::Null)
         config.leftPanelWidth = static_cast<float>(json.Get("leftPanelWidth").AsNumber());
     if (json.Get("rightPanelWidth").GetType() != JsonValue::Type::Null)

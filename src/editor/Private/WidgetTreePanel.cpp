@@ -34,7 +34,9 @@ void WidgetTreePanel::DrawWidgetTree(Node* node, Renderer& renderer, float& y, i
 
     const Color& useColor = (node == m_selectedNode) ? selColor : bgColor;
 
-    Mat4 itemBg = Mat4::Translate(Vec3(indent + 2.0f + m_rectWidth * 0.5f, y, 0.0f));
+    float centerX = indent + (m_rectWidth - indent) * 0.5f;
+    float centerY = y + itemHeight * 0.5f;
+    Mat4 itemBg = Mat4::Translate(Vec3(centerX, centerY, 0.0f));
     renderer.DrawQuad(itemBg, Vec2(m_rectWidth - indent - 4.0f, itemHeight),
                       useColor);
 
@@ -52,6 +54,51 @@ void WidgetTreePanel::DrawWidgetTree(Node* node, Renderer& renderer, float& y, i
     for (size_t i = 0; i < node->GetChildCount(); ++i) {
         DrawWidgetTree(node->GetChild(i), renderer, y, depth + 1);
     }
+}
+
+Node* WidgetTreePanel::HitTest(Node* node, float& y, float my) const {
+    if (!node) return nullptr;
+
+    float itemHeight = 22.0f;
+    float itemTop = y;
+    float itemBottom = y + itemHeight;
+    y = itemBottom;
+
+    if (my >= itemTop && my < itemBottom) {
+        return node;
+    }
+
+    for (size_t i = 0; i < node->GetChildCount(); ++i) {
+        Node* found = HitTest(node->GetChild(i), y, my);
+        if (found) return found;
+    }
+
+    return nullptr;
+}
+
+bool WidgetTreePanel::OnMouseEvent(const MouseEvent& event) {
+    IEditorPanel::OnMouseEvent(event);
+    if (event.type != MouseEvent::Down || event.button != MouseEvent::Left) return false;
+
+    float localY = event.screenPos.y - m_rectTop;
+    if (localY < 0.0f || localY >= m_rectHeight) return false;
+
+    if (m_root) {
+        float y = 0.0f;
+        Node* hit = HitTest(m_root, y, localY);
+        if (hit) {
+            m_selectedNode = hit;
+            if (m_onSelectionChanged) {
+                m_onSelectionChanged(hit);
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
+void WidgetTreePanel::SelectNode(Node* node) {
+    m_selectedNode = node;
 }
 
 void WidgetTreePanel::OnRender(Renderer& renderer) {

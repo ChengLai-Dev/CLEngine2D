@@ -15,6 +15,7 @@
 #include <SceneGraph/Button.h>
 #include <SceneGraph/Label.h>
 #include <SceneGraph/Sprite.h>
+#include <SceneGraph/Image.h>
 #include <SceneGraph/CanvasPanel.h>
 #include <SceneGraph/Layout.h>
 #include <SceneGraph/UISystem.h>
@@ -188,7 +189,8 @@ void EditorApp::DrawPanelBorders() {
         Vec2(t, sideH), borderColor);
 
     // 4. WidgetPalette bottom edge (horizontal, within left panel)
-    float palBot = cfg.menuBarHeight + cfg.paletteHeight;
+    auto palRect = m_widgetPalette->GetHitRect();
+    float palBot = palRect.y + palRect.h;
     m_renderer->DrawQuad(
         Mat4::Translate(Vec3(cfg.leftPanelWidth * 0.5f, palBot - t * 0.5f, 0.0f)),
         Vec2(cfg.leftPanelWidth, t), borderColor);
@@ -213,6 +215,7 @@ void EditorApp::SelectWidget(Widget* widget) {
     m_selectedWidget = widget;
     m_propertyPanel->SetTarget(static_cast<Node*>(widget));
     m_canvasView->GetGizmo()->SetTarget(static_cast<Node*>(widget));
+    m_widgetTreePanel->SelectNode(static_cast<Node*>(widget));
 }
 
 void EditorApp::RecalculateLayout(int windowWidth, int windowHeight) {
@@ -223,17 +226,18 @@ void EditorApp::RecalculateLayout(int windowWidth, int windowHeight) {
                        static_cast<float>(windowWidth),
                        config.menuBarHeight);
 
+    float paletteHeight = m_widgetPalette->CalcDesiredHeight(config.leftPanelWidth);
     m_widgetPalette->SetRect(
         0.0f,
         config.menuBarHeight,
         config.leftPanelWidth,
-        config.paletteHeight);
+        paletteHeight);
 
     m_widgetTreePanel->SetRect(
         0.0f,
-        config.menuBarHeight + config.paletteHeight,
+        config.menuBarHeight + paletteHeight,
         config.leftPanelWidth,
-        static_cast<float>(windowHeight) - config.menuBarHeight - config.paletteHeight);
+        static_cast<float>(windowHeight) - config.menuBarHeight - paletteHeight);
 
     m_propertyPanel->SetRect(
         static_cast<float>(windowWidth) - config.rightPanelWidth,
@@ -279,7 +283,7 @@ void EditorApp::OnWindowResize(int width, int height) {
 void EditorApp::AddWidgetToScene(const std::string& type, const Vec3& position) {
     if (!m_editedScene) return;
 
-    std::unique_ptr<Widget> widget;
+    std::unique_ptr<Node> widget;
 
     if (type == "Button") {
         auto btn = std::make_unique<Button>();
@@ -289,6 +293,8 @@ void EditorApp::AddWidgetToScene(const std::string& type, const Vec3& position) 
         auto lbl = std::make_unique<Label>();
         lbl->SetText("New Label");
         widget = std::move(lbl);
+    } else if (type == "Image") {
+        widget = std::make_unique<Image>();
     } else if (type == "Panel") {
         widget = std::make_unique<CanvasPanel>();
     } else if (type == "Layout") {

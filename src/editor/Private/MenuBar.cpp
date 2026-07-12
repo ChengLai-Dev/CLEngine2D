@@ -87,7 +87,7 @@ void MenuBar::OnRender(Renderer& renderer) {
     }
 }
 
-IEditorPanel::HitRect MenuBar::GetHitRect() const {
+HitRect MenuBar::GetHitRect() const {
     HitRect r = { m_rectLeft, m_rectTop, m_rectWidth, m_rectHeight };
     if (m_openMenu >= 0) {
         r.h += 3.0f * 22.0f;

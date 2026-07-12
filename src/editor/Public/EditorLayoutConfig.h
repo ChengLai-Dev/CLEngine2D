@@ -6,7 +6,6 @@
 class EditorLayoutConfig {
 public:
     float menuBarHeight = 24.0f;
-    float paletteHeight = 50.0f;
     float leftPanelWidth = 250.0f;
     float rightPanelWidth = 300.0f;
 

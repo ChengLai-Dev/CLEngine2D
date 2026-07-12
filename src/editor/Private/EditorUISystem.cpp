@@ -41,7 +41,7 @@ void EditorUISystem::ProcessInput() {
 
     if (scroll != 0.0f) {
         for (const PanelEntry& entry : m_panels) {
-            IEditorPanel::HitRect hit = entry.panel->GetHitRect();
+            HitRect hit = entry.panel->GetHitRect();
             if (hit.Contains(pos.x, pos.y)) {
                 MouseEvent ev{ MouseEvent::Scroll, pos, MouseEvent::None, scroll };
                 if (entry.panel->OnMouseEvent(ev)) break;
@@ -51,7 +51,7 @@ void EditorUISystem::ProcessInput() {
 
     // Hover: 始终向光标下方面板发送 Move 事件（button=-1 表示非按键移动）
     for (const PanelEntry& entry : m_panels) {
-        IEditorPanel::HitRect hit = entry.panel->GetHitRect();
+        HitRect hit = entry.panel->GetHitRect();
         if (hit.Contains(pos.x, pos.y)) {
             MouseEvent ev{ MouseEvent::Move, pos, MouseEvent::None, 0.0f };
             entry.panel->OnMouseEvent(ev);
@@ -76,7 +76,7 @@ void EditorUISystem::ProcessInput() {
 
     if (leftPressed) {
         for (const PanelEntry& entry : m_panels) {
-            IEditorPanel::HitRect hit = entry.panel->GetHitRect();
+            HitRect hit = entry.panel->GetHitRect();
             if (hit.Contains(pos.x, pos.y)) {
                 MouseEvent ev{ MouseEvent::Down, pos, MouseEvent::Left, 0.0f };
                 if (entry.panel->OnMouseEvent(ev)) {
@@ -91,7 +91,7 @@ void EditorUISystem::ProcessInput() {
 
     if (rightPressed) {
         for (const PanelEntry& entry : m_panels) {
-            IEditorPanel::HitRect hit = entry.panel->GetHitRect();
+            HitRect hit = entry.panel->GetHitRect();
             if (hit.Contains(pos.x, pos.y)) {
                 MouseEvent ev{ MouseEvent::Down, pos, MouseEvent::Right, 0.0f };
                 if (entry.panel->OnMouseEvent(ev)) {

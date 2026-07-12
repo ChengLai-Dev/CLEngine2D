@@ -17,6 +17,10 @@ public:
     void SetRoot(Node* root);
     void OnRender(Renderer& renderer) override;
 
+    bool OnMouseEvent(const MouseEvent& event) override;
+
+    void SelectNode(Node* node);
+
     using SelectionChangedCallback = std::function<void(Node*)>;
     void OnSelectionChanged(SelectionChangedCallback cb);
 
@@ -24,6 +28,7 @@ public:
 
 private:
     void DrawWidgetTree(Node* node, Renderer& renderer, float& y, int depth);
+    Node* HitTest(Node* node, float& y, float my) const;
 
     Node* m_root = nullptr;
     Node* m_selectedNode = nullptr;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "HitRect.h"
 #include <Input/MouseEvent.h>
 #include <typeinfo>
 #include "Logger.h"
@@ -20,13 +21,6 @@ public:
             event.GetButtonString(), event.scrollDelta);
         return false;
     }
-
-    struct HitRect {
-        float x = 0.0f, y = 0.0f, w = 0.0f, h = 0.0f;
-        bool Contains(float px, float py) const {
-            return px >= x && px < x + w && py >= y && py < y + h;
-        }
-    };
 
     void SetRect(float x, float y, float w, float h) {
         m_rectLeft = x; m_rectTop = y;

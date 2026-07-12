@@ -35,7 +35,7 @@ void PropertyPanel::DrawProperty(const char* label, float value, float minVal, f
     float labelColor[4] = { 0.8f, 0.8f, 0.8f, 1.0f };
 
     Mat4 labelBg = Mat4::Translate(Vec3(10.0f + 40.0f, y + 12.0f, 0.0f));
-    renderer.DrawQuad(labelBg, Vec2(80.0f, 20.0f), Color(labelColor[0], labelColor[1], labelColor[2], labelColor[3]));
+    renderer.DrawQuad(labelBg, Vec2(80.0f, 20.0f), Color(bgColor[0], bgColor[1], bgColor[2], bgColor[3]));
 
     if (m_fontRenderer && label) {
         float textH = m_fontRenderer->GetLineHeight(1.0f);
