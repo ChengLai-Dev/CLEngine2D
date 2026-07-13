@@ -54,6 +54,7 @@ void Window::Init() {
     glfwSetWindowCloseCallback(m_window, WindowCloseCallback);
     glfwSetWindowFocusCallback(m_window, WindowFocusCallback);
     glfwSetKeyCallback(m_window, KeyCallback);
+    glfwSetCharCallback(m_window, CharCallback);
     glfwSetMouseButtonCallback(m_window, MouseButtonCallback);
     glfwSetCursorPosCallback(m_window, CursorPosCallback);
     glfwSetScrollCallback(m_window, ScrollCallback);
@@ -119,8 +120,12 @@ void Window::SetTitle(const std::string& title) {
     glfwSetWindowTitle(m_window, title.c_str());
 }
 
-void Window::KeyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, int /*mods*/) {
-    RawInput::OnKeyEvent(key, action);
+void Window::KeyCallback(GLFWwindow* /*window*/, int key, int /*scancode*/, int action, int mods) {
+    RawInput::OnKeyEvent(key, action, mods);
+}
+
+void Window::CharCallback(GLFWwindow* /*window*/, unsigned int codepoint) {
+    RawInput::OnCharEvent(codepoint);
 }
 
 void Window::MouseButtonCallback(GLFWwindow* /*window*/, int button, int action, int /*mods*/) {

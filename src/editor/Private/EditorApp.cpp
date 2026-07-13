@@ -106,6 +106,11 @@ void EditorApp::OnInit() {
 
     m_propertyPanel = std::make_unique<PropertyPanel>();
     m_propertyPanel->SetFontRenderer(m_fontRenderer.get());
+    m_propertyPanel->OnNameChanged([this]() {
+        if (m_selectedWidget) {
+            m_widgetTreePanel->SelectNode(static_cast<Node*>(m_selectedWidget));
+        }
+    });
     ui.Register(m_propertyPanel.get(), 2);
 
     m_widgetTreePanel = std::make_unique<WidgetTreePanel>();

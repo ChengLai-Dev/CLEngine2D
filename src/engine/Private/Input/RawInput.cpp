@@ -3,6 +3,7 @@
 
 RawInput::InputState RawInput::s_state;
 bool RawInput::s_gamepadConnected[RawInput::GAMEPAD_COUNT] = {};
+std::string RawInput::s_charBuffer;
 
 bool RawInput::IsKeyDown(KeyCode key) {
     uint16_t idx = static_cast<uint16_t>(key);
@@ -97,11 +98,37 @@ bool RawInput::IsGamepadButtonPressed(GamepadButton button, int gamepadIndex) {
     return IsGamepadButtonDown(button, gamepadIndex);
 }
 
-void RawInput::OnKeyEvent(int glfwKey, int action) {
+static std::string CodepointToUTF8(unsigned int codepoint) {
+    std::string result;
+    if (codepoint <= 0x7F) {
+        result += static_cast<char>(codepoint);
+    } else if (codepoint <= 0x7FF) {
+        result += static_cast<char>(0xC0 | (codepoint >> 6));
+        result += static_cast<char>(0x80 | (codepoint & 0x3F));
+    } else if (codepoint <= 0xFFFF) {
+        result += static_cast<char>(0xE0 | (codepoint >> 12));
+        result += static_cast<char>(0x80 | ((codepoint >> 6) & 0x3F));
+        result += static_cast<char>(0x80 | (codepoint & 0x3F));
+    } else if (codepoint <= 0x10FFFF) {
+        result += static_cast<char>(0xF0 | (codepoint >> 18));
+        result += static_cast<char>(0x80 | ((codepoint >> 12) & 0x3F));
+        result += static_cast<char>(0x80 | ((codepoint >> 6) & 0x3F));
+        result += static_cast<char>(0x80 | (codepoint & 0x3F));
+    }
+    return result;
+}
+
+void RawInput::OnKeyEvent(int glfwKey, int action, int mods) {
+    (void)mods;
     if (glfwKey < 0 || glfwKey >= KEY_COUNT) return;
+
+    if (glfwKey == GLFW_KEY_KP_ENTER) {
+        glfwKey = GLFW_KEY_ENTER;
+    }
 
     switch (action) {
         case GLFW_PRESS:
+        case GLFW_REPEAT:
             if (s_state.keyStates[glfwKey] == KeyState::None ||
                 s_state.keyStates[glfwKey] == KeyState::Released) {
                 s_state.keyStates[glfwKey] = KeyState::Pressed;
@@ -116,6 +143,16 @@ void RawInput::OnKeyEvent(int glfwKey, int action) {
         default:
             break;
     }
+}
+
+void RawInput::OnCharEvent(unsigned int codepoint) {
+    s_charBuffer += CodepointToUTF8(codepoint);
+}
+
+std::string RawInput::ConsumeCharBuffer() {
+    std::string result = std::move(s_charBuffer);
+    s_charBuffer.clear();
+    return result;
 }
 
 void RawInput::OnMouseButtonEvent(int glfwButton, int action) {

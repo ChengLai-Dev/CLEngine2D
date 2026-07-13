@@ -12,7 +12,7 @@
 #include <vector>
 
 TextRenderer::TextRenderer()
-    : m_glyphs(96)
+    : m_glyphs(96), m_rawBearings(96, 0.0f)
 {
 }
 
@@ -47,6 +47,12 @@ bool TextRenderer::LoadFont(const std::string& filepath, float pixelHeight) {
     m_ascent = ascent * scale;
     m_descent = descent * scale;
     m_lineGap = lineGap * scale;
+
+    for (int i = 0; i < kCharCount; ++i) {
+        int advanceWidth, leftSideBearing;
+        stbtt_GetCodepointHMetrics(&fontInfo, kFirstChar + i, &advanceWidth, &leftSideBearing);
+        m_rawBearings[static_cast<size_t>(i)] = static_cast<float>(leftSideBearing) * scale;
+    }
 
     int atlasW = 512;
     int atlasH = 512;
@@ -242,6 +248,13 @@ Vec2 TextRenderer::MeasureString(const std::string& text, float scale) const {
     if (currentWidth > maxWidth) maxWidth = currentWidth;
 
     return Vec2(maxWidth, totalHeight);
+}
+
+float TextRenderer::GetGlyphBearingX(unsigned char c, float scale) const {
+    if (!m_loaded) return 0.0f;
+    if (c < kFirstChar || c >= kFirstChar + kCharCount) return 0.0f;
+    int idx = c - kFirstChar;
+    return m_rawBearings[idx] * scale;
 }
 
 float TextRenderer::GetLineHeight(float scale) const {

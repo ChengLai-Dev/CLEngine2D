@@ -2,6 +2,7 @@
 
 #include "Input/InputCodes.h"
 #include "Math/Vec2.h"
+#include <string>
 
 class RawInput {
 public:
@@ -25,10 +26,13 @@ public:
     static bool IsGamepadButtonDown(GamepadButton button, int gamepadIndex = 0);
     static bool IsGamepadButtonPressed(GamepadButton button, int gamepadIndex = 0);
 
-    static void OnKeyEvent(int glfwKey, int action);
+    static void OnKeyEvent(int glfwKey, int action, int mods);
+    static void OnCharEvent(unsigned int codepoint);
     static void OnMouseButtonEvent(int glfwButton, int action);
     static void OnMouseMoveEvent(double x, double y);
     static void OnScrollEvent(double xOffset, double yOffset);
+
+    static std::string ConsumeCharBuffer();
 
     static void Update();
 
@@ -50,4 +54,5 @@ private:
 
     static InputState s_state;
     static bool s_gamepadConnected[GAMEPAD_COUNT];
+    static std::string s_charBuffer;
 };

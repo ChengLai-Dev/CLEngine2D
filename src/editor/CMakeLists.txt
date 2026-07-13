@@ -13,6 +13,8 @@ add_executable(editor
     Private/WidgetPalette.cpp
     Public/PropertyPanel.h
     Private/PropertyPanel.cpp
+    Public/PropertyEditBox.h
+    Private/PropertyEditBox.cpp
     Public/WidgetTreePanel.h
     Private/WidgetTreePanel.cpp
     Public/Gizmo.h
@@ -23,6 +25,8 @@ add_executable(editor
     Private/EditorLayoutConfig.cpp
     Public/UndoRedo.h
     Private/UndoRedo.cpp
+    Public/PropertyFieldRegistry.h
+    Private/PropertyFieldRegistry.cpp
 )
 
 target_include_directories(editor PRIVATE

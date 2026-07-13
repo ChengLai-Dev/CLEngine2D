@@ -36,6 +36,8 @@ public:
 
     Vec2 MeasureString(const std::string& text, float scale = 1.0f) const;
 
+    float GetGlyphBearingX(unsigned char c, float scale = 1.0f) const;
+
     float GetLineHeight(float scale = 1.0f) const;
     float GetBaselineOffset(float scale = 1.0f) const;
 
@@ -52,6 +54,7 @@ private:
 
     std::unique_ptr<Texture> m_atlas = nullptr;
     std::vector<GlyphData> m_glyphs;
+    std::vector<float> m_rawBearings;
     int m_atlasWidth = 0;
     int m_atlasHeight = 0;
     float m_pixelHeight = 0.0f;
