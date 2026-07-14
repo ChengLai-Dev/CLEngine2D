@@ -73,7 +73,7 @@ void WidgetPalette::OnRender(Renderer& renderer) {
 bool WidgetPalette::OnMouseEvent(const MouseEvent& event) {
     IEditorPanel::OnMouseEvent(event);
     switch (event.type) {
-        case MouseEvent::Down: {
+        case MouseEvent::Press: {
             if (event.button != MouseEvent::Left) return false;
             float localX = event.screenPos.x - m_rectLeft;
             float localY = event.screenPos.y - m_rectTop;
@@ -89,7 +89,7 @@ bool WidgetPalette::OnMouseEvent(const MouseEvent& event) {
         case MouseEvent::Move: {
             return m_dragIndex >= 0;
         }
-        case MouseEvent::Up: {
+        case MouseEvent::Release: {
             if (m_dragIndex >= 0 && m_onAction) {
                 static const WidgetPaletteAction actions[] = {
                     WidgetPaletteAction::ADD_BUTTON,

@@ -64,7 +64,7 @@ void EditorUISystem::ProcessInput() {
         bool released = (m_capturedButton == MouseEvent::Left) ? leftReleased : rightReleased;
 
         if (released) {
-            MouseEvent ev{ MouseEvent::Up, pos, m_capturedButton, 0.0f };
+            MouseEvent ev{ MouseEvent::Release, pos, m_capturedButton, 0.0f };
             m_capturedPanel->OnMouseEvent(ev);
             ReleaseCapture();
         } else if (held) {
@@ -78,7 +78,7 @@ void EditorUISystem::ProcessInput() {
         for (const PanelEntry& entry : m_panels) {
             HitRect hit = entry.panel->GetHitRect();
             if (hit.Contains(pos.x, pos.y)) {
-                MouseEvent ev{ MouseEvent::Down, pos, MouseEvent::Left, 0.0f };
+                MouseEvent ev{ MouseEvent::Press, pos, MouseEvent::Left, 0.0f };
                 if (entry.panel->OnMouseEvent(ev)) {
                     if (entry.panel->IsCapturing()) {
                         Capture(entry.panel, MouseEvent::Left);
@@ -93,7 +93,7 @@ void EditorUISystem::ProcessInput() {
         for (const PanelEntry& entry : m_panels) {
             HitRect hit = entry.panel->GetHitRect();
             if (hit.Contains(pos.x, pos.y)) {
-                MouseEvent ev{ MouseEvent::Down, pos, MouseEvent::Right, 0.0f };
+                MouseEvent ev{ MouseEvent::Press, pos, MouseEvent::Right, 0.0f };
                 if (entry.panel->OnMouseEvent(ev)) {
                     if (entry.panel->IsCapturing()) {
                         Capture(entry.panel, MouseEvent::Right);

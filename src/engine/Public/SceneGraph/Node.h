@@ -42,11 +42,13 @@ public:
 
     // === Hierarchy ===
     void AddChild(std::unique_ptr<Node> child);
+    void InsertChildAt(std::unique_ptr<Node> child, size_t index);
     std::unique_ptr<Node> RemoveChild(Node* child);
     Node* GetParent() const;
 
     size_t GetChildCount() const;
     Node* GetChild(size_t index) const;
+    size_t GetChildIndex(Node* child) const;
     Node* FindChild(const std::string& name);
 
     // === State ===

@@ -1,11 +1,11 @@
 #pragma once
 
-#include "SceneGraph/Node.h"
+#include "SceneGraph/Widget.h"
 #include <memory>
 
 class Texture;
 
-class Sprite : public Node {
+class Sprite : public Widget {
 public:
     Sprite();
 

@@ -65,84 +65,126 @@ Mat4 CanvasView::GetProjection() const {
     );
 }
 
+static constexpr float BODY_DRAG_THRESHOLD = 4.0f;
+static constexpr GizmoMode kToolbarModes[3] = { GizmoMode::TRANSLATE, GizmoMode::SCALE, GizmoMode::ROTATE };
+
+const CanvasView::DispatchEntry CanvasView::kDispatchTable[8] = {
+    { MouseEvent::Press,   MouseEvent::Left,   &CanvasView::OnLeftPress   },
+    { MouseEvent::Press,   MouseEvent::Right,  &CanvasView::OnRightPress  },
+    { MouseEvent::Move,    MouseEvent::None,   &CanvasView::OnHover       },
+    { MouseEvent::Move,    MouseEvent::Left,   &CanvasView::OnLeftHeld    },
+    { MouseEvent::Move,    MouseEvent::Right,  &CanvasView::OnRightHeld   },
+    { MouseEvent::Release, MouseEvent::Left,   &CanvasView::OnLeftRelease },
+    { MouseEvent::Release, MouseEvent::Right,  &CanvasView::OnRightRelease},
+    { MouseEvent::Scroll,  MouseEvent::None,   &CanvasView::OnScroll      },
+};
+
 bool CanvasView::OnMouseEvent(const MouseEvent& event) {
     IEditorPanel::OnMouseEvent(event);
     Vec3 worldPos = ScreenToWorld(event.screenPos);
-
-    switch (event.type) {
-        case MouseEvent::Down:
-            if (event.button == MouseEvent::Left) {
-                int tbBtn = HitTestToolbar(event.screenPos);
-                if (tbBtn >= 0) {
-                    GizmoMode modes[] = { GizmoMode::TRANSLATE, GizmoMode::SCALE, GizmoMode::ROTATE };
-                    m_gizmo->SetMode(modes[tbBtn]);
-                    return true;
-                }
-                GizmoHandle::Type handle = m_gizmo->HitTestHandle(worldPos);
-                if (handle != GizmoHandle::NONE) {
-                    m_gizmo->BeginDrag(handle, worldPos);
-                    m_isGizmoDragging = true;
-                    return true;
-                }
-                Widget* hit = UISystem::GetInstance().HitTestScene(worldPos);
-                if (m_onWidgetClicked) {
-                    m_onWidgetClicked(hit);
-                }
-                return true;
-            }
-            if (event.button == MouseEvent::Right) {
-                m_isPanning = true;
-                m_panStartViewCenter = m_viewCenter;
-                m_panStartMousePos = event.screenPos;
-                return true;
-            }
-            return false;
-
-        case MouseEvent::Move:
-            if (event.button == MouseEvent::None) {
-                int tbBtn = HitTestToolbar(event.screenPos);
-                m_hoveredToolBtn = tbBtn;
-                if (tbBtn >= 0) {
-                    return false;
-                }
-                GizmoHandle::Type handle = m_gizmo->HitTestHandle(worldPos);
-                if (handle != GizmoHandle::NONE) {
-                    CursorManager::Set(m_gizmo->GetCursorForHandle(handle));
-                } else {
-                    CursorManager::Reset();
-                }
-                Widget* hit = UISystem::GetInstance().HitTestScene(worldPos);
-                m_hoveredWidget = hit;
-                return false;
-            }
-            if (event.button == MouseEvent::Left && m_isGizmoDragging) {
-                m_gizmo->Drag(worldPos);
-                return true;
-            }
-            if (event.button == MouseEvent::Right && m_isPanning) {
-                Vec2 totalDelta = event.screenPos - m_panStartMousePos;
-                m_viewCenter = m_panStartViewCenter + Vec2(-totalDelta.x, totalDelta.y) / m_zoomLevel;
-                return true;
-            }
-            return false;
-
-        case MouseEvent::Up:
-            if (event.button == MouseEvent::Left && m_isGizmoDragging) {
-                m_gizmo->EndDrag();
-                m_isGizmoDragging = false;
-                return true;
-            }
-            if (event.button == MouseEvent::Right && m_isPanning) {
-                m_isPanning = false;
-                return true;
-            }
-            return false;
-
-        case MouseEvent::Scroll:
-            Zoom(event.scrollDelta > 0.0f ? 1.1f : 0.9f);
-            return true;
+    for (const DispatchEntry& entry : kDispatchTable) {
+        if (entry.action == event.type && entry.button == event.button)
+            return (this->*entry.handler)(event, worldPos);
     }
     return false;
+}
+
+bool CanvasView::OnLeftPress(const MouseEvent& event, const Vec3& worldPos) {
+    int tbBtn = HitTestToolbar(event.screenPos);
+    if (tbBtn >= 0) {
+        m_gizmo->SetMode(kToolbarModes[tbBtn]);
+        return true;
+    }
+    GizmoHandle::Type handle = m_gizmo->HitTestHandle(worldPos);
+    if (handle != GizmoHandle::NONE) {
+        m_gizmo->BeginDrag(handle, worldPos);
+        m_isGizmoDragging = true;
+        return true;
+    }
+    Widget* hit = UISystem::GetInstance().HitTestScene(worldPos);
+    if (hit && m_gizmo->GetTarget() && hit == m_gizmo->GetTarget()) {
+        m_isBodyDragPending = true;
+        m_isBodyDragging = false;
+        m_bodyDragStartWorld = worldPos;
+        m_bodyDragStartPos = hit->GetPosition();
+    } else if (m_onWidgetClicked) {
+        m_onWidgetClicked(hit);
+    }
+    return true;
+}
+
+bool CanvasView::OnRightPress(const MouseEvent& event, const Vec3&) {
+    m_isPanning = true;
+    m_panStartViewCenter = m_viewCenter;
+    m_panStartMousePos = event.screenPos;
+    return true;
+}
+
+bool CanvasView::OnHover(const MouseEvent& event, const Vec3& worldPos) {
+    int tbBtn = HitTestToolbar(event.screenPos);
+    m_hoveredToolBtn = tbBtn;
+    if (tbBtn >= 0) return false;
+
+    GizmoHandle::Type handle = m_gizmo->HitTestHandle(worldPos);
+    if (handle != GizmoHandle::NONE) {
+        CursorManager::Set(m_gizmo->GetCursorForHandle(handle));
+    } else {
+        CursorManager::Reset();
+    }
+    Widget* hit = UISystem::GetInstance().HitTestScene(worldPos);
+    m_hoveredWidget = hit;
+    return false;
+}
+
+bool CanvasView::OnLeftHeld(const MouseEvent&, const Vec3& worldPos) {
+    if (m_isGizmoDragging) {
+        m_gizmo->Drag(worldPos);
+        return true;
+    }
+    if (m_isBodyDragPending) {
+        Vec3 delta = worldPos - m_bodyDragStartWorld;
+        float dist = std::sqrt(delta.x * delta.x + delta.y * delta.y);
+        if (dist > BODY_DRAG_THRESHOLD) {
+            m_isBodyDragging = true;
+            m_isBodyDragPending = false;
+        }
+    }
+    if (m_isBodyDragging && m_gizmo && m_gizmo->GetTarget()) {
+        Vec3 delta = worldPos - m_bodyDragStartWorld;
+        m_gizmo->GetTarget()->SetPosition(m_bodyDragStartPos + delta);
+        return true;
+    }
+    return false;
+}
+
+bool CanvasView::OnRightHeld(const MouseEvent& event, const Vec3&) {
+    Vec2 totalDelta = event.screenPos - m_panStartMousePos;
+    m_viewCenter = m_panStartViewCenter + Vec2(-totalDelta.x, totalDelta.y) / m_zoomLevel;
+    return true;
+}
+
+bool CanvasView::OnLeftRelease(const MouseEvent&, const Vec3&) {
+    if (m_isGizmoDragging) {
+        m_gizmo->EndDrag();
+        m_isGizmoDragging = false;
+        return true;
+    }
+    if (m_isBodyDragging || m_isBodyDragPending) {
+        m_isBodyDragging = false;
+        m_isBodyDragPending = false;
+        return true;
+    }
+    return false;
+}
+
+bool CanvasView::OnRightRelease(const MouseEvent&, const Vec3&) {
+    m_isPanning = false;
+    return true;
+}
+
+bool CanvasView::OnScroll(const MouseEvent& event, const Vec3&) {
+    Zoom(event.scrollDelta > 0.0f ? 1.1f : 0.9f);
+    return true;
 }
 
 void CanvasView::OnUpdate(float deltaTime) {
@@ -161,7 +203,6 @@ void CanvasView::OnUpdate(float deltaTime) {
 
 void CanvasView::DrawGrid(Renderer& renderer) {
     Color gridColor(0.3f, 0.3f, 0.35f, 0.5f);
-    Color centerColor(0.5f, 0.5f, 0.6f, 0.8f);
 
     float halfW = m_rectWidth * 0.5f / m_zoomLevel;
     float halfH = m_rectHeight * 0.5f / m_zoomLevel;
@@ -171,6 +212,12 @@ void CanvasView::DrawGrid(Renderer& renderer) {
     float top = halfH + m_viewCenter.y;
 
     float spacedGrid = m_gridSize * m_zoomLevel;
+
+    // 确保网格线在屏幕空间的最小间距
+    constexpr float MIN_GRID_SPACING = 24.0f;
+    while (spacedGrid * m_zoomLevel < MIN_GRID_SPACING) {
+        spacedGrid *= 2.0f;
+    }
 
     float startX = std::floor(left / spacedGrid) * spacedGrid;
     float startY = std::floor(bottom / spacedGrid) * spacedGrid;
@@ -182,11 +229,6 @@ void CanvasView::DrawGrid(Renderer& renderer) {
     for (float y = startY; y <= top; y += spacedGrid) {
         renderer.DrawLine(Vec3(left, y, 0.0f), Vec3(right, y, 0.0f), gridColor);
     }
-
-    float cx = (left + right) * 0.5f;
-    float cy = (top + bottom) * 0.5f;
-    renderer.DrawLine(Vec3(left, cy, 0.0f), Vec3(right, cy, 0.0f), centerColor);
-    renderer.DrawLine(Vec3(cx, bottom, 0.0f), Vec3(cx, top, 0.0f), centerColor);
 }
 
 void CanvasView::OnRender(Renderer& renderer) {
@@ -209,6 +251,7 @@ void CanvasView::OnRender(Renderer& renderer) {
     }
 
     DrawGrid(renderer);
+    renderer.Flush();   // 强制网格线先绘制，避免 Line 在 Flush 时叠在 Quad 之上
     m_editedScene->OnRender(renderer);
 
     float thickness = 3.0f / m_zoomLevel;

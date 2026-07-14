@@ -194,7 +194,7 @@ void PropertyPanel::OnRender(Renderer& renderer) {
 
 bool PropertyPanel::OnMouseEvent(const MouseEvent& event) {
     switch (event.type) {
-        case MouseEvent::Down: {
+        case MouseEvent::Press: {
             if (event.button != MouseEvent::Left) return false;
 
             float localX = event.screenPos.x - m_rectLeft;
@@ -246,7 +246,7 @@ bool PropertyPanel::OnMouseEvent(const MouseEvent& event) {
             return false;
         }
 
-        case MouseEvent::Up: {
+        case MouseEvent::Release: {
             if (m_activeFieldIndex >= 0) {
                 m_fields[m_activeFieldIndex].editBox.OnMouseRelease();
             }

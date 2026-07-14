@@ -4,7 +4,7 @@
 #include <string>
 
 struct MouseEvent {
-    enum ActionType { Down, Move, Up, Scroll };
+    enum ActionType { Press, Move, Release, Scroll };
     enum ButtonType { None, Left, Right, Middle };
     ActionType type;
     Vec2 screenPos;
@@ -13,11 +13,11 @@ struct MouseEvent {
 
     std::string GetTypeString() const {
         switch (type) {
-            case Down:   return "Down";
-            case Move:   return "Move";
-            case Up:     return "Up";
-            case Scroll: return "Scroll";
-            default:     return "Unknown";
+            case Press:   return "Press";
+            case Move:    return "Move";
+            case Release: return "Release";
+            case Scroll:  return "Scroll";
+            default:      return "Unknown";
         }
     }
 

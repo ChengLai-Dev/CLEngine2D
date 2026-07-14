@@ -7,6 +7,7 @@
 #include <Math/Vec3.h>
 #include <memory>
 #include <functional>
+#include <array>
 
 class Renderer;
 struct Color;
@@ -38,7 +39,7 @@ public:
     void OnRender(Renderer& renderer) override;
 
     bool OnMouseEvent(const MouseEvent& event) override;
-    bool IsCapturing() const override { return m_isGizmoDragging || m_isPanning; }
+    bool IsCapturing() const override { return m_isGizmoDragging || m_isPanning || m_isBodyDragging || m_isBodyDragPending; }
 
     Gizmo* GetGizmo() const;
 
@@ -54,6 +55,25 @@ private:
     static constexpr int TOOLBAR_HEIGHT = 28;
     static constexpr int TOOLBAR_BTN_W = 60;
 
+    // === Dispatch table ===
+    using Handler = bool (CanvasView::*)(const MouseEvent&, const Vec3&);
+    struct DispatchEntry {
+        MouseEvent::ActionType action;
+        MouseEvent::ButtonType button;
+        Handler handler;
+    };
+
+    bool OnLeftPress(const MouseEvent& event, const Vec3& worldPos);
+    bool OnRightPress(const MouseEvent& event, const Vec3& worldPos);
+    bool OnHover(const MouseEvent& event, const Vec3& worldPos);
+    bool OnLeftHeld(const MouseEvent& event, const Vec3& worldPos);
+    bool OnRightHeld(const MouseEvent& event, const Vec3& worldPos);
+    bool OnLeftRelease(const MouseEvent& event, const Vec3& worldPos);
+    bool OnRightRelease(const MouseEvent& event, const Vec3& worldPos);
+    bool OnScroll(const MouseEvent& event, const Vec3& worldPos);
+
+    static const DispatchEntry kDispatchTable[8];
+
     Scene* m_editedScene = nullptr;
     std::unique_ptr<Gizmo> m_gizmo;
 
@@ -66,6 +86,11 @@ private:
     bool m_isPanning = false;
     Vec2 m_panStartViewCenter;
     Vec2 m_panStartMousePos;
+
+    bool m_isBodyDragPending = false;
+    bool m_isBodyDragging = false;
+    Vec3 m_bodyDragStartWorld;
+    Vec3 m_bodyDragStartPos;
 
     WidgetClickCallback m_onWidgetClicked;
 

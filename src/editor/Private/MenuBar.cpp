@@ -97,7 +97,7 @@ HitRect MenuBar::GetHitRect() const {
 
 bool MenuBar::OnMouseEvent(const MouseEvent& event) {
     IEditorPanel::OnMouseEvent(event);
-    if (event.type != MouseEvent::Down || event.button != MouseEvent::Left) return false;
+    if (event.type != MouseEvent::Press || event.button != MouseEvent::Left) return false;
     return HandleClick(event.screenPos.x, event.screenPos.y);
 }
 

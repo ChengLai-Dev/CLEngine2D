@@ -54,10 +54,7 @@ void EditorApp::OnInit() {
     m_renderer->Init();
 
     m_editedScene = std::make_unique<Scene>();
-    auto canvasPanel = std::make_unique<CanvasPanel>();
-    canvasPanel->SetContentSize(Vec2(800.0f, 600.0f));
-    canvasPanel->SetName("Root");
-    m_editedScene->SetRoot(std::move(canvasPanel));
+    m_editedScene->SetRoot(nullptr);
 
     m_fontRenderer = std::make_unique<TextRenderer>();
     if (!m_fontRenderer->LoadFont("assets/fonts/arial.ttf", 14.0f)) {
@@ -65,7 +62,6 @@ void EditorApp::OnInit() {
     }
 
     InputSystem::GetInstance().SetInputMode(EInputMode::GameAndUI);
-    UISystem::GetInstance().SetUIRoot(static_cast<Widget*>(m_editedScene->GetRoot()));
     UISystem::GetInstance().SetFontRenderer(m_fontRenderer.get());
 
     EditorUISystem& ui = m_uiSystem;
@@ -312,10 +308,23 @@ void EditorApp::AddWidgetToScene(const std::string& type, const Vec3& position) 
 
     static int counter = 0;
     widget->SetName(type + std::to_string(counter++));
-    widget->SetContentSize(Vec2(150.0f, 40.0f));
-    widget->SetPosition(position);
 
-    m_editedScene->GetRoot()->AddChild(std::move(widget));
+    if (!m_editedScene->GetRoot()) {
+        widget->SetContentSize(Vec2(800.0f, 600.0f));
+        widget->SetPosition(Vec3(0.0f, 0.0f, 0.0f));
+        m_editedScene->SetRoot(std::move(widget));
+
+        Node* root = m_editedScene->GetRoot();
+        m_widgetTreePanel->SetRoot(root);
+        m_canvasView->SetEditedScene(m_editedScene.get());
+        UISystem::GetInstance().SetUIRoot(static_cast<Widget*>(root));
+    } else {
+        Node* root = m_editedScene->GetRoot();
+        widget->SetZOrder(static_cast<int>(root->GetChildCount()));
+        widget->SetContentSize(Vec2(150.0f, 40.0f));
+        widget->SetPosition(position);
+        root->AddChild(std::move(widget));
+    }
 
     Logger::Info("Added widget: {}", type);
 }
@@ -332,6 +341,10 @@ void EditorApp::DeleteSelected() {
 
 void EditorApp::SaveScene() {
     Node* root = m_editedScene->GetRoot();
+    if (!root) {
+        Logger::Warn("Nothing to save — scene is empty");
+        return;
+    }
     std::string filepath = "assets/ui/editor_test.ui";
     if (Serializer::SaveToFile(root, filepath)) {
         Logger::Info("Scene saved to {}", filepath);
@@ -345,8 +358,10 @@ void EditorApp::LoadScene() {
     Node* loaded = Serializer::LoadFromFile(filepath);
     if (loaded) {
         m_editedScene->SetRoot(std::unique_ptr<Node>(loaded));
-        m_widgetTreePanel->SetRoot(m_editedScene->GetRoot());
+        Node* root = m_editedScene->GetRoot();
+        m_widgetTreePanel->SetRoot(root);
         m_canvasView->SetEditedScene(m_editedScene.get());
+        UISystem::GetInstance().SetUIRoot(static_cast<Widget*>(root));
         SelectWidget(nullptr);
         Logger::Info("Scene loaded");
     } else {
