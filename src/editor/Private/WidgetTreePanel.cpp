@@ -260,7 +260,7 @@ void WidgetTreePanel::OnRender(Renderer& renderer) {
     Color bgColor(0.1f, 0.1f, 0.12f, 1.0f);
 
     Mat4 bgTransform = Mat4::Translate(Vec3(m_rectWidth * 0.5f, m_rectHeight * 0.5f, 0.0f));
-    renderer.DrawQuad(bgTransform, Vec2(m_rectWidth, m_rectHeight));
+    renderer.DrawQuad(bgTransform, Vec2(m_rectWidth, m_rectHeight), bgColor);
 
     if (m_root) {
         float y = 0.0f;

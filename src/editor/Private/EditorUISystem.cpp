@@ -5,7 +5,7 @@
 
 void EditorUISystem::Register(IEditorPanel* panel, int priority) {
     m_panels.push_back({panel, priority});
-    std::sort(m_panels.begin(), m_panels.end(),
+    std::stable_sort(m_panels.begin(), m_panels.end(),
         [](const PanelEntry& a, const PanelEntry& b) { return a.priority < b.priority; });
 }
 

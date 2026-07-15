@@ -29,6 +29,10 @@ add_executable(editor
     Private/PropertyFieldRegistry.cpp
     Public/FileDialog.h
     Private/FileDialog.cpp
+    Public/PanelDivider.h
+    Private/PanelDivider.cpp
+    Public/TabBar.h
+    Private/TabBar.cpp
 )
 
 target_include_directories(editor PRIVATE

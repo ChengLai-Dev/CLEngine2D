@@ -8,6 +8,7 @@
 #include <Scene.h>
 #include <string>
 #include <memory>
+#include <vector>
 #include <SceneGraph/Widget.h>
 
 class Renderer;
@@ -18,6 +19,8 @@ class MenuBar;
 class WidgetPalette;
 class PropertyPanel;
 class WidgetTreePanel;
+class PanelDivider;
+class TabBar;
 
 class EditorApp : public Application {
 public:
@@ -32,20 +35,37 @@ protected:
     void OnWindowResize(int width, int height) override;
 
 private:
+    struct EditorTab {
+        std::string name;
+        std::string filePath;
+        std::unique_ptr<Scene> scene;
+        bool dirty = false;
+    };
+
     void RenderPanel(IEditorPanel* panel, bool useCustomProj = false);
     void RecalculateLayout(int windowWidth, int windowHeight);
     void SelectWidget(Widget* widget);
     void AddWidgetToScene(const std::string& type, const Vec3& position);
     void DeleteSelected();
     void DrawPanelBorders();
-    void SaveScene();
-    void LoadScene();
+
     void SaveLayout();
     void LoadLayout();
 
+    void NewTab();
+    void SwitchTab(int index);
+    void CloseTab(int index);
+    void SaveActiveTab();
+    void LoadSceneIntoNewTab();
+    void SetTabDirty();
+    bool HasUnsavedTabs() const;
+    void SyncTabToPanels();
+    void UpdateTabBar();
+
     std::unique_ptr<Renderer> m_renderer;
 
-    std::unique_ptr<Scene> m_editedScene;
+    std::vector<EditorTab> m_tabs;
+    int m_activeTabIndex = -1;
 
     std::unique_ptr<CanvasView> m_canvasView;
     std::unique_ptr<MenuBar> m_menuBar;
@@ -57,6 +77,10 @@ private:
     EditorLayoutConfig m_layoutConfig;
 
     Widget* m_selectedWidget = nullptr;
+
+    std::unique_ptr<PanelDivider> m_leftDivider;
+    std::unique_ptr<PanelDivider> m_rightDivider;
+    std::unique_ptr<TabBar> m_tabBar;
 
     std::unique_ptr<TextRenderer> m_fontRenderer;
 };
