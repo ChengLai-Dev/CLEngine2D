@@ -18,6 +18,8 @@ public:
     PropertyPanel();
     ~PropertyPanel();
 
+    void SetParentHwnd(void* hwnd) { m_parentHwnd = hwnd; }
+
     void SetTarget(Node* target);
     Node* GetTarget() const;
 
@@ -40,6 +42,7 @@ private:
         std::function<void(const std::string&)> setter;
         float minVal = 0.0f;
         float maxVal = 0.0f;
+        bool isTextureAsset = false;
         PropertyEditBox editBox;
     };
 
@@ -61,6 +64,8 @@ private:
     int m_activeFieldIndex = -1;
 
     float m_scrollOffset = 0.0f;
+
+    void* m_parentHwnd = nullptr;
 
     PropertyChangedCallback m_onPropertyChanged;
     std::function<void()> m_onNameChanged;

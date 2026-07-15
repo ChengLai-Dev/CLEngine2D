@@ -34,6 +34,9 @@ public:
 
     static std::string ConsumeCharBuffer();
 
+    static void SetClipboardText(const std::string& text);
+    static std::string GetClipboardText();
+
     static void Update();
 
 private:

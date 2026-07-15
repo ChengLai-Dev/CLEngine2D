@@ -5,6 +5,10 @@
 #include <SceneGraph/Widget.h>
 #include <SceneGraph/Label.h>
 #include <SceneGraph/Sprite.h>
+#include <SceneGraph/Image.h>
+#include <SceneGraph/Button.h>
+#include <AssetManager.h>
+#include <Render/Texture.h>
 #include <algorithm>
 #include <cstdlib>
 #include <format>
@@ -189,4 +193,144 @@ inline void SetTexScaleY(Node* n, const std::string& s) {
     auto* sp = static_cast<Sprite*>(n);
     float v = ParseFloat(s, -10000.0f, 10000.0f);
     sp->SetTexScale(sp->GetTexScaleX(), v);
+}
+
+// ======================================================================
+// Sprite — Texture
+// ======================================================================
+
+inline std::string GetSpriteTexture(Node* n) {
+    auto* sp = static_cast<Sprite*>(n);
+    auto tex = sp->GetTexture();
+    return tex ? tex->GetFilePath() : "";
+}
+
+inline void SetSpriteTexture(Node* n, const std::string& v) {
+    if (v.empty()) {
+        static_cast<Sprite*>(n)->SetTexture(nullptr);
+    } else {
+        auto tex = AssetManager::GetInstance().LoadTexture(v);
+        static_cast<Sprite*>(n)->SetTexture(tex);
+    }
+}
+
+// ======================================================================
+// Image
+// ======================================================================
+
+inline std::string GetScale9Enabled(Node* n) {
+    return static_cast<Image*>(n)->IsScale9Enabled() ? "True" : "False";
+}
+
+inline void SetScale9Enabled(Node* n, const std::string& v) {
+    static_cast<Image*>(n)->SetScale9Enabled(v == "True");
+}
+
+inline std::string GetCapInsetL(Node* n) { return FormatFloat(static_cast<Image*>(n)->GetCapInsets().x); }
+inline void SetCapInsetL(Node* n, const std::string& s) {
+    auto* img = static_cast<Image*>(n);
+    Vec4 v = img->GetCapInsets(); v.x = ParseFloat(s, 0.0f, 10000.0f); img->SetCapInsets(v);
+}
+
+inline std::string GetCapInsetT(Node* n) { return FormatFloat(static_cast<Image*>(n)->GetCapInsets().y); }
+inline void SetCapInsetT(Node* n, const std::string& s) {
+    auto* img = static_cast<Image*>(n);
+    Vec4 v = img->GetCapInsets(); v.y = ParseFloat(s, 0.0f, 10000.0f); img->SetCapInsets(v);
+}
+
+inline std::string GetCapInsetR(Node* n) { return FormatFloat(static_cast<Image*>(n)->GetCapInsets().z); }
+inline void SetCapInsetR(Node* n, const std::string& s) {
+    auto* img = static_cast<Image*>(n);
+    Vec4 v = img->GetCapInsets(); v.z = ParseFloat(s, 0.0f, 10000.0f); img->SetCapInsets(v);
+}
+
+inline std::string GetCapInsetB(Node* n) { return FormatFloat(static_cast<Image*>(n)->GetCapInsets().w); }
+inline void SetCapInsetB(Node* n, const std::string& s) {
+    auto* img = static_cast<Image*>(n);
+    Vec4 v = img->GetCapInsets(); v.w = ParseFloat(s, 0.0f, 10000.0f); img->SetCapInsets(v);
+}
+
+// ======================================================================
+// Button — Textures
+// ======================================================================
+
+inline std::string GetBtnNormalTex(Node* n) {
+    auto* btn = static_cast<Button*>(n);
+    auto tex = btn->GetNormalImage();
+    return tex ? tex->GetFilePath() : "";
+}
+
+inline void SetBtnNormalTex(Node* n, const std::string& v) {
+    if (v.empty()) {
+        static_cast<Button*>(n)->SetNormalImage(nullptr);
+    } else {
+        auto tex = AssetManager::GetInstance().LoadTexture(v);
+        static_cast<Button*>(n)->SetNormalImage(tex);
+    }
+}
+
+inline std::string GetBtnPressedTex(Node* n) {
+    auto* btn = static_cast<Button*>(n);
+    auto tex = btn->GetPressedImage();
+    return tex ? tex->GetFilePath() : "";
+}
+
+inline void SetBtnPressedTex(Node* n, const std::string& v) {
+    if (v.empty()) {
+        static_cast<Button*>(n)->SetPressedImage(nullptr);
+    } else {
+        auto tex = AssetManager::GetInstance().LoadTexture(v);
+        static_cast<Button*>(n)->SetPressedImage(tex);
+    }
+}
+
+inline std::string GetBtnDisabledTex(Node* n) {
+    auto* btn = static_cast<Button*>(n);
+    auto tex = btn->GetDisabledImage();
+    return tex ? tex->GetFilePath() : "";
+}
+
+inline void SetBtnDisabledTex(Node* n, const std::string& v) {
+    if (v.empty()) {
+        static_cast<Button*>(n)->SetDisabledImage(nullptr);
+    } else {
+        auto tex = AssetManager::GetInstance().LoadTexture(v);
+        static_cast<Button*>(n)->SetDisabledImage(tex);
+    }
+}
+
+// ======================================================================
+// Button — Text / Font / Color
+// ======================================================================
+
+inline std::string GetBtnText(Node* n) { return static_cast<Button*>(n)->GetText(); }
+inline void SetBtnText(Node* n, const std::string& v) { static_cast<Button*>(n)->SetText(v); }
+
+inline std::string GetBtnFontSize(Node* n) { return FormatFloat(static_cast<Button*>(n)->GetFontSize()); }
+inline void SetBtnFontSize(Node* n, const std::string& s) {
+    static_cast<Button*>(n)->SetFontSize(ParseFloat(s, 1.0f, 200.0f));
+}
+
+inline std::string GetBtnTextColorR(Node* n) { return FormatFloat(static_cast<Button*>(n)->GetTextColor().x); }
+inline void SetBtnTextColorR(Node* n, const std::string& s) {
+    auto* btn = static_cast<Button*>(n);
+    Vec4 c = btn->GetTextColor(); c.x = ParseFloat(s, 0.0f, 1.0f); btn->SetTextColor(c);
+}
+
+inline std::string GetBtnTextColorG(Node* n) { return FormatFloat(static_cast<Button*>(n)->GetTextColor().y); }
+inline void SetBtnTextColorG(Node* n, const std::string& s) {
+    auto* btn = static_cast<Button*>(n);
+    Vec4 c = btn->GetTextColor(); c.y = ParseFloat(s, 0.0f, 1.0f); btn->SetTextColor(c);
+}
+
+inline std::string GetBtnTextColorB(Node* n) { return FormatFloat(static_cast<Button*>(n)->GetTextColor().z); }
+inline void SetBtnTextColorB(Node* n, const std::string& s) {
+    auto* btn = static_cast<Button*>(n);
+    Vec4 c = btn->GetTextColor(); c.z = ParseFloat(s, 0.0f, 1.0f); btn->SetTextColor(c);
+}
+
+inline std::string GetBtnTextColorA(Node* n) { return FormatFloat(static_cast<Button*>(n)->GetTextColor().w); }
+inline void SetBtnTextColorA(Node* n, const std::string& s) {
+    auto* btn = static_cast<Button*>(n);
+    Vec4 c = btn->GetTextColor(); c.w = ParseFloat(s, 0.0f, 1.0f); btn->SetTextColor(c);
 }

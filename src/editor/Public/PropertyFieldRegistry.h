@@ -6,7 +6,7 @@
 
 class Node;
 
-enum class FieldType { Float, Int, Bool, String };
+enum class FieldType { Float, Int, Bool, String, TextureAsset };
 
 struct PropertyFieldDef {
     std::string label;

@@ -27,6 +27,8 @@ add_executable(editor
     Private/UndoRedo.cpp
     Public/PropertyFieldRegistry.h
     Private/PropertyFieldRegistry.cpp
+    Public/FileDialog.h
+    Private/FileDialog.cpp
 )
 
 target_include_directories(editor PRIVATE

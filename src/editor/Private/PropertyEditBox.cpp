@@ -122,6 +122,59 @@ void PropertyEditBox::OnMouseRelease() {
 void PropertyEditBox::OnUpdate(float deltaTime) {
     if (!m_active) return;
 
+    bool ctrlHeld = RawInput::IsKeyDown(KeyCode::LeftControl) ||
+                    RawInput::IsKeyDown(KeyCode::RightControl);
+
+    if (ctrlHeld) {
+        if (RawInput::IsKeyPressed(KeyCode::A)) {
+            m_cursorPos = static_cast<int>(m_buffer.length());
+            m_selStart = 0;
+            m_blinkTimer = 0.0f;
+            m_cursorVisible = true;
+            RawInput::ConsumeCharBuffer();
+            return;
+        }
+        if (RawInput::IsKeyPressed(KeyCode::C) && HasSelection()) {
+            int begin = GetSelBegin();
+            int end = GetSelEnd();
+            RawInput::SetClipboardText(m_buffer.substr(
+                static_cast<size_t>(begin),
+                static_cast<size_t>(end - begin)));
+            m_blinkTimer = 0.0f;
+            m_cursorVisible = true;
+            RawInput::ConsumeCharBuffer();
+            return;
+        }
+        if (RawInput::IsKeyPressed(KeyCode::X) && HasSelection()) {
+            int begin = GetSelBegin();
+            int end = GetSelEnd();
+            RawInput::SetClipboardText(m_buffer.substr(
+                static_cast<size_t>(begin),
+                static_cast<size_t>(end - begin)));
+            DeleteSelection();
+            m_blinkTimer = 0.0f;
+            m_cursorVisible = true;
+            RawInput::ConsumeCharBuffer();
+            return;
+        }
+        if (RawInput::IsKeyPressed(KeyCode::V)) {
+            std::string clip = RawInput::GetClipboardText();
+            if (!clip.empty()) {
+                if (HasSelection()) {
+                    DeleteSelection();
+                } else if (m_selStart >= 0) {
+                    m_selStart = -1;
+                }
+                m_buffer.insert(static_cast<size_t>(m_cursorPos), clip);
+                m_cursorPos += static_cast<int>(clip.length());
+            }
+            m_blinkTimer = 0.0f;
+            m_cursorVisible = true;
+            RawInput::ConsumeCharBuffer();
+            return;
+        }
+    }
+
     std::string chars = RawInput::ConsumeCharBuffer();
     if (!chars.empty()) {
         if (HasSelection()) {

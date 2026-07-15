@@ -28,6 +28,9 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3native.h>
+#include <objbase.h>
 
 static const char* GetWidgetType(WidgetPaletteAction action) {
     switch (action) {
@@ -102,6 +105,7 @@ void EditorApp::OnInit() {
 
     m_propertyPanel = std::make_unique<PropertyPanel>();
     m_propertyPanel->SetFontRenderer(m_fontRenderer.get());
+    m_propertyPanel->SetParentHwnd(glfwGetWin32Window(GetWindow()->GetNativeWindow()));
     m_propertyPanel->OnNameChanged([this]() {
         if (m_selectedWidget) {
             m_widgetTreePanel->SelectNode(static_cast<Node*>(m_selectedWidget));

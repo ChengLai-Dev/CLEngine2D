@@ -17,8 +17,18 @@ public:
     void SetPressedImage(std::shared_ptr<Texture> tex);
     void SetDisabledImage(std::shared_ptr<Texture> tex);
 
+    std::shared_ptr<Texture> GetNormalImage() const { return m_normalTex; }
+    std::shared_ptr<Texture> GetPressedImage() const { return m_pressedTex; }
+    std::shared_ptr<Texture> GetDisabledImage() const { return m_disabledTex; }
+
     void SetText(const std::string& text);
+    const std::string& GetText() const;
+
     void SetTextColor(const Vec4& color);
+    const Vec4& GetTextColor() const;
+
+    void SetFontSize(float size);
+    float GetFontSize() const;
 
     void OnClicked(ClickCallback cb);
 

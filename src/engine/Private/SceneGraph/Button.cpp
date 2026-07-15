@@ -33,8 +33,24 @@ void Button::SetText(const std::string& text) {
     m_text = text;
 }
 
+const std::string& Button::GetText() const {
+    return m_text;
+}
+
 void Button::SetTextColor(const Vec4& color) {
     m_textColor = color;
+}
+
+const Vec4& Button::GetTextColor() const {
+    return m_textColor;
+}
+
+void Button::SetFontSize(float size) {
+    m_fontSize = size;
+}
+
+float Button::GetFontSize() const {
+    return m_fontSize;
 }
 
 void Button::OnClicked(ClickCallback cb) {

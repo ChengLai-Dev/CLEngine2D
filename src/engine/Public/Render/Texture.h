@@ -15,8 +15,10 @@ public:
     int GetWidth() const { return m_width; }
     int GetHeight() const { return m_height; }
     GLuint GetRendererID() const { return m_rendererID; }
+    const std::string& GetFilePath() const { return m_filepath; }
 
 private:
+    std::string m_filepath;
     GLuint m_rendererID = 0;
     int m_width = 0;
     int m_height = 0;

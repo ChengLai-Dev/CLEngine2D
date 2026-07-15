@@ -2,6 +2,7 @@
 #include "PropertyEditBox.h"
 #include "PropertyFieldRegistry.h"
 #include "UndoRedo.h"
+#include "FileDialog.h"
 #include <SceneGraph/Node.h>
 #include <Render/Renderer.h>
 #include <TextRenderer.h>
@@ -17,6 +18,7 @@ static constexpr float VALUE_RIGHT = 290.0f;
 static constexpr float VALUE_PADDING = 6.0f;
 static constexpr float SECTION_TOP_MARGIN = 12.0f;
 static constexpr float CONTENT_TOP = 44.0f;
+static constexpr float TEXTURE_BUTTON_WIDTH = 20.0f;
 
 PropertyPanel::PropertyPanel() {
     m_rectWidth = 300.0f;
@@ -158,6 +160,33 @@ void PropertyPanel::DrawFields(Renderer& renderer) {
                 m_fontRenderer->RenderString(renderer, text,
                     VALUE_LEFT + VALUE_PADDING, centerY, 1.0f, valColor, TextRenderer::Align::Left);
             }
+        } else if (field.type == FieldType::TextureAsset) {
+            float editWidth = VALUE_RIGHT - VALUE_LEFT - TEXTURE_BUTTON_WIDTH;
+            if (isActive) {
+                field.editBox.Draw(renderer, m_fontRenderer,
+                    VALUE_LEFT, renderY,
+                    editWidth, FIELD_HEIGHT, true);
+            } else {
+                field.editBox.SetValue(field.getter ? field.getter() : "");
+                field.editBox.Draw(renderer, m_fontRenderer,
+                    VALUE_LEFT, renderY,
+                    editWidth, FIELD_HEIGHT, false);
+            }
+            float btnLeft = VALUE_LEFT + editWidth;
+            float btnColor[4] = { 0.25f, 0.25f, 0.28f, 1.0f };
+            float btnCx = btnLeft + TEXTURE_BUTTON_WIDTH * 0.5f;
+            float btnCy = renderY + FIELD_HEIGHT * 0.5f;
+            Mat4 btnXform = Mat4::Translate(Vec3(btnCx, btnCy, 0.0f));
+            renderer.DrawQuad(btnXform, Vec2(TEXTURE_BUTTON_WIDTH - 1.0f, FIELD_HEIGHT - 2.0f),
+                              Color(btnColor[0], btnColor[1], btnColor[2], btnColor[3]));
+            if (m_fontRenderer) {
+                float txtColor[4] = { 0.9f, 0.9f, 0.9f, 1.0f };
+                float textH = m_fontRenderer->GetLineHeight(1.0f);
+                float base = m_fontRenderer->GetBaselineOffset(1.0f);
+                float txtY = renderY + (FIELD_HEIGHT - textH) * 0.5f + base;
+                m_fontRenderer->RenderString(renderer, "...",
+                    btnLeft + 2.0f, txtY, 1.0f, txtColor, TextRenderer::Align::Left);
+            }
         } else {
             if (isActive) {
                 field.editBox.Draw(renderer, m_fontRenderer,
@@ -220,6 +249,31 @@ bool PropertyPanel::OnMouseEvent(const MouseEvent& event) {
                         }
                         if (m_onPropertyChanged) m_onPropertyChanged();
                         return true;
+                    }
+
+                    if (m_fields[i].type == FieldType::TextureAsset) {
+                        float btnLeft = VALUE_RIGHT - TEXTURE_BUTTON_WIDTH;
+                        if (localX >= btnLeft && localX <= VALUE_RIGHT) {
+                            if (m_activeFieldIndex >= 0) CommitEdit();
+                            std::string result = FileDialog::OpenFile(
+                                "Select Texture",
+                                "Image Files\0*.png;*.jpg;*.bmp;*.tga\0All Files\0*.*\0",
+                                m_parentHwnd);
+                            if (!result.empty()) {
+                                std::string oldVal = m_fields[i].getter ? m_fields[i].getter() : "";
+                                auto setter = m_fields[i].setter;
+                                if (setter) {
+                                    UndoRedoStack::GetInstance().ExecuteCommand(
+                                        std::make_unique<PropertyChangeCommand>(
+                                            "Set " + m_fields[i].label,
+                                            [setter, result]() { setter(result); },
+                                            [setter, oldVal]() { setter(oldVal); }
+                                        ));
+                                }
+                                if (m_onPropertyChanged) m_onPropertyChanged();
+                            }
+                            return true;
+                        }
                     }
 
                     if (i == m_activeFieldIndex) {

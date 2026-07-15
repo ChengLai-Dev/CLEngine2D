@@ -60,10 +60,37 @@ static const std::vector<PropertySectionDef> s_sections = {
         "Sprite",
         [](Node* n) { return dynamic_cast<Sprite*>(n) != nullptr; },
         {
+            { "Texture", FieldType::TextureAsset, GetSpriteTexture, SetSpriteTexture },
             { "Tex Offset X", FieldType::Float, GetTexOffsetX, SetTexOffsetX },
             { "Tex Offset Y", FieldType::Float, GetTexOffsetY, SetTexOffsetY },
             { "Tex Scale X", FieldType::Float, GetTexScaleX, SetTexScaleX },
             { "Tex Scale Y", FieldType::Float, GetTexScaleY, SetTexScaleY },
+        }
+    },
+    {
+        "Image",
+        [](Node* n) { return dynamic_cast<Image*>(n) != nullptr; },
+        {
+            { "Scale9", FieldType::Bool, GetScale9Enabled, SetScale9Enabled },
+            { "Cap Inset L", FieldType::Float, GetCapInsetL, SetCapInsetL, 0.0f, 10000.0f },
+            { "Cap Inset T", FieldType::Float, GetCapInsetT, SetCapInsetT, 0.0f, 10000.0f },
+            { "Cap Inset R", FieldType::Float, GetCapInsetR, SetCapInsetR, 0.0f, 10000.0f },
+            { "Cap Inset B", FieldType::Float, GetCapInsetB, SetCapInsetB, 0.0f, 10000.0f },
+        }
+    },
+    {
+        "Button",
+        [](Node* n) { return dynamic_cast<Button*>(n) != nullptr; },
+        {
+            { "Normal Tex", FieldType::TextureAsset, GetBtnNormalTex, SetBtnNormalTex },
+            { "Pressed Tex", FieldType::TextureAsset, GetBtnPressedTex, SetBtnPressedTex },
+            { "Disabled Tex", FieldType::TextureAsset, GetBtnDisabledTex, SetBtnDisabledTex },
+            { "Text", FieldType::String, GetBtnText, SetBtnText },
+            { "Font Size", FieldType::Float, GetBtnFontSize, SetBtnFontSize, 1.0f, 200.0f },
+            { "Text Color R", FieldType::Float, GetBtnTextColorR, SetBtnTextColorR, 0.0f, 1.0f },
+            { "Text Color G", FieldType::Float, GetBtnTextColorG, SetBtnTextColorG, 0.0f, 1.0f },
+            { "Text Color B", FieldType::Float, GetBtnTextColorB, SetBtnTextColorB, 0.0f, 1.0f },
+            { "Text Color A", FieldType::Float, GetBtnTextColorA, SetBtnTextColorA, 0.0f, 1.0f },
         }
     },
 };

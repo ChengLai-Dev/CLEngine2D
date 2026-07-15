@@ -1,5 +1,7 @@
 #include "Input/RawInput.h"
 #include <GLFW/glfw3.h>
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 
 RawInput::InputState RawInput::s_state;
 bool RawInput::s_gamepadConnected[RawInput::GAMEPAD_COUNT] = {};
@@ -184,6 +186,40 @@ void RawInput::OnMouseMoveEvent(double x, double y) {
 void RawInput::OnScrollEvent(double xOffset, double yOffset) {
     s_state.scrollX += xOffset;
     s_state.scrollY += yOffset;
+}
+
+void RawInput::SetClipboardText(const std::string& text) {
+    if (!OpenClipboard(nullptr)) return;
+    EmptyClipboard();
+
+    HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, text.size() + 1);
+    if (hMem) {
+        char* dst = static_cast<char*>(GlobalLock(hMem));
+        if (dst) {
+            memcpy(dst, text.c_str(), text.size() + 1);
+            GlobalUnlock(hMem);
+            SetClipboardData(CF_TEXT, hMem);
+        }
+    }
+
+    CloseClipboard();
+}
+
+std::string RawInput::GetClipboardText() {
+    if (!OpenClipboard(nullptr)) return {};
+
+    HANDLE hData = GetClipboardData(CF_TEXT);
+    std::string result;
+    if (hData) {
+        const char* src = static_cast<const char*>(GlobalLock(hData));
+        if (src) {
+            result = src;
+            GlobalUnlock(hData);
+        }
+    }
+
+    CloseClipboard();
+    return result;
 }
 
 void RawInput::Update() {
