@@ -5,13 +5,16 @@
 
 class PanelDivider : public IEditorPanel {
 public:
-    enum class Edge { Left, Right };
+    enum class Edge { Left, Right, Horizontal };
 
     PanelDivider(Edge edge);
 
     void SetEdgeX(float x);
     void SetDividerHeight(float h);
     void SetDividerTop(float top);
+
+    void SetHorizontalY(float y);
+    void SetHorizontalWidth(float w);
 
     Edge GetEdge() const { return m_edge; }
 
@@ -22,7 +25,7 @@ public:
     bool OnMouseEvent(const MouseEvent& event) override;
     bool IsCapturing() const override { return m_isDragging; }
 
-    using ResizeCallback = std::function<void(float mouseX)>;
+    using ResizeCallback = std::function<void(float pos)>;
     void OnResize(ResizeCallback cb);
 
     using DragEndCallback = std::function<void()>;
@@ -33,6 +36,9 @@ private:
     float m_edgeX = 0.0f;
     float m_top = 0.0f;
     float m_height = 0.0f;
+
+    float m_horizontalY = 0.0f;
+    float m_horizontalWidth = 0.0f;
 
     bool m_isDragging = false;
     bool m_isHovered = false;

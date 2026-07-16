@@ -1,5 +1,5 @@
 #include "PropertyPanel.h"
-#include "PropertyEditBox.h"
+#include "TextEditBox.h"
 #include "PropertyFieldRegistry.h"
 #include "UndoRedo.h"
 #include "FileDialog.h"
@@ -355,7 +355,7 @@ void PropertyPanel::CommitEdit() {
     }
 
     auto& field = m_fields[m_activeFieldIndex];
-    PropertyEditBox& eb = field.editBox;
+    TextEditBox& eb = field.editBox;
     const std::string& newValue = eb.GetValue();
     const std::string& oldValue = eb.GetOldValue();
 

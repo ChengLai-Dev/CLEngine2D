@@ -14,6 +14,7 @@ public:
 
     void SwapBuffers();
     bool ShouldClose() const;
+    void Close();
 
     void SetResizeCallback(ResizeCallback cb);
 

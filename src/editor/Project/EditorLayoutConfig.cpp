@@ -8,6 +8,8 @@ JsonValue EditorLayoutConfig::ToJson() const {
     json.Set("menuBarHeight", JsonValue(static_cast<double>(menuBarHeight)));
     json.Set("leftPanelWidth", JsonValue(static_cast<double>(leftPanelWidth)));
     json.Set("rightPanelWidth", JsonValue(static_cast<double>(rightPanelWidth)));
+    json.Set("leftPanelDivider1Y", JsonValue(static_cast<double>(leftPanelDivider1Y)));
+    json.Set("leftPanelDivider2Y", JsonValue(static_cast<double>(leftPanelDivider2Y)));
     return json;
 }
 
@@ -19,6 +21,10 @@ EditorLayoutConfig EditorLayoutConfig::FromJson(const JsonValue& json) {
         config.leftPanelWidth = static_cast<float>(json.Get("leftPanelWidth").AsNumber());
     if (json.Get("rightPanelWidth").GetType() != JsonValue::Type::Null)
         config.rightPanelWidth = static_cast<float>(json.Get("rightPanelWidth").AsNumber());
+    if (json.Get("leftPanelDivider1Y").GetType() != JsonValue::Type::Null)
+        config.leftPanelDivider1Y = static_cast<float>(json.Get("leftPanelDivider1Y").AsNumber());
+    if (json.Get("leftPanelDivider2Y").GetType() != JsonValue::Type::Null)
+        config.leftPanelDivider2Y = static_cast<float>(json.Get("leftPanelDivider2Y").AsNumber());
     return config;
 }
 

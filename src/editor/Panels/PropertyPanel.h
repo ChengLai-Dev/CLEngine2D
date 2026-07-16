@@ -2,7 +2,7 @@
 
 #include "IEditorPanel.h"
 #include "HitRect.h"
-#include "PropertyEditBox.h"
+#include "TextEditBox.h"
 #include "PropertyFieldRegistry.h"
 #include <memory>
 #include <functional>
@@ -43,7 +43,7 @@ private:
         float minVal = 0.0f;
         float maxVal = 0.0f;
         bool isTextureAsset = false;
-        PropertyEditBox editBox;
+        TextEditBox editBox;
     };
 
     void BuildFields();

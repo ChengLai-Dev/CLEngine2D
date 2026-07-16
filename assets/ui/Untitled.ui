@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "widgets": {
+    "type": "Button",
+    "name": "Button0",
+    "enabled": true,
+    "position": {
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "size": {
+      "x": 800,
+      "y": 600
+    },
+    "visible": true,
+    "touchEnabled": true,
+    "zOrder": 0
+  }
+}

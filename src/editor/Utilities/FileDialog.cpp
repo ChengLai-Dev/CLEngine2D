@@ -102,3 +102,43 @@ std::string FileDialog::OpenFile(const char* title, const char* filter, void* pa
     pfd->Release();
     return result;
 }
+
+std::string FileDialog::OpenFolder(const char* title, void* parentHwnd) {
+    IFileOpenDialog* pfd = nullptr;
+    HRESULT hr = CoCreateInstance(
+        CLSID_FileOpenDialog, nullptr, CLSCTX_INPROC_SERVER,
+        IID_PPV_ARGS(&pfd));
+    if (FAILED(hr) || !pfd) return {};
+
+    DWORD dwFlags = 0;
+    pfd->GetOptions(&dwFlags);
+    pfd->SetOptions(dwFlags | FOS_PATHMUSTEXIST | FOS_PICKFOLDERS);
+
+    if (title && *title) {
+        pfd->SetTitle(ToWide(title).c_str());
+    }
+
+    PVOID veh = AddVectoredExceptionHandler(1, P9npExceptionFilter);
+
+    std::string result;
+    hr = pfd->Show(static_cast<HWND>(parentHwnd));
+
+    RemoveVectoredExceptionHandler(veh);
+
+    if (SUCCEEDED(hr)) {
+        IShellItem* psi = nullptr;
+        hr = pfd->GetResult(&psi);
+        if (SUCCEEDED(hr) && psi) {
+            PWSTR path = nullptr;
+            hr = psi->GetDisplayName(SIGDN_FILESYSPATH, &path);
+            if (SUCCEEDED(hr) && path) {
+                result = ToUTF8(path);
+                CoTaskMemFree(path);
+            }
+            psi->Release();
+        }
+    }
+
+    pfd->Release();
+    return result;
+}

@@ -2,5 +2,7 @@
   "rightPanelWidth": 366,
   "version": 1,
   "menuBarHeight": 24,
-  "leftPanelWidth": 246
+  "leftPanelWidth": 236,
+  "leftPanelDivider1Y": 200,
+  "leftPanelDivider2Y": 380
 }

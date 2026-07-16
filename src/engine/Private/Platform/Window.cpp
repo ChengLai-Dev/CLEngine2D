@@ -76,6 +76,10 @@ bool Window::ShouldClose() const {
     return glfwWindowShouldClose(m_window);
 }
 
+void Window::Close() {
+    glfwSetWindowShouldClose(m_window, GLFW_TRUE);
+}
+
 int Window::GetWidth() const { return m_width; }
 int Window::GetHeight() const { return m_height; }
 GLFWwindow* Window::GetNativeWindow() const { return m_window; }

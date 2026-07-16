@@ -7,7 +7,8 @@
 class Renderer;
 
 enum class MenuBarAction {
-    FILE_NEW, FILE_OPEN, FILE_SAVE,
+    FILE_NEW_PROJECT, FILE_OPEN_PROJECT,
+    FILE_NEW_CUI_FILE, FILE_SAVE, FILE_EXIT,
     EDIT_UNDO, EDIT_REDO, EDIT_DELETE
 };
 

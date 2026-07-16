@@ -9,6 +9,9 @@ public:
     float leftPanelWidth = 250.0f;
     float rightPanelWidth = 300.0f;
 
+    float leftPanelDivider1Y = 200.0f;
+    float leftPanelDivider2Y = 400.0f;
+
     JsonValue ToJson() const;
     static EditorLayoutConfig FromJson(const JsonValue& json);
 

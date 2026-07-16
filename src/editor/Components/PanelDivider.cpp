@@ -19,7 +19,23 @@ void PanelDivider::SetDividerTop(float top) {
     m_top = top;
 }
 
+void PanelDivider::SetHorizontalY(float y) {
+    m_horizontalY = y;
+}
+
+void PanelDivider::SetHorizontalWidth(float w) {
+    m_horizontalWidth = w;
+}
+
 HitRect PanelDivider::GetHitRect() const {
+    if (m_edge == Edge::Horizontal) {
+        return {
+            m_edgeX,
+            m_horizontalY - HANDLE_HALF_WIDTH,
+            m_horizontalWidth,
+            HANDLE_HALF_WIDTH * 2.0f
+        };
+    }
     return {
         m_edgeX - HANDLE_HALF_WIDTH,
         m_top,
@@ -40,21 +56,38 @@ void PanelDivider::OnRender(Renderer& renderer) {
 
     Color highlight(0.7f, 0.8f, 1.0f, 1.0f);
 
-    float cx = HANDLE_HALF_WIDTH;
-    float cy = m_height * 0.5f;
-    Mat4 xform = Mat4::Translate(Vec3(cx, cy, 0.0f));
-    renderer.DrawQuad(xform, Vec2(2.0f, m_height), highlight);
+    if (m_edge == Edge::Horizontal) {
+        float cx = m_horizontalWidth * 0.5f;
+        float cy = HANDLE_HALF_WIDTH;
+        Mat4 xform = Mat4::Translate(Vec3(cx, cy, 0.0f));
+        renderer.DrawQuad(xform, Vec2(m_horizontalWidth, 2.0f), highlight);
+    } else {
+        float cx = HANDLE_HALF_WIDTH;
+        float cy = m_height * 0.5f;
+        Mat4 xform = Mat4::Translate(Vec3(cx, cy, 0.0f));
+        renderer.DrawQuad(xform, Vec2(2.0f, m_height), highlight);
+    }
 }
 
 bool PanelDivider::OnMouseEvent(const MouseEvent& event) {
     float localY = event.screenPos.y - m_top;
+    bool isHorizontal = (m_edge == Edge::Horizontal);
 
     switch (event.type) {
         case MouseEvent::Move: {
             if (event.button == MouseEvent::None) {
-                bool inRange = localY >= 0.0f && localY < m_height;
-                if (inRange) {
-                    CursorManager::Set(CursorType::HResize);
+                bool inRange = false;
+                if (isHorizontal) {
+                    float localX = event.screenPos.x - m_edgeX;
+                    inRange = localX >= 0.0f && localX < m_horizontalWidth;
+                    if (inRange) {
+                        CursorManager::Set(CursorType::VResize);
+                    }
+                } else {
+                    inRange = localY >= 0.0f && localY < m_height;
+                    if (inRange) {
+                        CursorManager::Set(CursorType::HResize);
+                    }
                 }
                 m_hoveredThisFrame = inRange;
                 return true;
@@ -62,7 +95,11 @@ bool PanelDivider::OnMouseEvent(const MouseEvent& event) {
 
             if (m_isDragging) {
                 if (m_onResize) {
-                    m_onResize(event.screenPos.x);
+                    if (isHorizontal) {
+                        m_onResize(event.screenPos.y);
+                    } else {
+                        m_onResize(event.screenPos.x);
+                    }
                 }
                 return true;
             }
@@ -71,7 +108,13 @@ bool PanelDivider::OnMouseEvent(const MouseEvent& event) {
 
         case MouseEvent::Press: {
             if (event.button != MouseEvent::Left) return false;
-            if (localY < 0.0f || localY >= m_height) return false;
+
+            if (isHorizontal) {
+                float localX = event.screenPos.x - m_edgeX;
+                if (localX < 0.0f || localX >= m_horizontalWidth) return false;
+            } else {
+                if (localY < 0.0f || localY >= m_height) return false;
+            }
 
             m_isDragging = true;
             m_hoveredThisFrame = true;

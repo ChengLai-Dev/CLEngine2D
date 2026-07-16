@@ -1,4 +1,4 @@
-#include "PropertyEditBox.h"
+#include "TextEditBox.h"
 #include <Render/Renderer.h>
 #include <TextRenderer.h>
 #include <Input/RawInput.h>
@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <cstdlib>
 
-void PropertyEditBox::Activate(const std::string& initialValue) {
+void TextEditBox::Activate(const std::string& initialValue) {
     m_buffer = initialValue;
     m_oldValue = m_buffer;
     m_cursorPos = static_cast<int>(m_buffer.length());
@@ -16,9 +16,9 @@ void PropertyEditBox::Activate(const std::string& initialValue) {
     m_cursorVisible = true;
 }
 
-void PropertyEditBox::Deactivate() {
-    m_buffer.clear();
-    m_oldValue.clear();
+void TextEditBox::Deactivate() {
+    m_displayValue = m_buffer;
+    m_oldValue = m_buffer;
     m_cursorPos = 0;
     m_selStart = -1;
     m_active = false;
@@ -26,15 +26,15 @@ void PropertyEditBox::Deactivate() {
     m_cursorVisible = false;
 }
 
-void PropertyEditBox::Revert() {
+void TextEditBox::Revert() {
     m_buffer = m_oldValue;
     m_cursorPos = static_cast<int>(m_buffer.length());
     m_selStart = -1;
 }
 
-void PropertyEditBox::Draw(Renderer& renderer, TextRenderer* fontRenderer,
-                           float x, float y, float width, float height,
-                           bool isActive) const {
+void TextEditBox::Draw(Renderer& renderer, TextRenderer* fontRenderer,
+                       float x, float y, float width, float height,
+                       bool isActive) const {
     if (!fontRenderer) return;
 
     float bgColor[4];
@@ -90,9 +90,9 @@ void PropertyEditBox::Draw(Renderer& renderer, TextRenderer* fontRenderer,
     }
 }
 
-void PropertyEditBox::OnMouseDown(TextRenderer* fontRenderer,
-                                   float clickLocalX, float valueLeft,
-                                   float valuePadding) {
+void TextEditBox::OnMouseDown(TextRenderer* fontRenderer,
+                               float clickLocalX, float valueLeft,
+                               float valuePadding) {
     if (!m_active) return;
 
     m_cursorPos = GetCharIndexAtX(fontRenderer, clickLocalX, valueLeft, valuePadding);
@@ -101,9 +101,9 @@ void PropertyEditBox::OnMouseDown(TextRenderer* fontRenderer,
     m_cursorVisible = true;
 }
 
-void PropertyEditBox::OnMouseDrag(TextRenderer* fontRenderer,
-                                   float localX, float valueLeft,
-                                   float valuePadding) {
+void TextEditBox::OnMouseDrag(TextRenderer* fontRenderer,
+                               float localX, float valueLeft,
+                               float valuePadding) {
     if (!m_active) return;
 
     m_cursorPos = GetCharIndexAtX(fontRenderer, localX, valueLeft, valuePadding);
@@ -111,7 +111,7 @@ void PropertyEditBox::OnMouseDrag(TextRenderer* fontRenderer,
     m_cursorVisible = true;
 }
 
-void PropertyEditBox::OnMouseRelease() {
+void TextEditBox::OnMouseRelease() {
     if (!m_active) return;
 
     if (m_selStart == m_cursorPos) {
@@ -119,7 +119,7 @@ void PropertyEditBox::OnMouseRelease() {
     }
 }
 
-void PropertyEditBox::OnUpdate(float deltaTime) {
+void TextEditBox::OnUpdate(float deltaTime) {
     if (!m_active) return;
 
     bool ctrlHeld = RawInput::IsKeyDown(KeyCode::LeftControl) ||
@@ -256,9 +256,9 @@ void PropertyEditBox::OnUpdate(float deltaTime) {
     }
 }
 
-int PropertyEditBox::GetCharIndexAtX(TextRenderer* fontRenderer,
-                                     float localX, float valLeft,
-                                     float valPad) const {
+int TextEditBox::GetCharIndexAtX(TextRenderer* fontRenderer,
+                                 float localX, float valLeft,
+                                 float valPad) const {
     if (!fontRenderer) return 0;
     float valX = valLeft + valPad;
     float clickOffset = localX - valX;
@@ -279,8 +279,8 @@ int PropertyEditBox::GetCharIndexAtX(TextRenderer* fontRenderer,
     return static_cast<int>(text.length());
 }
 
-float PropertyEditBox::GetCharX(TextRenderer* fontRenderer, int charIndex,
-                                 float valLeft, float valPad) const {
+float TextEditBox::GetCharX(TextRenderer* fontRenderer, int charIndex,
+                            float valLeft, float valPad) const {
     if (!fontRenderer) return valLeft + valPad;
     const std::string& text = m_buffer;
     float x = valLeft + valPad;
@@ -295,19 +295,19 @@ float PropertyEditBox::GetCharX(TextRenderer* fontRenderer, int charIndex,
     return x;
 }
 
-int PropertyEditBox::GetSelBegin() const {
+int TextEditBox::GetSelBegin() const {
     return (std::min)(m_selStart, m_cursorPos);
 }
 
-int PropertyEditBox::GetSelEnd() const {
+int TextEditBox::GetSelEnd() const {
     return (std::max)(m_selStart, m_cursorPos);
 }
 
-bool PropertyEditBox::HasSelection() const {
+bool TextEditBox::HasSelection() const {
     return m_selStart >= 0 && m_selStart != m_cursorPos;
 }
 
-void PropertyEditBox::DeleteSelection() {
+void TextEditBox::DeleteSelection() {
     if (!HasSelection()) return;
     int begin = GetSelBegin();
     int end = GetSelEnd();

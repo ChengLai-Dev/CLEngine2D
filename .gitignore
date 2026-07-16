@@ -49,6 +49,8 @@ docs/
 resume_templates/
 other engine reference/
 log.txt
+openspec/
+projects/
 
 # Misc
 *.log

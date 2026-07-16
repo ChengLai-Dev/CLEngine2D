@@ -5,11 +5,12 @@
 class Renderer;
 class TextRenderer;
 
-class PropertyEditBox {
+class TextEditBox {
 public:
-    PropertyEditBox() = default;
+    TextEditBox() = default;
 
     void SetValue(const std::string& v) { m_displayValue = v; }
+    void PresetValue(const std::string& v) { m_buffer = v; m_displayValue = v; m_oldValue = v; }
     const std::string& GetValue() const { return m_buffer; }
     const std::string& GetOldValue() const { return m_oldValue; }
 
