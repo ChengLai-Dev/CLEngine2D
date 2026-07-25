@@ -46,12 +46,13 @@ private:
         std::string filePath;
         std::unique_ptr<Scene> scene;
         bool dirty = false;
+        bool external = false;
     };
 
     void RenderPanel(IEditorPanel* panel, bool useCustomProj = false);
     void RecalculateLayout(int windowWidth, int windowHeight);
     void SelectWidget(Widget* widget);
-    void AddWidgetToScene(const std::string& type, const Vec3& position);
+    void AddWidgetToScene(const std::string& type, const Vec3& position, Node* parentOverride = nullptr);
     void DeleteSelected();
     void DrawPanelBorders();
 
@@ -67,7 +68,7 @@ private:
     void CloseAllTabs();
     void SaveActiveTab();
     void OpenCuiFile(const std::string& filepath);
-    void LoadCuiFileIntoNewTab(const std::string& filepath);
+    void LoadCuiFileIntoNewTab(const std::string& filepath, bool external = false);
     void SetTabDirty();
     bool HasUnsavedTabs() const;
     bool IsFileOpenInTab(const std::string& filepath) const;

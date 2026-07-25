@@ -4,10 +4,16 @@
 #include <Input/InputCodes.h>
 #include <TextRenderer.h>
 
-static const char* FILE_LABELS[] = { "New Project", "Open Project", "New CUI File", "Save", "Exit" };
+static const char* FILE_LABELS[] = {
+    "New Project", "Open Project", "New CUI File",
+    "Open CUI File", "Import CUI File",
+    "Save", "Exit"
+};
 static const MenuBarAction FILE_ACTIONS[] = {
     MenuBarAction::FILE_NEW_PROJECT, MenuBarAction::FILE_OPEN_PROJECT,
     MenuBarAction::FILE_NEW_CUI_FILE,
+    MenuBarAction::FILE_OPEN_CUI_FILE,
+    MenuBarAction::FILE_IMPORT_CUI_FILE,
     MenuBarAction::FILE_SAVE,
     MenuBarAction::FILE_EXIT
 };
@@ -84,7 +90,7 @@ void MenuBar::OnRender(Renderer& renderer) {
     }
 
     if (m_openMenu == 0) {
-        DrawDropdown(renderer, 0.0f, m_rectHeight, FILE_LABELS, FILE_ACTIONS, 5);
+        DrawDropdown(renderer, 0.0f, m_rectHeight, FILE_LABELS, FILE_ACTIONS, 7);
     } else if (m_openMenu == 1) {
         DrawDropdown(renderer, 60.0f, m_rectHeight, EDIT_LABELS, EDIT_ACTIONS, 3);
     }
@@ -93,7 +99,7 @@ void MenuBar::OnRender(Renderer& renderer) {
 HitRect MenuBar::GetHitRect() const {
     HitRect r = { m_rectLeft, m_rectTop, m_rectWidth, m_rectHeight };
     if (m_openMenu >= 0) {
-        int count = (m_openMenu == 0) ? 5 : 3;
+        int count = (m_openMenu == 0) ? 7 : 3;
         r.h += static_cast<float>(count) * 22.0f;
     }
     return r;
@@ -111,7 +117,7 @@ bool MenuBar::HandleClick(float mx, float my) {
 
     if (m_openMenu >= 0) {
         const MenuBarAction* actions = (m_openMenu == 0) ? FILE_ACTIONS : EDIT_ACTIONS;
-        int count = (m_openMenu == 0) ? 5 : 3;
+        int count = (m_openMenu == 0) ? 7 : 3;
         float menuW = 160.0f;
         float itemH = 22.0f;
         float dropX = (m_openMenu == 0) ? 0.0f : 60.0f;

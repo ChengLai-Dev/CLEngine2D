@@ -6,12 +6,6 @@
 #include <memory>
 #include <variant>
 
-class Node;
-class Widget;
-class CanvasPanel;
-
-struct FAnchorData;
-
 class JsonValue {
 public:
     enum class Type { Null, Bool, Number, String, Array, Object };
@@ -53,16 +47,4 @@ public:
 private:
     Type m_type;
     std::variant<bool, double, std::string, ArrayType, ObjectType> m_data;
-};
-
-class Serializer {
-public:
-    static JsonValue SerializeNode(Node* node);
-    static Node* DeserializeNode(const JsonValue& json);
-
-    static JsonValue SerializeScene(Node* root);
-    static bool DeserializeScene(Node* root, const JsonValue& json);
-
-    static bool SaveToFile(Node* root, const std::string& filepath);
-    static Node* LoadFromFile(const std::string& filepath);
 };

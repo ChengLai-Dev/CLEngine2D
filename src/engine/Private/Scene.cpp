@@ -1,8 +1,11 @@
 #include "Scene.h"
 #include "SceneGraph/Node.h"
 #include "SceneGraph/Sprite.h"
+#include "SceneGraph/Widget.h"
+#include "SceneGraph/UISystem.h"
 #include "Render/Texture.h"
 #include "Render/Renderer.h"
+#include "UI/UISerializer.h"
 #include "Logger.h"
 
 
@@ -44,6 +47,23 @@ void Scene::RemoveAllChildren() {
     while (m_root->GetChildCount() > 0) {
         m_root->RemoveChild(m_root->GetChild(0));
     }
+}
+
+bool Scene::LoadUI(const std::string& filepath) {
+    Node* uiRoot = UISerializer::LoadFromFile(filepath);
+    if (!uiRoot) {
+        Logger::Error("Scene::LoadUI: failed to load {}", filepath);
+        return false;
+    }
+
+    Widget* uiWidget = dynamic_cast<Widget*>(uiRoot);
+    if (uiWidget) {
+        UISystem::GetInstance().SetUIRoot(uiWidget);
+    }
+
+    m_root->AddChild(std::unique_ptr<Node>(uiRoot));
+    Logger::Info("Scene::LoadUI: loaded {}", filepath);
+    return true;
 }
 
 void Scene::OnUpdate(float deltaTime) {

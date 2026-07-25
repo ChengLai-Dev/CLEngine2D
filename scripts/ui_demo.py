@@ -3,7 +3,6 @@ import debugpy
 debugpy.connect(("localhost", 5678))
 debugpy.wait_for_client()
 
-from CLEngine.Math import Vec2, Vec3
 from CLEngine.SceneGraph import Scene, SceneManager, UISystem
 from CLEngine.Renderer import SetClearColor, GetRenderer, GetGameCamera
 from CLEngine.Input import InputAction, InputMappingContext, InputSystem, KeyCode

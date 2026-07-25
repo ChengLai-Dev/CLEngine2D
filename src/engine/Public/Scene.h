@@ -2,6 +2,7 @@
 
 #include "Math/Vec2.h"
 #include "Math/Vec3.h"
+#include <string>
 #include <memory>
 #include <vector>
 
@@ -27,6 +28,8 @@ public:
                          Node* parent = nullptr);
 
     void RemoveAllChildren();
+
+    bool LoadUI(const std::string& filepath);
 
 private:
     std::unique_ptr<Node> m_root;

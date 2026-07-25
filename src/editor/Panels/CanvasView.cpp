@@ -4,6 +4,8 @@
 #include <SceneGraph/UISystem.h>
 #include <SceneGraph/Node.h>
 #include <SceneGraph/Widget.h>
+#include <SceneGraph/CanvasPanel.h>
+#include <SceneGraph/Layout.h>
 #include <Render/Renderer.h>
 #include <Render/RenderCommand.h>
 #include <Input/RawInput.h>
@@ -254,6 +256,21 @@ void CanvasView::OnRender(Renderer& renderer) {
     renderer.Flush();   // 强制网格线先绘制，避免 Line 在 Flush 时叠在 Quad 之上
     m_editedScene->OnRender(renderer);
 
+    // 容器虚线轮廓（未选中、未悬停时显示）
+    Node* selectedNode = m_gizmo ? m_gizmo->GetTarget() : nullptr;
+    if (m_editedScene->GetRoot()) {
+        NodeIterator it(m_editedScene->GetRoot());
+        while (Node* node = it.Next()) {
+            if (node == selectedNode) continue;
+            if (node == m_hoveredWidget) continue;
+            if (dynamic_cast<CanvasPanel*>(node) || dynamic_cast<Layout*>(node)) {
+                Color dashColor(0.45f, 0.45f, 0.45f, 0.8f);
+                float dashThickness = 2.0f / m_zoomLevel;
+                DrawDashedWidgetOutline(renderer, node, dashColor, dashThickness);
+            }
+        }
+    }
+
     float thickness = 3.0f / m_zoomLevel;
 
     if (m_hoveredWidget && m_hoveredWidget != m_gizmo->GetTarget()) {
@@ -336,6 +353,69 @@ void CanvasView::DrawWidgetOutline(Renderer& renderer, Node* target, const Color
         Mat4 edgeTransform = Mat4::Translate(mid) * Mat4::RotateZ(angle);
         renderer.DrawQuad(edgeTransform, Vec2(length, thickness),
                           color);
+    }
+}
+
+void CanvasView::DrawDashedWidgetOutline(Renderer& renderer, Node* target, const Color& color, float thickness) {
+    if (!target) return;
+
+    Vec2 size = target->GetContentSize();
+    const Mat4& world = const_cast<Node*>(target)->GetWorldTransform();
+
+    float halfW = size.x * 0.5f;
+    float halfH = size.y * 0.5f;
+    Vec3 localCorners[4] = {
+        Vec3(-halfW, -halfH, 0.0f),
+        Vec3( halfW, -halfH, 0.0f),
+        Vec3( halfW,  halfH, 0.0f),
+        Vec3(-halfW,  halfH, 0.0f)
+    };
+
+    Vec3 corners[4];
+    for (int i = 0; i < 4; ++i) {
+        corners[i] = world.TransformPoint(localCorners[i]);
+    }
+
+    Vec3 edgePairs[4][2] = {
+        { corners[0], corners[1] },
+        { corners[1], corners[2] },
+        { corners[2], corners[3] },
+        { corners[3], corners[0] }
+    };
+
+    constexpr float DASH_LEN = 6.0f;
+    constexpr float GAP_LEN = 4.0f;
+    float dashLen = DASH_LEN / m_zoomLevel;
+    float gapLen = GAP_LEN / m_zoomLevel;
+    float patternLen = dashLen + gapLen;
+
+    for (int e = 0; e < 4; ++e) {
+        Vec3 from = edgePairs[e][0];
+        Vec3 to = edgePairs[e][1];
+        float dx = to.x - from.x;
+        float dy = to.y - from.y;
+        float edgeLen = std::sqrt(dx * dx + dy * dy);
+        if (edgeLen <= 0.0f) continue;
+
+        float angle = std::atan2(dy, dx);
+        int numDashes = static_cast<int>((std::ceil)(edgeLen / patternLen));
+
+        for (int d = 0; d < numDashes; ++d) {
+            float startOffset = static_cast<float>(d) * patternLen;
+            if (startOffset >= edgeLen) break;
+
+            float remaining = edgeLen - startOffset;
+            float segLen = dashLen < remaining ? dashLen : remaining;
+            float midOffset = startOffset + segLen * 0.5f;
+
+            Vec3 mid(
+                from.x + (dx / edgeLen) * midOffset,
+                from.y + (dy / edgeLen) * midOffset,
+                0.0f
+            );
+            Mat4 segTransform = Mat4::Translate(mid) * Mat4::RotateZ(angle);
+            renderer.DrawQuad(segTransform, Vec2(segLen, thickness), color);
+        }
     }
 }
 

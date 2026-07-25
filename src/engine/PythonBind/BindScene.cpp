@@ -3,10 +3,18 @@
 #include <AssetManager.h>
 #include <SceneGraph/Node.h>
 #include <SceneGraph/Sprite.h>
+#include <SceneGraph/Widget.h>
+#include <SceneGraph/Button.h>
+#include <SceneGraph/Label.h>
+#include <SceneGraph/Image.h>
+#include <SceneGraph/CanvasPanel.h>
+#include <SceneGraph/Layout.h>
+#include <SceneGraph/UISystem.h>
 #include <Render/Texture.h>
 #include <Render/Renderer.h>
 #include <Timer.h>
 #include <Logger.h>
+#include <UI/UISerializer.h>
 #include <string>
 #include "BindApp.h"
 
@@ -63,6 +71,94 @@ void RegisterSceneBindings(py::module_& m)
         .def("GetTexScaleX", &Sprite::GetTexScaleX)
         .def("GetTexScaleY", &Sprite::GetTexScaleY);
 
+    py::class_<Widget, Node>(m, "Widget")
+        .def(py::init<>())
+        .def("SetEnabled", &Widget::SetEnabled)
+        .def("IsEnabled", &Widget::IsEnabled)
+        .def("SetTouchEnabled", &Widget::SetTouchEnabled)
+        .def("IsTouchEnabled", &Widget::IsTouchEnabled)
+        .def("SetFocusable", &Widget::SetFocusable)
+        .def("IsFocusable", &Widget::IsFocusable);
+
+    py::class_<Button, Widget>(m, "Button")
+        .def(py::init<>())
+        .def("SetNormalImage", &Button::SetNormalImage)
+        .def("GetNormalImage", &Button::GetNormalImage)
+        .def("SetPressedImage", &Button::SetPressedImage)
+        .def("GetPressedImage", &Button::GetPressedImage)
+        .def("SetDisabledImage", &Button::SetDisabledImage)
+        .def("GetDisabledImage", &Button::GetDisabledImage)
+        .def("SetText", &Button::SetText)
+        .def("GetText", &Button::GetText)
+        .def("SetTextColor", &Button::SetTextColor)
+        .def("GetTextColor", &Button::GetTextColor,
+             py::return_value_policy::reference)
+        .def("SetFontSize", &Button::SetFontSize)
+        .def("GetFontSize", &Button::GetFontSize)
+        .def("SetInteractable", &Button::SetInteractable)
+        .def("IsInteractable", &Button::IsInteractable);
+
+    py::class_<Label, Widget>(m, "Label")
+        .def(py::init<>())
+        .def("SetText", &Label::SetText)
+        .def("GetText", &Label::GetText)
+        .def("SetFontSize", &Label::SetFontSize)
+        .def("GetFontSize", &Label::GetFontSize)
+        .def("SetTextColor", &Label::SetTextColor)
+        .def("GetTextColor", &Label::GetTextColor,
+             py::return_value_policy::reference)
+        .def("SetBackground", &Label::SetBackground)
+        .def("GetBackground", &Label::GetBackground);
+
+    py::class_<CanvasPanel, Widget>(m, "CanvasPanel")
+        .def(py::init<>())
+        .def("UpdateLayout", &CanvasPanel::UpdateLayout);
+
+    py::class_<Layout, Widget>(m, "Layout")
+        .def(py::init<>())
+        .def("SetLayoutType", &Layout::SetLayoutType)
+        .def("GetLayoutType", &Layout::GetLayoutType)
+        .def("SetSpacing", &Layout::SetSpacing)
+        .def("GetSpacing", &Layout::GetSpacing)
+        .def("SetPadding", &Layout::SetPadding)
+        .def("GetPadding", &Layout::GetPadding,
+             py::return_value_policy::reference)
+        .def("SetGridColumns", &Layout::SetGridColumns)
+        .def("GetGridColumns", &Layout::GetGridColumns)
+        .def("DoLayout", &Layout::DoLayout);
+
+    py::class_<Image, Sprite>(m, "Image")
+        .def(py::init<>())
+        .def("SetScale9Enabled", &Image::SetScale9Enabled)
+        .def("IsScale9Enabled", &Image::IsScale9Enabled)
+        .def("SetCapInsets", &Image::SetCapInsets)
+        .def("GetCapInsets", &Image::GetCapInsets,
+             py::return_value_policy::reference);
+
+    m.def("LoadUI", [](const std::string& filepath) -> Node* {
+        return UISerializer::LoadFromFile(filepath);
+    }, "Load a .cui UI file and return the deserialized Node tree",
+       py::return_value_policy::reference);
+
+    py::enum_<Layout::Type>(m, "LayoutType")
+        .value("VERTICAL", Layout::Type::VERTICAL)
+        .value("HORIZONTAL", Layout::Type::HORIZONTAL)
+        .value("GRID", Layout::Type::GRID);
+
+    py::class_<UISystem>(m, "UISystem")
+        .def_static("GetInstance", &UISystem::GetInstance,
+                     py::return_value_policy::reference)
+        .def("ProcessEvents", &UISystem::ProcessEvents)
+        .def("SetUIRoot", &UISystem::SetUIRoot)
+        .def("GetUIRoot", &UISystem::GetUIRoot,
+             py::return_value_policy::reference)
+        .def("GetPressedWidget", &UISystem::GetPressedWidget,
+             py::return_value_policy::reference)
+        .def("GetHoveredWidget", &UISystem::GetHoveredWidget,
+             py::return_value_policy::reference)
+        .def("GetFocusedWidget", &UISystem::GetFocusedWidget,
+             py::return_value_policy::reference);
+
     py::class_<Scene, std::shared_ptr<Scene>>(m, "Scene")
         .def(py::init<>())
         .def("CreateSprite", [](Scene& self,
@@ -83,7 +179,8 @@ void RegisterSceneBindings(py::module_& m)
         .def("OnRender", &Scene::OnRender)
         .def("GetRoot", &Scene::GetRoot,
              py::return_value_policy::reference)
-        .def("RemoveAllChildren", &Scene::RemoveAllChildren);
+        .def("RemoveAllChildren", &Scene::RemoveAllChildren)
+        .def("LoadUI", &Scene::LoadUI);
 
     py::class_<SceneManager>(m, "SceneManager")
         .def_static("GetInstance", &SceneManager::GetInstance,

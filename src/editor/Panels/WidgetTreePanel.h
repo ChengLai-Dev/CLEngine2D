@@ -4,6 +4,7 @@
 #include <memory>
 #include <functional>
 #include <vector>
+#include <unordered_set>
 
 class Node;
 class Widget;
@@ -21,6 +22,7 @@ public:
     bool IsCapturing() const override { return m_isDragging || m_isDragPending; }
 
     void SelectNode(Node* node);
+    void ExpandPathToNode(Node* target);
 
     using SelectionChangedCallback = std::function<void(Node*)>;
     void OnSelectionChanged(SelectionChangedCallback cb);
@@ -34,8 +36,13 @@ private:
         float depth;
     };
 
+    bool IsCollapsed(Node* node) const;
+    void ToggleCollapse(Node* node);
+    int GetNodeDepth(Node* node) const;
+    void DrawArrow(Renderer& renderer, Node* node, float y, int depth);
+
     void DrawWidgetTree(Node* node, Renderer& renderer, float& y, int depth);
-    void DrawDropIndicator(Renderer& renderer, float y);
+    void DrawDropIndicator(Renderer& renderer, float y, int depth);
     Node* HitTest(Node* node, float& y, float my) const;
     void CollectPositions(Node* node, float& y, int depth, std::vector<NodePos>& out) const;
 
@@ -47,6 +54,11 @@ private:
 
     SelectionChangedCallback m_onSelectionChanged;
 
+    // Collapse state
+    std::unordered_set<Node*> m_collapsedNodes;
+
+    static constexpr float ARROW_SIZE = 14.0f;
+
     // Drag state
     bool m_isDragPending = false;
     bool m_isDragging = false;
@@ -55,4 +67,5 @@ private:
 
     Node* m_dropTarget = nullptr;
     bool m_dropBefore = false;
+    bool m_dropAsChild = false;
 };

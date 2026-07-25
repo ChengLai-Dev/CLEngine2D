@@ -49,6 +49,7 @@ public:
 private:
     void DrawGrid(Renderer& renderer);
     void DrawWidgetOutline(Renderer& renderer, Node* target, const Color& color, float thickness);
+    void DrawDashedWidgetOutline(Renderer& renderer, Node* target, const Color& color, float thickness);
 
     void DrawModeToolbar(Renderer& renderer);
     int HitTestToolbar(const Vec2& screenPos) const;

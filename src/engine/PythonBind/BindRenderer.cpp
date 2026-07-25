@@ -21,7 +21,9 @@ void RegisterRendererBindings(py::module_& m)
 
     py::class_<Renderer>(m, "Renderer")
         .def(py::init<unsigned int>(), py::arg("quad_capacity") = 1000)
-        .def("BeginScene", &Renderer::BeginScene)
+        .def("BeginScene", [](Renderer& r, const OrthographicCamera& cam) {
+            r.BeginScene(cam);
+        })
         .def("EndScene", &Renderer::EndScene)
         .def("DrawQuad", [](Renderer& r,
                               float x, float y, float w, float h,

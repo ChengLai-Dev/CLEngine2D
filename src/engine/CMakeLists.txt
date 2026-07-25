@@ -92,6 +92,10 @@ add_library(engine STATIC
     Private/SceneGraph/DragonBones/CLEngine2DTextureAtlasData.cpp
     Public/SceneGraph/DragonBones/CLEngine2DFactory.h
     Private/SceneGraph/DragonBones/CLEngine2DFactory.cpp
+    Public/UI/JsonValue.h
+    Private/UI/JsonValue.cpp
+    Public/UI/UISerializer.h
+    Private/UI/UISerializer.cpp
 )
 
 target_include_directories(engine PUBLIC

@@ -7,7 +7,7 @@
 #include "WidgetTreePanel.h"
 #include "ResourcePanel.h"
 #include "Gizmo.h"
-#include "Serializer.h"
+#include <UI/UISerializer.h>
 #include "UndoRedo.h"
 #include "TabBar.h"
 #include "NewProjectDialog.h"
@@ -105,6 +105,14 @@ void EditorApp::OnInit() {
                 break;
             }
             case MenuBarAction::FILE_NEW_CUI_FILE: ShowNewCuiFileDialog(); break;
+            case MenuBarAction::FILE_OPEN_CUI_FILE:
+            {
+                HWND hwnd = glfwGetWin32Window(GetWindow()->GetNativeWindow());
+                std::string path = FileDialog::OpenFile("Open CUI File", "CUI File\0*.cui\0All\0*.*\0", hwnd);
+                if (!path.empty()) LoadCuiFileIntoNewTab(path, true);
+                break;
+            }
+            case MenuBarAction::FILE_IMPORT_CUI_FILE: ImportCuiFile(); break;
             case MenuBarAction::FILE_SAVE:   SaveActiveTab(); break;
             case MenuBarAction::FILE_EXIT:   GetWindow()->Close(); break;
             case MenuBarAction::EDIT_UNDO:   UndoRedoStack::GetInstance().Undo(); break;
@@ -121,7 +129,14 @@ void EditorApp::OnInit() {
         auto hit = m_canvasView->GetHitRect();
         if (hit.Contains(mx, my)) {
             Vec3 pos = m_canvasView->ScreenToWorld(Vec2(mx, my));
-            AddWidgetToScene(GetWidgetType(action), pos);
+            Widget* target = UISystem::GetInstance().HitTestScene(pos);
+            Node* parent = nullptr;
+            if (target && (dynamic_cast<CanvasPanel*>(target) || dynamic_cast<Layout*>(target))) {
+                parent = target;
+                const Mat4& parentWorld = parent->GetWorldTransform();
+                pos = Mat4::Inverse(parentWorld).TransformPoint(pos);
+            }
+            AddWidgetToScene(GetWidgetType(action), pos, parent);
         }
     });
     ui.Register(m_widgetPalette.get(), 0);
@@ -458,6 +473,9 @@ void EditorApp::SelectWidget(Widget* widget) {
     m_propertyPanel->SetTarget(static_cast<Node*>(widget));
     m_canvasView->GetGizmo()->SetTarget(static_cast<Node*>(widget));
     m_widgetTreePanel->SelectNode(static_cast<Node*>(widget));
+    if (widget) {
+        m_widgetTreePanel->ExpandPathToNode(static_cast<Node*>(widget));
+    }
 }
 
 void EditorApp::RecalculateLayout(int windowWidth, int windowHeight) {
@@ -670,7 +688,7 @@ void EditorApp::CreateNewCuiFile(const std::string& filename) {
     scene->SetRoot(std::move(root));
 
     Node* rootPtr = scene->GetRoot();
-    if (!Serializer::SaveToFile(rootPtr, fullPath)) {
+    if (!UISerializer::SaveToFile(rootPtr, fullPath)) {
         Logger::Error("Failed to save new CUI file: {}", fullPath);
         return;
     }
@@ -930,7 +948,7 @@ void EditorApp::SwitchTab(int index) {
     UpdateTabBar();
     UpdateResourcePanel();
 
-    if (m_projectOpen) {
+    if (m_projectOpen && !tab.external) {
         std::filesystem::path fp(tab.filePath);
         m_resourcePanel->SetSelectedFile(fp.filename().string());
     }
@@ -986,7 +1004,7 @@ void EditorApp::SaveActiveTab() {
 
     std::filesystem::create_directories(
         std::filesystem::path(tab.filePath).parent_path());
-    if (Serializer::SaveToFile(root, tab.filePath)) {
+    if (UISerializer::SaveToFile(root, tab.filePath)) {
         Logger::Info("Tab saved to {}", tab.filePath);
         tab.dirty = false;
         UpdateTabBar();
@@ -999,8 +1017,8 @@ void EditorApp::OpenCuiFile(const std::string& filepath) {
     LoadCuiFileIntoNewTab(filepath);
 }
 
-void EditorApp::LoadCuiFileIntoNewTab(const std::string& filepath) {
-    Node* loaded = Serializer::LoadFromFile(filepath);
+void EditorApp::LoadCuiFileIntoNewTab(const std::string& filepath, bool external) {
+    Node* loaded = UISerializer::LoadFromFile(filepath);
     if (!loaded) {
         Logger::Error("Failed to load CUI file: {}", filepath);
         return;
@@ -1016,6 +1034,7 @@ void EditorApp::LoadCuiFileIntoNewTab(const std::string& filepath) {
     tab.filePath = filepath;
     tab.scene = std::move(scene);
     tab.dirty = false;
+    tab.external = external;
 
     m_tabs.push_back(std::move(tab));
     SwitchTab(static_cast<int>(m_tabs.size()) - 1);
@@ -1053,7 +1072,7 @@ void EditorApp::SyncTabToPanels() {
 void EditorApp::UpdateTabBar() {
     std::vector<TabBar::TabInfo> infos;
     for (const auto& tab : m_tabs) {
-        infos.push_back({ tab.name, tab.dirty });
+        infos.push_back({ tab.name, tab.dirty, tab.external, tab.filePath });
     }
     m_tabBar->SetTabs(infos);
     m_tabBar->SetActiveTab(m_activeTabIndex);
@@ -1061,7 +1080,7 @@ void EditorApp::UpdateTabBar() {
 
 // ---- Widget Operations ----
 
-void EditorApp::AddWidgetToScene(const std::string& type, const Vec3& position) {
+void EditorApp::AddWidgetToScene(const std::string& type, const Vec3& position, Node* parentOverride) {
     if (m_activeTabIndex < 0 || m_activeTabIndex >= static_cast<int>(m_tabs.size())) return;
 
     Scene* scene = m_tabs[m_activeTabIndex].scene.get();
@@ -1102,11 +1121,15 @@ void EditorApp::AddWidgetToScene(const std::string& type, const Vec3& position) 
         m_canvasView->SetEditedScene(scene);
         UISystem::GetInstance().SetUIRoot(static_cast<Widget*>(root));
     } else {
-        Node* root = scene->GetRoot();
-        widget->SetZOrder(static_cast<int>(root->GetChildCount()));
+        Node* parent = parentOverride ? parentOverride : scene->GetRoot();
+        widget->SetZOrder(static_cast<int>(parent->GetChildCount()));
         widget->SetContentSize(Vec2(150.0f, 40.0f));
         widget->SetPosition(position);
-        root->AddChild(std::move(widget));
+        parent->AddChild(std::move(widget));
+
+        if (auto* layout = dynamic_cast<Layout*>(parent)) {
+            layout->DoLayout();
+        }
     }
 
     SetTabDirty();

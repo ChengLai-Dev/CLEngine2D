@@ -81,7 +81,7 @@ void Widget::OnTouchStartedEvent(const Vec2& pos) {
 }
 
 void Widget::OnTouchMovedEvent(const Vec2& pos) {
-    Logger::Debug("[{}] TouchMoved pos=({}, {})", typeid(*this).name(), pos.x, pos.y);
+    // Logger::Debug("[{}] TouchMoved pos=({}, {})", typeid(*this).name(), pos.x, pos.y);
     if (m_onTouchMoved) {
         m_onTouchMoved(this, pos);
     }

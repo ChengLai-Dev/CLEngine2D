@@ -21,6 +21,7 @@ public:
     const Vec4& GetTextColor() const;
 
     void SetBackground(std::shared_ptr<Texture> texture);
+    std::shared_ptr<Texture> GetBackground() const;
 
 protected:
     void OnDraw(Renderer& renderer, const Mat4& worldTransform, float worldOpacity) override;

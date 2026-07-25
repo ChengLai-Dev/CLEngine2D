@@ -1,5 +1,5 @@
 #include "EditorState.h"
-#include "Serializer.h"
+#include <UI/JsonValue.h>
 #include <Logger.h>
 #include <fstream>
 #include <sstream>

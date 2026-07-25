@@ -36,6 +36,10 @@ void Label::SetBackground(std::shared_ptr<Texture> texture) {
     m_background = std::move(texture);
 }
 
+std::shared_ptr<Texture> Label::GetBackground() const {
+    return m_background;
+}
+
 void Label::OnDraw(Renderer& renderer, const Mat4& worldTransform, float worldOpacity) {
     Color bgColor(m_color.x, m_color.y, m_color.z, m_color.w * worldOpacity);
 

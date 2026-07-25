@@ -1,6 +1,8 @@
 #include "WidgetTreePanel.h"
 #include <SceneGraph/Node.h>
 #include <SceneGraph/Widget.h>
+#include <SceneGraph/CanvasPanel.h>
+#include <SceneGraph/Layout.h>
 #include <Render/Renderer.h>
 #include <TextRenderer.h>
 #include <Input/RawInput.h>
@@ -47,27 +49,96 @@ void WidgetTreePanel::DrawWidgetTree(Node* node, Renderer& renderer, float& y, i
     renderer.DrawQuad(itemBg, Vec2(m_rectWidth - indent - 4.0f, ITEM_HEIGHT),
                       useColor);
 
+    bool isContainer = dynamic_cast<CanvasPanel*>(node) || dynamic_cast<Layout*>(node);
+    if (isContainer) {
+        DrawArrow(renderer, node, y, depth);
+    }
+
     if (m_fontRenderer && !node->GetName().empty()) {
         float textColor[4] = { 0.8f, 0.8f, 0.8f, 1.0f };
         float textH = m_fontRenderer->GetLineHeight(1.0f);
         float base = m_fontRenderer->GetBaselineOffset(1.0f);
+        float textIndent = isContainer ? indent + ARROW_SIZE + 4.0f : indent + 6.0f;
         m_fontRenderer->RenderString(renderer, node->GetName(),
-            indent + 6.0f, y + (ITEM_HEIGHT - textH) * 0.5f + base,
+            textIndent, y + (ITEM_HEIGHT - textH) * 0.5f + base,
             1.0f, textColor, TextRenderer::Align::Left);
     }
 
     y += ITEM_HEIGHT;
 
-    for (size_t i = 0; i < node->GetChildCount(); ++i) {
-        DrawWidgetTree(node->GetChild(i), renderer, y, depth + 1);
+    if (!IsCollapsed(node)) {
+        for (size_t i = 0; i < node->GetChildCount(); ++i) {
+            DrawWidgetTree(node->GetChild(i), renderer, y, depth + 1);
+        }
     }
 }
 
-void WidgetTreePanel::DrawDropIndicator(Renderer& renderer, float y) {
-    Color lineColor(0.6f, 0.8f, 1.0f, 1.0f);
-    float cx = m_rectWidth * 0.5f;
+bool WidgetTreePanel::IsCollapsed(Node* node) const {
+    return m_collapsedNodes.find(node) != m_collapsedNodes.end();
+}
+
+void WidgetTreePanel::ToggleCollapse(Node* node) {
+    if (m_collapsedNodes.find(node) != m_collapsedNodes.end()) {
+        m_collapsedNodes.erase(node);
+    } else {
+        m_collapsedNodes.insert(node);
+    }
+}
+
+int WidgetTreePanel::GetNodeDepth(Node* node) const {
+    int depth = 0;
+    Node* p = node->GetParent();
+    while (p) {
+        ++depth;
+        p = p->GetParent();
+    }
+    return depth;
+}
+
+void WidgetTreePanel::DrawArrow(Renderer& renderer, Node* node, float y, int depth) {
+    float indent = static_cast<float>(depth) * 16.0f;
+    float arrowLeft = indent + 2.0f;
+    float cx = arrowLeft + ARROW_SIZE * 0.5f;
+    float cy = y + ITEM_HEIGHT * 0.5f;
+    Color arrowColor(0.7f, 0.7f, 0.7f, 1.0f);
+
+    if (IsCollapsed(node)) {
+        float lx = cx - 3.0f;
+        float rx = cx + 3.0f;
+        renderer.DrawLine(Vec3(lx, cy - 3.0f, 0.0f), Vec3(rx, cy, 0.0f), arrowColor);
+        renderer.DrawLine(Vec3(rx, cy, 0.0f), Vec3(lx, cy + 3.0f, 0.0f), arrowColor);
+    } else {
+        float tx = cx;
+        float by = cy + 3.0f;
+        renderer.DrawLine(Vec3(tx - 3.0f, cy - 2.0f, 0.0f), Vec3(tx, by, 0.0f), arrowColor);
+        renderer.DrawLine(Vec3(tx, by, 0.0f), Vec3(tx + 3.0f, cy - 2.0f, 0.0f), arrowColor);
+    }
+}
+
+void WidgetTreePanel::ExpandPathToNode(Node* target) {
+    Node* p = target->GetParent();
+    while (p && p != m_root) {
+        auto it = m_collapsedNodes.find(p);
+        if (it != m_collapsedNodes.end()) {
+            m_collapsedNodes.erase(it);
+        }
+        p = p->GetParent();
+    }
+    // Also check root
+    if (p == m_root) {
+        auto it = m_collapsedNodes.find(p);
+        if (it != m_collapsedNodes.end()) {
+            m_collapsedNodes.erase(it);
+        }
+    }
+}
+
+void WidgetTreePanel::DrawDropIndicator(Renderer& renderer, float y, int depth) {
+    Color lineColor = m_dropAsChild ? Color(0.4f, 0.7f, 0.4f, 1.0f) : Color(0.6f, 0.8f, 1.0f, 1.0f);
+    float indent = static_cast<float>(depth) * 16.0f;
+    float cx = indent + (m_rectWidth - indent) * 0.5f;
     Mat4 xform = Mat4::Translate(Vec3(cx, y, 0.0f));
-    renderer.DrawQuad(xform, Vec2(m_rectWidth - 8.0f, 2.0f), lineColor);
+    renderer.DrawQuad(xform, Vec2(m_rectWidth - indent - 8.0f, 2.0f), lineColor);
 }
 
 Node* WidgetTreePanel::HitTest(Node* node, float& y, float my) const {
@@ -81,9 +152,11 @@ Node* WidgetTreePanel::HitTest(Node* node, float& y, float my) const {
         return node;
     }
 
-    for (size_t i = 0; i < node->GetChildCount(); ++i) {
-        Node* found = HitTest(node->GetChild(i), y, my);
-        if (found) return found;
+    if (!IsCollapsed(node)) {
+        for (size_t i = 0; i < node->GetChildCount(); ++i) {
+            Node* found = HitTest(node->GetChild(i), y, my);
+            if (found) return found;
+        }
     }
 
     return nullptr;
@@ -96,8 +169,10 @@ void WidgetTreePanel::CollectPositions(Node* node, float& y, int depth,
     out.push_back({ node, y, static_cast<float>(depth) });
     y += ITEM_HEIGHT;
 
-    for (size_t i = 0; i < node->GetChildCount(); ++i) {
-        CollectPositions(node->GetChild(i), y, depth + 1, out);
+    if (!IsCollapsed(node)) {
+        for (size_t i = 0; i < node->GetChildCount(); ++i) {
+            CollectPositions(node->GetChild(i), y, depth + 1, out);
+        }
     }
 }
 
@@ -105,29 +180,43 @@ void WidgetTreePanel::CommitDrag() {
     if (!m_dragNode || !m_dropTarget) return;
     if (m_dragNode == m_dropTarget) return;
 
-    Node* parent = m_dragNode->GetParent();
-    if (!parent) return;
+    Node* oldParent = m_dragNode->GetParent();
+    if (!oldParent) return;
 
-    // Determine the target sibling index in the parent
-    size_t targetIndex = parent->GetChildIndex(m_dropTarget);
-    if (targetIndex == static_cast<size_t>(-1)) return;
+    if (m_dropAsChild) {
+        auto dragged = oldParent->RemoveChild(m_dragNode);
+        m_dropTarget->AddChild(std::move(dragged));
+        ReindexZOrder(oldParent);
+        ReindexZOrder(m_dropTarget);
+        if (auto* layout = dynamic_cast<Layout*>(m_dropTarget)) {
+            layout->DoLayout();
+        }
+    } else {
+        Node* newParent = m_dropTarget->GetParent();
+        if (!newParent) return;
 
-    // If dropping after, increment index
-    if (!m_dropBefore) {
-        targetIndex += 1;
+        size_t targetIndex = newParent->GetChildIndex(m_dropTarget);
+        if (targetIndex == static_cast<size_t>(-1)) return;
+
+        if (!m_dropBefore) {
+            targetIndex += 1;
+        }
+
+        if (newParent == oldParent) {
+            size_t dragIndex = oldParent->GetChildIndex(m_dragNode);
+            if (dragIndex < targetIndex) {
+                targetIndex -= 1;
+            }
+        }
+
+        auto dragged = oldParent->RemoveChild(m_dragNode);
+        newParent->InsertChildAt(std::move(dragged), targetIndex);
+
+        ReindexZOrder(oldParent);
+        if (newParent != oldParent) {
+            ReindexZOrder(newParent);
+        }
     }
-
-    // If the dragged node comes before the target in the vector,
-    // removing it shifts the target index down by one
-    size_t dragIndex = parent->GetChildIndex(m_dragNode);
-    if (dragIndex < targetIndex) {
-        targetIndex -= 1;
-    }
-
-    auto dragged = parent->RemoveChild(m_dragNode);
-    parent->InsertChildAt(std::move(dragged), targetIndex);
-
-    ReindexZOrder(parent);
 }
 
 void WidgetTreePanel::ReindexZOrder(Node* parent) {
@@ -150,17 +239,26 @@ bool WidgetTreePanel::OnMouseEvent(const MouseEvent& event) {
             if (m_root) {
                 float y = 0.0f;
                 Node* hit = HitTest(m_root, y, localY);
-                if (hit && hit->GetParent()) {
+                if (!hit) return false;
+
+                // Check if clicking on arrow zone
+                int depth = GetNodeDepth(hit);
+                float indent = static_cast<float>(depth) * 16.0f;
+                bool isContainer = dynamic_cast<CanvasPanel*>(hit) || dynamic_cast<Layout*>(hit);
+                if (isContainer && localX >= indent && localX < indent + ARROW_SIZE) {
+                    ToggleCollapse(hit);
+                    return true;
+                }
+
+                if (hit->GetParent()) {
                     m_isDragPending = true;
                     m_dragNode = hit;
                     m_dragStartMouse = event.screenPos;
                     return true;
                 }
-                if (hit) {
-                    m_selectedNode = hit;
-                    if (m_onSelectionChanged) m_onSelectionChanged(hit);
-                    return true;
-                }
+                m_selectedNode = hit;
+                if (m_onSelectionChanged) m_onSelectionChanged(hit);
+                return true;
             }
             return false;
         }
@@ -175,6 +273,7 @@ bool WidgetTreePanel::OnMouseEvent(const MouseEvent& event) {
 
                     m_dropTarget = nullptr;
                     m_dropBefore = false;
+                    m_dropAsChild = false;
 
                     for (size_t i = 0; i < positions.size(); ++i) {
                         const auto& pos = positions[i];
@@ -195,7 +294,25 @@ bool WidgetTreePanel::OnMouseEvent(const MouseEvent& event) {
 
                         if (localY >= itemTop && localY < itemBot) {
                             m_dropTarget = pos.node;
-                            m_dropBefore = (localY - itemTop) < (ITEM_HEIGHT * 0.5f);
+                            float relY = localY - itemTop;
+                            float threshold = ITEM_HEIGHT * 0.25f;
+
+                            if (relY < threshold) {
+                                m_dropBefore = true;
+                                m_dropAsChild = false;
+                            } else if (relY >= ITEM_HEIGHT - threshold) {
+                                m_dropBefore = false;
+                                m_dropAsChild = false;
+                            } else {
+                                bool isContainer = dynamic_cast<CanvasPanel*>(pos.node) || dynamic_cast<Layout*>(pos.node);
+                                if (isContainer) {
+                                    m_dropBefore = false;
+                                    m_dropAsChild = true;
+                                } else {
+                                    m_dropBefore = false;
+                                    m_dropAsChild = false;
+                                }
+                            }
                             break;
                         }
                     }
@@ -226,6 +343,7 @@ bool WidgetTreePanel::OnMouseEvent(const MouseEvent& event) {
                 m_isDragging = false;
                 m_dragNode = nullptr;
                 m_dropTarget = nullptr;
+                m_dropAsChild = false;
                 return true;
             }
 
@@ -274,9 +392,10 @@ void WidgetTreePanel::OnRender(Renderer& renderer) {
             for (size_t i = 0; i < positions.size(); ++i) {
                 const auto& pos = positions[i];
 
-                // Draw drop indicator before this item
-                if (m_dropTarget == pos.node && m_dropBefore) {
-                    DrawDropIndicator(renderer, pos.y);
+                if (m_dropTarget == pos.node && m_dropAsChild) {
+                    DrawDropIndicator(renderer, pos.y, pos.depth + 1);
+                } else if (m_dropTarget == pos.node && m_dropBefore) {
+                    DrawDropIndicator(renderer, pos.y, pos.depth);
                 }
 
                 float indent = pos.depth * 16.0f;
@@ -292,21 +411,26 @@ void WidgetTreePanel::OnRender(Renderer& renderer) {
                 Mat4 xform = Mat4::Translate(Vec3(centerX, centerY, 0.0f));
                 renderer.DrawQuad(xform, Vec2(m_rectWidth - indent - 4.0f, ITEM_HEIGHT), color);
 
+                bool isContainer = dynamic_cast<CanvasPanel*>(pos.node) || dynamic_cast<Layout*>(pos.node);
+                if (isContainer) {
+                    DrawArrow(renderer, pos.node, pos.y, static_cast<int>(pos.depth));
+                }
+
                 if (m_fontRenderer && !pos.node->GetName().empty()) {
                     float textColor[4] = { 0.8f, 0.8f, 0.8f, 1.0f };
                     float textH = m_fontRenderer->GetLineHeight(1.0f);
                     float base = m_fontRenderer->GetBaselineOffset(1.0f);
+                    float textIndent = isContainer ? indent + ARROW_SIZE + 4.0f : indent + 6.0f;
                     m_fontRenderer->RenderString(renderer, pos.node->GetName(),
-                        indent + 6.0f, pos.y + (ITEM_HEIGHT - textH) * 0.5f + base,
+                        textIndent, pos.y + (ITEM_HEIGHT - textH) * 0.5f + base,
                         1.0f, textColor, TextRenderer::Align::Left);
                 }
             }
 
-            // Draw drop indicator after the last item if dropping after
-            if (m_dropTarget && !m_dropBefore) {
+            if (m_dropTarget && !m_dropBefore && !m_dropAsChild) {
                 for (const auto& pos : positions) {
                     if (pos.node == m_dropTarget) {
-                        DrawDropIndicator(renderer, pos.y + ITEM_HEIGHT);
+                        DrawDropIndicator(renderer, pos.y + ITEM_HEIGHT, pos.depth);
                         break;
                     }
                 }

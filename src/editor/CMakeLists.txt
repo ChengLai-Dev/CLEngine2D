@@ -38,8 +38,6 @@ add_executable(editor
     Project/EditorState.cpp
     Project/EditorLayoutConfig.h
     Project/EditorLayoutConfig.cpp
-    Serialization/Serializer.h
-    Serialization/Serializer.cpp
     Serialization/UndoRedo.h
     Serialization/UndoRedo.cpp
     Serialization/PropertyFieldRegistry.h

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Serializer.h"
+#include <UI/JsonValue.h>
 #include <string>
 
 class EditorLayoutConfig {
