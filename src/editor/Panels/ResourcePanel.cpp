@@ -95,7 +95,7 @@ void ResourcePanel::OnRender(Renderer& renderer) {
         const std::string& filename = m_project->files[i];
 
         const Color& useColor = (filename == m_selectedFile) ? selColor
-                               : (static_cast<int>(i) == m_hoveredIndex && !m_showContextMenu) ? hoverColor
+                               : (static_cast<int>(i) == m_hoveredIndex) ? hoverColor
                                : itemBg;
 
         float cx = (m_rectWidth - 4.0f) * 0.5f;
@@ -110,43 +110,6 @@ void ResourcePanel::OnRender(Renderer& renderer) {
 
         y += ITEM_HEIGHT;
     }
-
-    // Context menu
-    if (m_showContextMenu) {
-        float menuW = 160.0f;
-        float menuItemH = 22.0f;
-        int itemCount = m_contextOnProject ? 2 : 2;
-        float menuH = static_cast<float>(itemCount) * menuItemH;
-
-        Color menuBg(0.0f, 0.0f, 0.0f, 1.0f);
-        Color menuItemColor(0.1f, 0.1f, 0.1f, 1.0f);
-
-        float menuLocalX = m_contextMenuX - m_rectLeft;
-        float menuLocalY = m_contextMenuY - m_rectTop;
-
-        renderer.DrawQuad(Mat4::Translate(Vec3(menuLocalX + menuW * 0.5f, menuLocalY + menuH * 0.5f, 0.0f)),
-                          Vec2(menuW, menuH), menuBg);
-
-        const char* items[2];
-        if (m_contextOnProject) {
-            items[0] = "New CUI File";
-            items[1] = "Import CUI File";
-        } else {
-            items[0] = "Rename";
-            items[1] = "Delete";
-        }
-
-        for (int i = 0; i < itemCount; ++i) {
-            float iy = menuLocalY + static_cast<float>(i) * menuItemH;
-            renderer.DrawQuad(Mat4::Translate(Vec3(menuLocalX + menuW * 0.5f, iy + menuItemH * 0.5f, 0.0f)),
-                              Vec2(menuW - 2.0f, menuItemH - 1.0f), menuItemColor);
-
-            float ctxColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-            m_fontRenderer->RenderString(renderer, items[i],
-                menuLocalX + 8.0f, iy + (menuItemH - textH) * 0.5f + base,
-                1.0f, ctxColor, TextRenderer::Align::Left);
-        }
-    }
 }
 
 void ResourcePanel::OnUpdate(float deltaTime) {
@@ -158,83 +121,51 @@ bool ResourcePanel::OnMouseEvent(const MouseEvent& event) {
     float localY = event.screenPos.y - m_rectTop;
 
     if (event.type == MouseEvent::Move) {
-        if (!m_showContextMenu) {
-            m_hoveredIndex = HitTest(localY);
-        }
+        m_hoveredIndex = HitTest(localY);
         return true;
     }
 
     if (event.type == MouseEvent::Press && event.button == MouseEvent::Right) {
-        m_showContextMenu = false;
-
         if (!m_project) return true;
 
-        // Hit test - check project header first
         if (localY >= 0 && localY < HEADER_HEIGHT) {
-            m_contextOnProject = true;
-            m_contextItemIndex = -1;
-            m_contextMenuX = event.screenPos.x;
-            m_contextMenuY = event.screenPos.y;
-            m_showContextMenu = true;
-            return true;
-        }
-
-        int hit = HitTest(localY);
-        if (hit >= 0) {
-            m_contextOnProject = false;
-            m_contextItemIndex = hit;
-            m_contextMenuX = event.screenPos.x;
-            m_contextMenuY = event.screenPos.y;
-            m_showContextMenu = true;
-            return true;
+            static const PopupMenu::Item projectItems[] = {
+                { "New CUI File",    0 },
+                { "Import CUI File", 1 },
+            };
+            m_openPopup({
+                event.screenPos.x, event.screenPos.y,
+                projectItems, 2,
+                [this](int d) {
+                    if (d == 0 && m_onProjectAction) m_onProjectAction(0);
+                    if (d == 1 && m_onProjectAction) m_onProjectAction(1);
+                }
+            });
+        } else {
+            int hit = HitTest(localY);
+            if (hit >= 0) {
+                int fileIndex = hit;
+                static const PopupMenu::Item fileItems[] = {
+                    { "Rename", 0 },
+                    { "Delete", 1 },
+                };
+                m_openPopup({
+                    event.screenPos.x, event.screenPos.y,
+                    fileItems, 2,
+                    [this, fileIndex](int d) {
+                        if (m_project && fileIndex < static_cast<int>(m_project->files.size())) {
+                            const std::string& fn = m_project->files[fileIndex];
+                            if (d == 0 && m_onFileRename) m_onFileRename(fn, fn);
+                            if (d == 1 && m_onFileDelete) m_onFileDelete(fn);
+                        }
+                    }
+                });
+            }
         }
         return true;
     }
 
     if (event.type == MouseEvent::Press && event.button == MouseEvent::Left) {
-        if (m_showContextMenu) {
-            float menuW = 160.0f;
-            float menuItemH = 22.0f;
-            float menuLocalX = m_contextMenuX - m_rectLeft;
-            float menuLocalY = m_contextMenuY - m_rectTop;
-            int itemCount = 2;
-
-            bool clickedMenu = false;
-            for (int i = 0; i < itemCount; ++i) {
-                float ix = menuLocalX;
-                float iy = menuLocalY + static_cast<float>(i) * menuItemH;
-                if (localX >= ix && localX < ix + menuW &&
-                    localY >= iy && localY < iy + menuItemH) {
-                    clickedMenu = true;
-
-                    if (m_contextOnProject) {
-                        if (i == 0 && m_onProjectAction) {
-                            m_onProjectAction(0); // New CUI File
-                        } else if (i == 1 && m_onProjectAction) {
-                            m_onProjectAction(1); // Import CUI File
-                        }
-                    } else {
-                        if (m_project && m_contextItemIndex >= 0 &&
-                            m_contextItemIndex < static_cast<int>(m_project->files.size())) {
-                            const std::string& filename = m_project->files[static_cast<size_t>(m_contextItemIndex)];
-
-                            if (i == 0 && m_onFileRename) {
-                                m_onFileRename(filename, filename);
-                            } else if (i == 1 && m_onFileDelete) {
-                                m_onFileDelete(filename);
-                            }
-                        }
-                    }
-                    break;
-                }
-            }
-
-            m_showContextMenu = false;
-            m_contextItemIndex = -1;
-            m_hoveredIndex = -1;
-            return true;
-        }
-
         int hit = HitTest(localY);
         if (hit >= 0 && m_project &&
             static_cast<size_t>(hit) < m_project->files.size()) {

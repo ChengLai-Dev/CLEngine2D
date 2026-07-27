@@ -28,6 +28,25 @@ void EditorUISystem::ReleaseCapture() {
     m_capturedButton = MouseEvent::None;
 }
 
+void EditorUISystem::OpenPopup(float screenX, float screenY,
+                                const PopupMenu::Item* items, int count,
+                                std::function<void(int)> onSelected,
+                                std::function<void()> onDismissed) {
+    m_popup.Open(screenX, screenY, items, count, std::move(onSelected), std::move(onDismissed));
+}
+
+void EditorUISystem::ClosePopup() {
+    m_popup.Close();
+}
+
+bool EditorUISystem::IsPopupOpen() const {
+    return m_popup.IsOpen();
+}
+
+void EditorUISystem::DrawPopup(Renderer& renderer, TextRenderer* font) const {
+    m_popup.Draw(renderer, font);
+}
+
 void EditorUISystem::ProcessInput() {
     Vec2 pos = RawInput::GetMousePosition();
 
@@ -38,6 +57,12 @@ void EditorUISystem::ProcessInput() {
     bool rightDown = RawInput::IsMouseButtonDown(MouseCode::ButtonRight);
     bool rightReleased = RawInput::IsMouseButtonReleased(MouseCode::ButtonRight);
     float scroll = RawInput::GetScrollDeltaY();
+
+    // Popup 优先处理点击
+    if (m_popup.IsOpen()) {
+        if (leftPressed && m_popup.OnMouseClick(pos.x, pos.y)) return;
+        if (rightPressed && m_popup.OnMouseClick(pos.x, pos.y)) return;
+    }
 
     if (scroll != 0.0f) {
         for (const PanelEntry& entry : m_panels) {
@@ -106,6 +131,9 @@ void EditorUISystem::ProcessInput() {
 }
 
 void EditorUISystem::UpdatePanels(float deltaTime) {
+    if (m_popup.IsOpen() && RawInput::IsKeyPressed(KeyCode::Escape)) {
+        m_popup.Close();
+    }
     for (const PanelEntry& entry : m_panels) {
         entry.panel->OnUpdate(deltaTime);
     }

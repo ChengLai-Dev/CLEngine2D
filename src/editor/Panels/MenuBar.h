@@ -27,11 +27,9 @@ public:
     void OnAction(ActionCallback cb);
 
 private:
-    void DrawDropdown(Renderer& renderer, float dropX, float dropY,
-                      const char* const* items, const MenuBarAction* actions, int count);
     bool HandleClick(float mx, float my);
 
-    int m_openMenu = -1;
+    bool m_popupActive = false;
 
     ActionCallback m_onAction;
 };

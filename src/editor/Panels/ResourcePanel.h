@@ -43,12 +43,6 @@ private:
     std::string m_selectedFile;
     int m_hoveredIndex = -1;
 
-    bool m_showContextMenu = false;
-    bool m_contextOnProject = false;
-    float m_contextMenuX = 0.0f;
-    float m_contextMenuY = 0.0f;
-    int m_contextItemIndex = -1;
-
     FileClickCallback m_onFileClick;
     std::function<void(const std::string&)> m_onFileDelete;
     std::function<void(const std::string&, const std::string&)> m_onFileRename;

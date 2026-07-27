@@ -92,8 +92,17 @@ void EditorApp::OnInit() {
         SelectWidget(widget);
     });
 
+    auto popupOpener = [this](PopupRequest req) {
+        m_uiSystem.OpenPopup(req.screenX, req.screenY, req.items, req.count,
+                             std::move(req.onSelected), std::move(req.onDismissed));
+    };
+
+    auto popupCloser = [this]() { m_uiSystem.ClosePopup(); };
+
     m_menuBar = std::make_unique<MenuBar>();
     m_menuBar->SetFontRenderer(m_fontRenderer.get());
+    m_menuBar->SetPopupOpener(popupOpener);
+    m_menuBar->SetPopupCloser(popupCloser);
     m_menuBar->OnAction([this](MenuBarAction action) {
         switch (action) {
             case MenuBarAction::FILE_NEW_PROJECT:  ShowNewProjectDialog(); break;
@@ -151,6 +160,7 @@ void EditorApp::OnInit() {
 
     m_propertyPanel = std::make_unique<PropertyPanel>();
     m_propertyPanel->SetFontRenderer(m_fontRenderer.get());
+    m_propertyPanel->SetPopupOpener(popupOpener);
     m_propertyPanel->SetParentHwnd(glfwGetWin32Window(GetWindow()->GetNativeWindow()));
     m_propertyPanel->OnPropertyChanged([this]() { SetTabDirty(); });
     m_propertyPanel->OnNameChanged([this]() {
@@ -170,6 +180,7 @@ void EditorApp::OnInit() {
 
     m_resourcePanel = std::make_unique<ResourcePanel>();
     m_resourcePanel->SetFontRenderer(m_fontRenderer.get());
+    m_resourcePanel->SetPopupOpener(popupOpener);
     m_resourcePanel->OnFileClick([this](const std::string& filename) {
         HandleCuiFileClick(filename);
     });
@@ -368,7 +379,15 @@ void EditorApp::OnRender() {
         RenderPanel(m_renameDialog.get());
     }
 
-    RenderCommand::SetViewport(0, 0, GetWindow()->GetWidth(), GetWindow()->GetHeight());
+    // Popup on top of everything (full window, no viewport clip)
+    int winW = GetWindow()->GetWidth();
+    int winH = GetWindow()->GetHeight();
+    RenderCommand::SetViewport(0, 0, winW, winH);
+    m_renderer->BeginScene(Mat4::Ortho(0, static_cast<float>(winW), static_cast<float>(winH), 0, -1, 1));
+    m_uiSystem.DrawPopup(*m_renderer, m_fontRenderer.get());
+    m_renderer->EndScene();
+
+    RenderCommand::SetViewport(0, 0, winW, winH);
     DrawPanelBorders();
 }
 

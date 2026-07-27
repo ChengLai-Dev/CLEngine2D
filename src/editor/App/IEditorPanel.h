@@ -1,6 +1,7 @@
 #pragma once
 
 #include "HitRect.h"
+#include "PopupMenu.h"
 #include <Input/MouseEvent.h>
 #include <typeinfo>
 #include "Logger.h"
@@ -39,6 +40,11 @@ public:
 
     void SetFontRenderer(TextRenderer* tr) { m_fontRenderer = tr; }
 
+    using PopupOpener = std::function<void(PopupRequest)>;
+    using PopupCloser = std::function<void()>;
+    void SetPopupOpener(PopupOpener opener) { m_openPopup = std::move(opener); }
+    void SetPopupCloser(PopupCloser closer) { m_closePopup = std::move(closer); }
+
 protected:
     float m_rectLeft = 0.0f;
     float m_rectTop = 0.0f;
@@ -47,4 +53,6 @@ protected:
     int m_windowHeight = 0;
 
     TextRenderer* m_fontRenderer = nullptr;
+    PopupOpener m_openPopup;
+    PopupCloser m_closePopup;
 };
