@@ -39,6 +39,9 @@ public:
     void OnKeyDown(KeyCallback cb);
     void OnKeyUp(KeyCallback cb);
 
+    // 纯几何命中：本地逆变换 + 内容尺寸判定，不做 visible/enabled/touchEnabled 过滤
+    virtual bool HitTestGeometry(const Vec3& worldPoint);
+
     virtual bool HitTest(const Vec3& worldPoint);
 
     virtual void OnTouchStartedEvent(const Vec2& pos);

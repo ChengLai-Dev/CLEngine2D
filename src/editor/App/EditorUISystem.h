@@ -1,7 +1,7 @@
 #pragma once
 
 #include "IEditorPanel.h"
-#include "PopupManager.h"
+#include "Math/Vec2.h"
 #include <vector>
 #include <cstddef>
 
@@ -13,14 +13,6 @@ public:
     void ProcessInput();
     void UpdatePanels(float deltaTime);
 
-    void OpenPopup(float screenX, float screenY,
-                   const PopupMenu::Item* items, int count,
-                   std::function<void(int)> onSelected = nullptr,
-                   std::function<void()> onDismissed = nullptr);
-    void ClosePopup();
-    bool IsPopupOpen() const;
-    void DrawPopup(Renderer& renderer, TextRenderer* font) const;
-
     void Clear();
 
 private:
@@ -31,9 +23,12 @@ private:
 
     void Capture(IEditorPanel* panel, MouseEvent::ButtonType button);
     void ReleaseCapture();
+    bool DispatchScroll(const Vec2& pos, float scrollDelta);
+    void DispatchHover(const Vec2& pos);
+    bool DispatchPress(const Vec2& pos, MouseEvent::ButtonType button);
+    void DispatchCapture(const Vec2& pos, bool held, bool released);
 
     std::vector<PanelEntry> m_panels;
     IEditorPanel* m_capturedPanel = nullptr;
     MouseEvent::ButtonType m_capturedButton = MouseEvent::None;
-    PopupManager m_popup;
 };

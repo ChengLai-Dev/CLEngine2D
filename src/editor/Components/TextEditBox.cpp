@@ -46,8 +46,8 @@ void TextEditBox::Draw(Renderer& renderer, TextRenderer* fontRenderer,
 
     float cx = x + width * 0.5f;
     float cy = y + height * 0.5f;
-    Mat4 bgXform = Mat4::Translate(Vec3(cx, cy, 0.0f));
-    renderer.DrawQuad(bgXform, Vec2(width, height - 2.0f),
+    renderer.DrawQuad(Vec3(cx, cy, 0.0f),
+                      Vec3(width, height - 2.0f, 1.0f),
                       Color(bgColor[0], bgColor[1], bgColor[2], bgColor[3]));
 
     const std::string& text = isActive ? m_buffer : m_displayValue;
@@ -62,8 +62,8 @@ void TextEditBox::Draw(Renderer& renderer, TextRenderer* fontRenderer,
         if (selW > 0.0f) {
             float selCenterX = selX1 + selW * 0.5f;
             float selColor[4] = { 0.25f, 0.50f, 0.80f, 0.5f };
-            Mat4 selXform = Mat4::Translate(Vec3(selCenterX, y + height * 0.5f, 0.0f));
-            renderer.DrawQuad(selXform, Vec2(selW, height - 2.0f),
+            renderer.DrawQuad(Vec3(selCenterX, y + height * 0.5f, 0.0f),
+                              Vec3(selW, height - 2.0f, 1.0f),
                               Color(selColor[0], selColor[1], selColor[2], selColor[3]));
         }
     }

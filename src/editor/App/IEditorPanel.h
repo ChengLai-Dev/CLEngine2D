@@ -1,7 +1,6 @@
 #pragma once
 
 #include "HitRect.h"
-#include "PopupMenu.h"
 #include <Input/MouseEvent.h>
 #include <typeinfo>
 #include "Logger.h"
@@ -33,17 +32,15 @@ public:
         return { m_rectLeft, m_rectTop, m_rectWidth, m_rectHeight };
     }
 
+    // 输入参与资格：不可见的面板不参与事件分发（与几何独立，Ref: UE SlateCore Layout/Visibility.h）
+    virtual bool IsVisible() const { return true; }
+
     virtual bool IsCapturing() const { return false; }
 
     virtual void OnUpdate(float deltaTime) { (void)deltaTime; }
     virtual void OnRender(Renderer& renderer) = 0;
 
     void SetFontRenderer(TextRenderer* tr) { m_fontRenderer = tr; }
-
-    using PopupOpener = std::function<void(PopupRequest)>;
-    using PopupCloser = std::function<void()>;
-    void SetPopupOpener(PopupOpener opener) { m_openPopup = std::move(opener); }
-    void SetPopupCloser(PopupCloser closer) { m_closePopup = std::move(closer); }
 
 protected:
     float m_rectLeft = 0.0f;
@@ -53,6 +50,4 @@ protected:
     int m_windowHeight = 0;
 
     TextRenderer* m_fontRenderer = nullptr;
-    PopupOpener m_openPopup;
-    PopupCloser m_closePopup;
 };

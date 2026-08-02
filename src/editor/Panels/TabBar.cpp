@@ -58,8 +58,8 @@ static std::string TruncateText(TextRenderer* font, const std::string& text,
 void TabBar::OnRender(Renderer& renderer) {
     Color bgColor(0.06f, 0.06f, 0.08f, 1.0f);
 
-    Mat4 bg = Mat4::Translate(Vec3(m_rectWidth * 0.5f, m_rectHeight * 0.5f, 0.0f));
-    renderer.DrawQuad(bg, Vec2(m_rectWidth, m_rectHeight), bgColor);
+    renderer.DrawQuad(Vec3(m_rectWidth * 0.5f, m_rectHeight * 0.5f, 0.0f),
+                      Vec3(m_rectWidth, m_rectHeight, 1.0f), bgColor);
 
     float tabW = GetTabWidth();
     float tabH = m_rectHeight;
@@ -83,13 +83,12 @@ void TabBar::OnRender(Renderer& renderer) {
         bool isExt = m_tabs[i].external;
         float cx = x + tabW * 0.5f;
         float cy = tabH * 0.5f;
-        Mat4 tabBg = Mat4::Translate(Vec3(cx, cy, 0.0f));
 
         if (isExt) {
-            renderer.DrawQuad(tabBg, Vec2(tabW - 2.0f, tabH - 2.0f),
+            renderer.DrawQuad(Vec3(cx, cy, 0.0f), Vec3(tabW - 2.0f, tabH - 2.0f, 1.0f),
                               isActive ? extActiveColor : extInactiveColor);
         } else {
-            renderer.DrawQuad(tabBg, Vec2(tabW - 2.0f, tabH - 2.0f),
+            renderer.DrawQuad(Vec3(cx, cy, 0.0f), Vec3(tabW - 2.0f, tabH - 2.0f, 1.0f),
                               isActive ? activeColor : inactiveColor);
         }
 
@@ -128,8 +127,8 @@ void TabBar::OnRender(Renderer& renderer) {
         float btnCy = btnY + CLOSE_BTN_SIZE * 0.5f;
 
         if (isHoverClose) {
-            Mat4 btnBg = Mat4::Translate(Vec3(btnCx, btnCy, 0.0f));
-            renderer.DrawQuad(btnBg, Vec2(CLOSE_BTN_SIZE, CLOSE_BTN_SIZE),
+            renderer.DrawQuad(Vec3(btnCx, btnCy, 0.0f),
+                              Vec3(CLOSE_BTN_SIZE, CLOSE_BTN_SIZE, 1.0f),
                               closeBtnColor);
         }
 
@@ -159,9 +158,9 @@ void TabBar::OnRender(Renderer& renderer) {
 
             Color tipBg(0.05f, 0.05f, 0.08f, 0.95f);
             Color tipBorder(0.25f, 0.25f, 0.3f, 1.0f);
-            Mat4 tipBgM = Mat4::Translate(Vec3(tipX + tipW * 0.5f, tipY + tipH * 0.5f, 0.0f));
-            renderer.DrawQuad(tipBgM, Vec2(tipW, tipH), tipBg);
-            renderer.DrawQuad(tipBgM, Vec2(tipW, 1.0f), tipBorder);
+            Vec3 tipPos(tipX + tipW * 0.5f, tipY + tipH * 0.5f, 0.0f);
+            renderer.DrawQuad(tipPos, Vec3(tipW, tipH, 1.0f), tipBg);
+            renderer.DrawQuad(tipPos, Vec3(tipW, 1.0f, 1.0f), tipBorder);
 
             float base = m_fontRenderer->GetBaselineOffset(scale);
             m_fontRenderer->RenderString(renderer, tipText,

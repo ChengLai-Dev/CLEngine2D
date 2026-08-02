@@ -41,8 +41,9 @@ public:
     void BeginScene(const Mat4& viewProjection);
     void EndScene();
 
-    void DrawQuad(const Vec3& position, const Vec3& size, float rotation,
+    void DrawQuad(const Vec3& position, const Vec3& size,
                   const Color& color = Color(),
+                  float rotation = 0.0f,
                   Texture* texture = nullptr,
                   float texOffsetX = 0.0f, float texOffsetY = 0.0f,
                   float texScaleX = 1.0f, float texScaleY = 1.0f);

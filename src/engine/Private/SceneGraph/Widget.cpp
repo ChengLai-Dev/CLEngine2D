@@ -59,9 +59,7 @@ void Widget::OnTouchEnded(TouchCallback cb) {
     m_onTouchEnded = std::move(cb);
 }
 
-bool Widget::HitTest(const Vec3& worldPoint) {
-    if (!m_visible || !m_enabled) return false;
-
+bool Widget::HitTestGeometry(const Vec3& worldPoint) {
     const Mat4& world = GetWorldTransform();
     Mat4 inv = Mat4::Inverse(world);
     Vec3 local = inv.TransformPoint(worldPoint);
@@ -71,6 +69,11 @@ bool Widget::HitTest(const Vec3& worldPoint) {
 
     return local.x >= -halfW && local.x <= halfW &&
            local.y >= -halfH && local.y <= halfH;
+}
+
+bool Widget::HitTest(const Vec3& worldPoint) {
+    if (!m_visible || !m_enabled) return false;
+    return HitTestGeometry(worldPoint);
 }
 
 void Widget::OnTouchStartedEvent(const Vec2& pos) {

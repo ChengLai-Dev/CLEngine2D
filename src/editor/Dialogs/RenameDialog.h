@@ -11,7 +11,7 @@ public:
 
     void Show(const std::string& currentName);
     void Hide();
-    bool IsVisible() const { return m_visible; }
+    bool IsVisible() const override { return m_visible; }
 
     std::string GetNewName() const { return m_nameBox.GetValue(); }
 
@@ -19,7 +19,6 @@ public:
     void OnCancel(std::function<void()> cb);
 
     // IEditorPanel
-    HitRect GetHitRect() const override;
     void OnUpdate(float deltaTime) override;
     void OnRender(Renderer& renderer) override;
     bool OnMouseEvent(const MouseEvent& event) override;

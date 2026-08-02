@@ -34,11 +34,6 @@ void NewProjectDialog::OnBrowse(std::function<void()> cb) {
     m_onBrowse = std::move(cb);
 }
 
-HitRect NewProjectDialog::GetHitRect() const {
-    if (!m_visible) return { 0.0f, 0.0f, 0.0f, 0.0f };
-    return { m_rectLeft, m_rectTop, m_rectWidth, m_rectHeight };
-}
-
 void NewProjectDialog::OnUpdate(float deltaTime) {
     if (!m_visible) return;
 
@@ -71,8 +66,8 @@ void NewProjectDialog::OnRender(Renderer& renderer) {
     float viewH = m_rectHeight;
 
     Color overlay(0.0f, 0.0f, 0.0f, 0.5f);
-    renderer.DrawQuad(Mat4::Translate(Vec3(viewW * 0.5f, viewH * 0.5f, 0.0f)),
-                      Vec2(viewW * 2.0f, viewH * 2.0f), overlay);
+    renderer.DrawQuad(Vec3(viewW * 0.5f, viewH * 0.5f, 0.0f),
+                      Vec3(viewW * 2.0f, viewH * 2.0f, 1.0f), overlay);
 
     float dlgW = DIALOG_W;
     float dlgH = DIALOG_H;
@@ -80,8 +75,8 @@ void NewProjectDialog::OnRender(Renderer& renderer) {
     float dlgY = (viewH - dlgH) * 0.5f;
 
     Color dlgBg(0.15f, 0.15f, 0.17f, 1.0f);
-    renderer.DrawQuad(Mat4::Translate(Vec3(dlgX + dlgW * 0.5f, dlgY + dlgH * 0.5f, 0.0f)),
-                      Vec2(dlgW, dlgH), dlgBg);
+    renderer.DrawQuad(Vec3(dlgX + dlgW * 0.5f, dlgY + dlgH * 0.5f, 0.0f),
+                      Vec3(dlgW, dlgH, 1.0f), dlgBg);
 
     float textColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
     float base = m_fontRenderer->GetBaselineOffset(1.2f);
@@ -97,8 +92,8 @@ void NewProjectDialog::OnRender(Renderer& renderer) {
     // Browse button next to path field
     float browseX = dlgX + 12.0f + LABEL_W + (dlgW - 24.0f - LABEL_W - 60.0f) + 8.0f;
     Color browseColor(0.2f, 0.2f, 0.25f, 1.0f);
-    renderer.DrawQuad(Mat4::Translate(Vec3(browseX + 25.0f, fieldY2 + FIELD_H * 0.5f, 0.0f)),
-                      Vec2(50.0f, FIELD_H - 2.0f), browseColor);
+    renderer.DrawQuad(Vec3(browseX + 25.0f, fieldY2 + FIELD_H * 0.5f, 0.0f),
+                      Vec3(50.0f, FIELD_H - 2.0f, 1.0f), browseColor);
     m_fontRenderer->RenderStringInRect(renderer, "...",
         browseX, fieldY2, 50.0f, FIELD_H - 2.0f,
         1.0f, textColor,
@@ -108,8 +103,8 @@ void NewProjectDialog::OnRender(Renderer& renderer) {
 
     // OK button
     Color okColor(0.2f, 0.5f, 0.3f, 1.0f);
-    renderer.DrawQuad(Mat4::Translate(Vec3(dlgX + dlgW - BTN_W * 2.0f - 16.0f + BTN_W * 0.5f, btnY + BTN_H * 0.5f, 0.0f)),
-                      Vec2(BTN_W, BTN_H), okColor);
+    renderer.DrawQuad(Vec3(dlgX + dlgW - BTN_W * 2.0f - 16.0f + BTN_W * 0.5f, btnY + BTN_H * 0.5f, 0.0f),
+                      Vec3(BTN_W, BTN_H, 1.0f), okColor);
     m_fontRenderer->RenderStringInRect(renderer, "OK",
         dlgX + dlgW - BTN_W * 2.0f - 16.0f, btnY, BTN_W, BTN_H,
         1.0f, textColor,
@@ -117,8 +112,8 @@ void NewProjectDialog::OnRender(Renderer& renderer) {
 
     // Cancel button
     Color cancelColor(0.4f, 0.2f, 0.2f, 1.0f);
-    renderer.DrawQuad(Mat4::Translate(Vec3(dlgX + dlgW - BTN_W - 8.0f + BTN_W * 0.5f, btnY + BTN_H * 0.5f, 0.0f)),
-                      Vec2(BTN_W, BTN_H), cancelColor);
+    renderer.DrawQuad(Vec3(dlgX + dlgW - BTN_W - 8.0f + BTN_W * 0.5f, btnY + BTN_H * 0.5f, 0.0f),
+                      Vec3(BTN_W, BTN_H, 1.0f), cancelColor);
     m_fontRenderer->RenderStringInRect(renderer, "Cancel",
         dlgX + dlgW - BTN_W - 8.0f, btnY, BTN_W, BTN_H,
         1.0f, textColor,

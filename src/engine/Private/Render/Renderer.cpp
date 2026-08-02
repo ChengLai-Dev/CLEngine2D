@@ -166,14 +166,14 @@ void Renderer::EndScene() {
     Flush();
 }
 
-void Renderer::DrawQuad(const Vec3& position, const Vec3& size, float rotation,
-                        const Color& color, Texture* texture,
+void Renderer::DrawQuad(const Vec3& position, const Vec3& size,
+                        const Color& color, float rotation,
+                        Texture* texture,
                         float texOffsetX, float texOffsetY,
                         float texScaleX, float texScaleY) {
     Mat4 transform =
         Mat4::Translate(position) *
-        Mat4::RotateZ(rotation) *
-        Mat4::Scale(size);
+        Mat4::RotateZ(rotation);
 
     DrawQuad(transform, Vec2(size.x, size.y),
              color, texture,

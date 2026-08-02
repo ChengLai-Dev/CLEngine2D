@@ -80,7 +80,7 @@ protected:
         RenderCommand::SetBlend(true);
         RenderCommand::SetBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        m_camera = std::unique_ptr<OrthographicCamera>(new OrthographicCamera(-16.0f, 16.0f, -9.0f, 9.0f));
+        m_camera = std::unique_ptr<OrthographicCamera>(new OrthographicCamera(-16.0f, 16.0f, 9.0f, -9.0f));
         m_uiCamera = std::unique_ptr<OrthographicCamera>(
             new OrthographicCamera(0.0f, static_cast<float>(GetWindow()->GetWidth()),
                                    static_cast<float>(GetWindow()->GetHeight()), 0.0f)
@@ -105,12 +105,12 @@ protected:
             m_scene->ToggleRotation();
         });
 
-        m_defaultContext->MapKey(m_moveAction, KeyCode::W, Vec2(0.0f, 1.0f));
-        m_defaultContext->MapKey(m_moveAction, KeyCode::S, Vec2(0.0f, -1.0f));
+        m_defaultContext->MapKey(m_moveAction, KeyCode::W, Vec2(0.0f, -1.0f));
+        m_defaultContext->MapKey(m_moveAction, KeyCode::S, Vec2(0.0f, 1.0f));
         m_defaultContext->MapKey(m_moveAction, KeyCode::D, Vec2(1.0f, 0.0f));
         m_defaultContext->MapKey(m_moveAction, KeyCode::A, Vec2(-1.0f, 0.0f));
-        m_defaultContext->MapKey(m_moveAction, KeyCode::Up, Vec2(0.0f, 1.0f));
-        m_defaultContext->MapKey(m_moveAction, KeyCode::Down, Vec2(0.0f, -1.0f));
+        m_defaultContext->MapKey(m_moveAction, KeyCode::Up, Vec2(0.0f, -1.0f));
+        m_defaultContext->MapKey(m_moveAction, KeyCode::Down, Vec2(0.0f, 1.0f));
         m_defaultContext->MapKey(m_moveAction, KeyCode::Right, Vec2(1.0f, 0.0f));
         m_defaultContext->MapKey(m_moveAction, KeyCode::Left, Vec2(-1.0f, 0.0f));
 

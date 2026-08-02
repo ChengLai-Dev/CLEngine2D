@@ -69,6 +69,8 @@ add_library(engine STATIC
     Private/SceneGraph/Layout.cpp
     Public/SceneGraph/UISystem.h
     Private/SceneGraph/UISystem.cpp
+    Public/SceneGraph/UITools.h
+    Private/SceneGraph/UITools.cpp
     Public/TextRenderer.h
     Private/TextRenderer.cpp
     Public/ParticleSystem.h

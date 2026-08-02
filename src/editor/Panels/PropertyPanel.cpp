@@ -123,8 +123,8 @@ void PropertyPanel::DrawFieldBackground(Renderer& renderer, float y, bool isActi
     float cx = (VALUE_LEFT + VALUE_RIGHT) * 0.5f;
     float cy = y + FIELD_HEIGHT * 0.5f;
     float cw = VALUE_RIGHT - VALUE_LEFT;
-    Mat4 bgXform = Mat4::Translate(Vec3(cx, cy, 0.0f));
-    renderer.DrawQuad(bgXform, Vec2(cw, FIELD_HEIGHT - 2.0f),
+    renderer.DrawQuad(Vec3(cx, cy, 0.0f),
+                      Vec3(cw, FIELD_HEIGHT - 2.0f, 1.0f),
                       Color(bgColor[0], bgColor[1], bgColor[2], bgColor[3]));
 }
 
@@ -176,8 +176,8 @@ void PropertyPanel::DrawFields(Renderer& renderer) {
             float btnColor[4] = { 0.25f, 0.25f, 0.28f, 1.0f };
             float btnCx = btnLeft + TEXTURE_BUTTON_WIDTH * 0.5f;
             float btnCy = renderY + FIELD_HEIGHT * 0.5f;
-            Mat4 btnXform = Mat4::Translate(Vec3(btnCx, btnCy, 0.0f));
-            renderer.DrawQuad(btnXform, Vec2(TEXTURE_BUTTON_WIDTH - 1.0f, FIELD_HEIGHT - 2.0f),
+            renderer.DrawQuad(Vec3(btnCx, btnCy, 0.0f),
+                              Vec3(TEXTURE_BUTTON_WIDTH - 1.0f, FIELD_HEIGHT - 2.0f, 1.0f),
                               Color(btnColor[0], btnColor[1], btnColor[2], btnColor[3]));
             if (m_fontRenderer) {
                 float txtColor[4] = { 0.9f, 0.9f, 0.9f, 1.0f };
@@ -204,8 +204,8 @@ void PropertyPanel::DrawFields(Renderer& renderer) {
 
 void PropertyPanel::OnRender(Renderer& renderer) {
     Color bgColor(0.12f, 0.12f, 0.14f, 1.0f);
-    Mat4 bgTransform = Mat4::Translate(Vec3(m_rectWidth * 0.5f, m_rectHeight * 0.5f, 0.0f));
-    renderer.DrawQuad(bgTransform, Vec2(m_rectWidth, m_rectHeight), bgColor);
+    renderer.DrawQuad(Vec3(m_rectWidth * 0.5f, m_rectHeight * 0.5f, 0.0f),
+                      Vec3(m_rectWidth, m_rectHeight, 1.0f), bgColor);
 
     if (!m_target || !m_fontRenderer) return;
 

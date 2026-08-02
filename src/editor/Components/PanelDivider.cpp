@@ -59,13 +59,13 @@ void PanelDivider::OnRender(Renderer& renderer) {
     if (m_edge == Edge::Horizontal) {
         float cx = m_horizontalWidth * 0.5f;
         float cy = HANDLE_HALF_WIDTH;
-        Mat4 xform = Mat4::Translate(Vec3(cx, cy, 0.0f));
-        renderer.DrawQuad(xform, Vec2(m_horizontalWidth, 2.0f), highlight);
+        renderer.DrawQuad(Vec3(cx, cy, 0.0f),
+                          Vec3(m_horizontalWidth, 2.0f, 1.0f), highlight);
     } else {
         float cx = HANDLE_HALF_WIDTH;
         float cy = m_height * 0.5f;
-        Mat4 xform = Mat4::Translate(Vec3(cx, cy, 0.0f));
-        renderer.DrawQuad(xform, Vec2(2.0f, m_height), highlight);
+        renderer.DrawQuad(Vec3(cx, cy, 0.0f),
+                          Vec3(2.0f, m_height, 1.0f), highlight);
     }
 }
 

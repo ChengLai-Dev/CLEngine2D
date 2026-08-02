@@ -13,7 +13,7 @@ public:
 
     void Show();
     void Hide();
-    bool IsVisible() const { return m_visible; }
+    bool IsVisible() const override { return m_visible; }
     Result GetResult() const { return m_result; }
 
     std::string GetFileName() const { return m_nameBox.GetValue(); }
@@ -26,7 +26,6 @@ public:
     void OnBrowse(std::function<void()> cb);
 
     // IEditorPanel
-    HitRect GetHitRect() const override;
     void OnUpdate(float deltaTime) override;
     void OnRender(Renderer& renderer) override;
     bool OnMouseEvent(const MouseEvent& event) override;

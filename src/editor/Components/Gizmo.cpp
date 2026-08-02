@@ -199,18 +199,17 @@ void Gizmo::Draw(Renderer& renderer) {
             0.0f
         );
         if (data.edgeLengths[e] > 0.0f) {
-            Mat4 edgeTransform = Mat4::Translate(mid) * Mat4::RotateZ(data.edgeAngles[e]);
-            renderer.DrawQuad(edgeTransform, Vec2(data.edgeLengths[e], edgeThickness),
-                              selectColor);
+            renderer.DrawQuad(mid, Vec3(data.edgeLengths[e], edgeThickness, 1.0f),
+                              selectColor, data.edgeAngles[e]);
         }
     }
 
     Color white(1.0f, 1.0f, 1.0f, 1.0f);
     float handleScreenSize = 14.0f / m_zoomLevel;
     for (int i = 0; i < 8; ++i) {
-        Mat4 handleTransform = Mat4::Translate(data.handlePositions[i]);
-        renderer.DrawQuad(handleTransform, Vec2(handleScreenSize, handleScreenSize),
-                          white, m_handleDot.get());
+        renderer.DrawQuad(data.handlePositions[i],
+                          Vec3(handleScreenSize, handleScreenSize, 1.0f),
+                          white, 0.0f, m_handleDot.get());
     }
 }
 

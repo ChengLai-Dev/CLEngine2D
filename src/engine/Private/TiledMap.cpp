@@ -193,8 +193,8 @@ void TileMap::Render(Renderer& renderer, const Vec2& offset) const {
 
                 renderer.DrawQuad(position,
                                   Vec3(static_cast<float>(m_tileWidth), static_cast<float>(m_tileHeight), 1.0f),
-                                  0.0f,
-                                  layerOpacity, m_tileSet.texture.get(),
+                                  layerOpacity, 0.0f,
+                                  m_tileSet.texture.get(),
                                   texOffsetX, texOffsetY,
                                   texTileScaleX, texTileScaleY);
             }

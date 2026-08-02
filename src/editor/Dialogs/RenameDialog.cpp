@@ -28,11 +28,6 @@ void RenameDialog::OnCancel(std::function<void()> cb) {
     m_onCancel = std::move(cb);
 }
 
-HitRect RenameDialog::GetHitRect() const {
-    if (!m_visible) return { 0.0f, 0.0f, 0.0f, 0.0f };
-    return { m_rectLeft, m_rectTop, m_rectWidth, m_rectHeight };
-}
-
 void RenameDialog::OnUpdate(float deltaTime) {
     if (!m_visible) return;
     if (m_fieldActive) {
@@ -47,15 +42,15 @@ void RenameDialog::OnRender(Renderer& renderer) {
     float viewH = m_rectHeight;
 
     Color overlay(0.0f, 0.0f, 0.0f, 0.5f);
-    renderer.DrawQuad(Mat4::Translate(Vec3(viewW * 0.5f, viewH * 0.5f, 0.0f)),
-                      Vec2(viewW * 2.0f, viewH * 2.0f), overlay);
+    renderer.DrawQuad(Vec3(viewW * 0.5f, viewH * 0.5f, 0.0f),
+                      Vec3(viewW * 2.0f, viewH * 2.0f, 1.0f), overlay);
 
     float dlgX = (viewW - DIALOG_W) * 0.5f;
     float dlgY = (viewH - DIALOG_H) * 0.5f;
 
     Color dlgBg(0.15f, 0.15f, 0.17f, 1.0f);
-    renderer.DrawQuad(Mat4::Translate(Vec3(dlgX + DIALOG_W * 0.5f, dlgY + DIALOG_H * 0.5f, 0.0f)),
-                      Vec2(DIALOG_W, DIALOG_H), dlgBg);
+    renderer.DrawQuad(Vec3(dlgX + DIALOG_W * 0.5f, dlgY + DIALOG_H * 0.5f, 0.0f),
+                      Vec3(DIALOG_W, DIALOG_H, 1.0f), dlgBg);
 
     float textColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
     float base = m_fontRenderer->GetBaselineOffset(1.2f);
@@ -75,15 +70,15 @@ void RenameDialog::OnRender(Renderer& renderer) {
     float btnY = dlgY + DIALOG_H - 40.0f;
 
     Color okColor(0.2f, 0.5f, 0.3f, 1.0f);
-    renderer.DrawQuad(Mat4::Translate(Vec3(dlgX + DIALOG_W - BTN_W * 2.0f - 16.0f + BTN_W * 0.5f, btnY + BTN_H * 0.5f, 0.0f)),
-                      Vec2(BTN_W, BTN_H), okColor);
+    renderer.DrawQuad(Vec3(dlgX + DIALOG_W - BTN_W * 2.0f - 16.0f + BTN_W * 0.5f, btnY + BTN_H * 0.5f, 0.0f),
+                      Vec3(BTN_W, BTN_H, 1.0f), okColor);
     m_fontRenderer->RenderString(renderer, "OK",
         dlgX + DIALOG_W - BTN_W * 2.0f - 16.0f, btnY + (BTN_H - m_fontRenderer->GetLineHeight(1.0f)) * 0.5f + m_fontRenderer->GetBaselineOffset(1.0f),
         1.0f, textColor, TextRenderer::Align::Center);
 
     Color cancelColor(0.4f, 0.2f, 0.2f, 1.0f);
-    renderer.DrawQuad(Mat4::Translate(Vec3(dlgX + DIALOG_W - BTN_W - 8.0f + BTN_W * 0.5f, btnY + BTN_H * 0.5f, 0.0f)),
-                      Vec2(BTN_W, BTN_H), cancelColor);
+    renderer.DrawQuad(Vec3(dlgX + DIALOG_W - BTN_W - 8.0f + BTN_W * 0.5f, btnY + BTN_H * 0.5f, 0.0f),
+                      Vec3(BTN_W, BTN_H, 1.0f), cancelColor);
     m_fontRenderer->RenderString(renderer, "Cancel",
         dlgX + DIALOG_W - BTN_W - 8.0f, btnY + (BTN_H - m_fontRenderer->GetLineHeight(1.0f)) * 0.5f + m_fontRenderer->GetBaselineOffset(1.0f),
         1.0f, textColor, TextRenderer::Align::Center);

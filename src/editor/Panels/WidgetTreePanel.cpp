@@ -45,8 +45,8 @@ void WidgetTreePanel::DrawWidgetTree(Node* node, Renderer& renderer, float& y, i
 
     float centerX = indent + (m_rectWidth - indent) * 0.5f;
     float centerY = y + ITEM_HEIGHT * 0.5f;
-    Mat4 itemBg = Mat4::Translate(Vec3(centerX, centerY, 0.0f));
-    renderer.DrawQuad(itemBg, Vec2(m_rectWidth - indent - 4.0f, ITEM_HEIGHT),
+    renderer.DrawQuad(Vec3(centerX, centerY, 0.0f),
+                      Vec3(m_rectWidth - indent - 4.0f, ITEM_HEIGHT, 1.0f),
                       useColor);
 
     bool isContainer = dynamic_cast<CanvasPanel*>(node) || dynamic_cast<Layout*>(node);
@@ -137,8 +137,8 @@ void WidgetTreePanel::DrawDropIndicator(Renderer& renderer, float y, int depth) 
     Color lineColor = m_dropAsChild ? Color(0.4f, 0.7f, 0.4f, 1.0f) : Color(0.6f, 0.8f, 1.0f, 1.0f);
     float indent = static_cast<float>(depth) * 16.0f;
     float cx = indent + (m_rectWidth - indent) * 0.5f;
-    Mat4 xform = Mat4::Translate(Vec3(cx, y, 0.0f));
-    renderer.DrawQuad(xform, Vec2(m_rectWidth - indent - 8.0f, 2.0f), lineColor);
+    renderer.DrawQuad(Vec3(cx, y, 0.0f),
+                      Vec3(m_rectWidth - indent - 8.0f, 2.0f, 1.0f), lineColor);
 }
 
 Node* WidgetTreePanel::HitTest(Node* node, float& y, float my) const {
@@ -377,8 +377,8 @@ void WidgetTreePanel::SelectNode(Node* node) {
 void WidgetTreePanel::OnRender(Renderer& renderer) {
     Color bgColor(0.1f, 0.1f, 0.12f, 1.0f);
 
-    Mat4 bgTransform = Mat4::Translate(Vec3(m_rectWidth * 0.5f, m_rectHeight * 0.5f, 0.0f));
-    renderer.DrawQuad(bgTransform, Vec2(m_rectWidth, m_rectHeight), bgColor);
+    renderer.DrawQuad(Vec3(m_rectWidth * 0.5f, m_rectHeight * 0.5f, 0.0f),
+                      Vec3(m_rectWidth, m_rectHeight, 1.0f), bgColor);
 
     if (m_root) {
         float y = 0.0f;
@@ -408,8 +408,8 @@ void WidgetTreePanel::OnRender(Renderer& renderer) {
 
                 float centerX = indent + (m_rectWidth - indent) * 0.5f;
                 float centerY = pos.y + ITEM_HEIGHT * 0.5f;
-                Mat4 xform = Mat4::Translate(Vec3(centerX, centerY, 0.0f));
-                renderer.DrawQuad(xform, Vec2(m_rectWidth - indent - 4.0f, ITEM_HEIGHT), color);
+                renderer.DrawQuad(Vec3(centerX, centerY, 0.0f),
+                                  Vec3(m_rectWidth - indent - 4.0f, ITEM_HEIGHT, 1.0f), color);
 
                 bool isContainer = dynamic_cast<CanvasPanel*>(pos.node) || dynamic_cast<Layout*>(pos.node);
                 if (isContainer) {

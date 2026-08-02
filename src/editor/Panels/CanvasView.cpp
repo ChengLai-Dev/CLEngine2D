@@ -1,7 +1,7 @@
 #include "CanvasView.h"
 #include <Cursor.h>
 #include <Scene.h>
-#include <SceneGraph/UISystem.h>
+#include <SceneGraph/UITools.h>
 #include <SceneGraph/Node.h>
 #include <SceneGraph/Widget.h>
 #include <SceneGraph/CanvasPanel.h>
@@ -49,7 +49,7 @@ Vec3 CanvasView::ScreenToWorld(const Vec2& screenPos) const {
     float halfH = m_rectHeight * 0.5f;
 
     float glviewportX = screenPos.x - m_rectLeft;
-    float glviewportY = (m_rectTop + m_rectHeight) - screenPos.y;
+    float glviewportY = screenPos.y - m_rectTop;
 
     float worldX = (glviewportX - halfW) / m_zoomLevel + m_viewCenter.x;
     float worldY = (glviewportY - halfH) / m_zoomLevel + m_viewCenter.y;
@@ -62,7 +62,7 @@ Mat4 CanvasView::GetProjection() const {
     float halfH = m_rectHeight * 0.5f / m_zoomLevel;
     return Mat4::Ortho(
         -halfW + m_viewCenter.x,  halfW + m_viewCenter.x,
-        -halfH + m_viewCenter.y,  halfH + m_viewCenter.y,
+        halfH + m_viewCenter.y,  -halfH + m_viewCenter.y,
         -1.0f, 1.0f
     );
 }
@@ -103,7 +103,7 @@ bool CanvasView::OnLeftPress(const MouseEvent& event, const Vec3& worldPos) {
         m_isGizmoDragging = true;
         return true;
     }
-    Widget* hit = UISystem::GetInstance().HitTestScene(worldPos);
+    Widget* hit = UITools::HitTestDesign(m_editedScene ? m_editedScene->GetRoot() : nullptr, worldPos);
     if (hit && m_gizmo->GetTarget() && hit == m_gizmo->GetTarget()) {
         m_isBodyDragPending = true;
         m_isBodyDragging = false;
@@ -133,7 +133,7 @@ bool CanvasView::OnHover(const MouseEvent& event, const Vec3& worldPos) {
     } else {
         CursorManager::Reset();
     }
-    Widget* hit = UISystem::GetInstance().HitTestScene(worldPos);
+    Widget* hit = UITools::HitTestDesign(m_editedScene ? m_editedScene->GetRoot() : nullptr, worldPos);
     m_hoveredWidget = hit;
     return false;
 }
@@ -161,7 +161,7 @@ bool CanvasView::OnLeftHeld(const MouseEvent&, const Vec3& worldPos) {
 
 bool CanvasView::OnRightHeld(const MouseEvent& event, const Vec3&) {
     Vec2 totalDelta = event.screenPos - m_panStartMousePos;
-    m_viewCenter = m_panStartViewCenter + Vec2(-totalDelta.x, totalDelta.y) / m_zoomLevel;
+    m_viewCenter = m_panStartViewCenter + Vec2(-totalDelta.x, -totalDelta.y) / m_zoomLevel;
     return true;
 }
 
@@ -210,8 +210,8 @@ void CanvasView::DrawGrid(Renderer& renderer) {
     float halfH = m_rectHeight * 0.5f / m_zoomLevel;
     float left = -halfW + m_viewCenter.x;
     float right = halfW + m_viewCenter.x;
-    float bottom = -halfH + m_viewCenter.y;
-    float top = halfH + m_viewCenter.y;
+    float bottom = halfH + m_viewCenter.y;
+    float top = -halfH + m_viewCenter.y;
 
     float spacedGrid = m_gridSize * m_zoomLevel;
 
@@ -228,7 +228,7 @@ void CanvasView::DrawGrid(Renderer& renderer) {
         renderer.DrawLine(Vec3(x, bottom, 0.0f), Vec3(x, top, 0.0f), gridColor);
     }
 
-    for (float y = startY; y <= top; y += spacedGrid) {
+    for (float y = startY; y >= top; y -= spacedGrid) {
         renderer.DrawLine(Vec3(left, y, 0.0f), Vec3(right, y, 0.0f), gridColor);
     }
 }
@@ -350,9 +350,7 @@ void CanvasView::DrawWidgetOutline(Renderer& renderer, Node* target, const Color
 
         float angle = std::atan2(dy, dx);
         Vec3 mid = Vec3((from.x + to.x) * 0.5f, (from.y + to.y) * 0.5f, 0.0f);
-        Mat4 edgeTransform = Mat4::Translate(mid) * Mat4::RotateZ(angle);
-        renderer.DrawQuad(edgeTransform, Vec2(length, thickness),
-                          color);
+        renderer.DrawQuad(mid, Vec3(length, thickness, 1.0f), color, angle);
     }
 }
 
@@ -413,8 +411,7 @@ void CanvasView::DrawDashedWidgetOutline(Renderer& renderer, Node* target, const
                 from.y + (dy / edgeLen) * midOffset,
                 0.0f
             );
-            Mat4 segTransform = Mat4::Translate(mid) * Mat4::RotateZ(angle);
-            renderer.DrawQuad(segTransform, Vec2(segLen, thickness), color);
+            renderer.DrawQuad(mid, Vec3(segLen, thickness, 1.0f), color, angle);
         }
     }
 }
@@ -447,8 +444,8 @@ void CanvasView::DrawModeToolbar(Renderer& renderer) {
             bgColor = Color(0.25f, 0.25f, 0.30f, 0.85f);
         }
 
-        Mat4 btnTransform = Mat4::Translate(Vec3(bx + TOOLBAR_BTN_W * 0.5f, by + TOOLBAR_HEIGHT * 0.5f, 0.0f));
-        renderer.DrawQuad(btnTransform, Vec2(static_cast<float>(TOOLBAR_BTN_W - 2), static_cast<float>(TOOLBAR_HEIGHT - 2)), bgColor);
+        renderer.DrawQuad(Vec3(bx + TOOLBAR_BTN_W * 0.5f, by + TOOLBAR_HEIGHT * 0.5f, 0.0f),
+                          Vec3(static_cast<float>(TOOLBAR_BTN_W - 2), static_cast<float>(TOOLBAR_HEIGHT - 2), 1.0f), bgColor);
 
         if (m_fontRenderer) {
             float labelColor[4] = { 0.9f, 0.9f, 0.9f, 1.0f };

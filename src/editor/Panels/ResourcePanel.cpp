@@ -1,4 +1,6 @@
 #include "ResourcePanel.h"
+#include "PopupMenu.h"
+#include <Math/Vec2.h>
 #include <Render/Renderer.h>
 #include <TextRenderer.h>
 #include <Input/RawInput.h>
@@ -62,8 +64,8 @@ int ResourcePanel::HitTest(float localY) const {
 
 void ResourcePanel::OnRender(Renderer& renderer) {
     Color bgColor(0.1f, 0.1f, 0.12f, 1.0f);
-    renderer.DrawQuad(Mat4::Translate(Vec3(m_rectWidth * 0.5f, m_rectHeight * 0.5f, 0.0f)),
-                      Vec2(m_rectWidth, m_rectHeight), bgColor);
+    renderer.DrawQuad(Vec3(m_rectWidth * 0.5f, m_rectHeight * 0.5f, 0.0f),
+                      Vec3(m_rectWidth, m_rectHeight, 1.0f), bgColor);
 
     if (!m_fontRenderer) return;
 
@@ -79,8 +81,8 @@ void ResourcePanel::OnRender(Renderer& renderer) {
 
     // Project header
     Color headerBg(0.15f, 0.15f, 0.18f, 1.0f);
-    renderer.DrawQuad(Mat4::Translate(Vec3(m_rectWidth * 0.5f, HEADER_HEIGHT * 0.5f, 0.0f)),
-                      Vec2(m_rectWidth, HEADER_HEIGHT), headerBg);
+    renderer.DrawQuad(Vec3(m_rectWidth * 0.5f, HEADER_HEIGHT * 0.5f, 0.0f),
+                      Vec3(m_rectWidth, HEADER_HEIGHT, 1.0f), headerBg);
 
     float headerColor[4] = { 0.6f, 0.8f, 0.6f, 1.0f };
     m_fontRenderer->RenderString(renderer, m_project->name.c_str(),
@@ -100,8 +102,8 @@ void ResourcePanel::OnRender(Renderer& renderer) {
 
         float cx = (m_rectWidth - 4.0f) * 0.5f;
         float cy = y + ITEM_HEIGHT * 0.5f;
-        renderer.DrawQuad(Mat4::Translate(Vec3(cx, cy, 0.0f)),
-                          Vec2(m_rectWidth - 4.0f, ITEM_HEIGHT), useColor);
+        renderer.DrawQuad(Vec3(cx, cy, 0.0f),
+                          Vec3(m_rectWidth - 4.0f, ITEM_HEIGHT, 1.0f), useColor);
 
         float itemColor[4] = { 0.8f, 0.8f, 0.8f, 1.0f };
         m_fontRenderer->RenderString(renderer, filename,
@@ -133,14 +135,13 @@ bool ResourcePanel::OnMouseEvent(const MouseEvent& event) {
                 { "New CUI File",    0 },
                 { "Import CUI File", 1 },
             };
-            m_openPopup({
-                event.screenPos.x, event.screenPos.y,
-                projectItems, 2,
+            m_popupMenu.Open(
+                Vec2(event.screenPos.x, event.screenPos.y),
+                std::vector<PopupMenu::Item>(projectItems, projectItems + 2),
                 [this](int d) {
                     if (d == 0 && m_onProjectAction) m_onProjectAction(0);
                     if (d == 1 && m_onProjectAction) m_onProjectAction(1);
-                }
-            });
+                });
         } else {
             int hit = HitTest(localY);
             if (hit >= 0) {
@@ -149,17 +150,16 @@ bool ResourcePanel::OnMouseEvent(const MouseEvent& event) {
                     { "Rename", 0 },
                     { "Delete", 1 },
                 };
-                m_openPopup({
-                    event.screenPos.x, event.screenPos.y,
-                    fileItems, 2,
+                m_popupMenu.Open(
+                    Vec2(event.screenPos.x, event.screenPos.y),
+                    std::vector<PopupMenu::Item>(fileItems, fileItems + 2),
                     [this, fileIndex](int d) {
                         if (m_project && fileIndex < static_cast<int>(m_project->files.size())) {
                             const std::string& fn = m_project->files[fileIndex];
                             if (d == 0 && m_onFileRename) m_onFileRename(fn, fn);
                             if (d == 1 && m_onFileDelete) m_onFileDelete(fn);
                         }
-                    }
-                });
+                    });
             }
         }
         return true;

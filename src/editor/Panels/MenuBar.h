@@ -1,6 +1,7 @@
 #pragma once
 
 #include "IEditorPanel.h"
+#include "PopupMenu.h"
 #include <memory>
 #include <functional>
 
@@ -21,15 +22,19 @@ public:
     void OnRender(Renderer& renderer) override;
 
     bool OnMouseEvent(const MouseEvent& event) override;
-    HitRect GetHitRect() const override;
+    void OnUpdate(float deltaTime) override;
 
     using ActionCallback = std::function<void(MenuBarAction)>;
     void OnAction(ActionCallback cb);
 
+    PopupMenu* GetPopupMenu() { return &m_popupMenu; }
+
 private:
     bool HandleClick(float mx, float my);
 
-    bool m_popupActive = false;
+    PopupMenu m_popupMenu;
+    int m_openIndex = -1;
+    bool m_dismissedThisFrame = false;
 
     ActionCallback m_onAction;
 };

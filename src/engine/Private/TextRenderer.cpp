@@ -179,15 +179,13 @@ void TextRenderer::RenderString(Renderer& renderer, const std::string& text,
         float charY = cursorY + g.yoff * scale;
 
         if (charW > 0.0f && charH > 0.0f) {
-            Mat4 transform =
-                Mat4::Translate(Vec3(charX + charW * 0.5f, charY + charH * 0.5f, 0.0f)) *
-                Mat4::Scale(Vec3(charW, charH, 1.0f));
+            Vec3 charCenter(charX + charW * 0.5f, charY + charH * 0.5f, 0.0f);
 
             float texScaleX = (g.s1 - g.s0);
             float texScaleY = (g.t1 - g.t0);
 
-            renderer.DrawQuad(transform, Vec2(1.0f, 1.0f),
-                              finalColor, m_atlas.get(),
+            renderer.DrawQuad(charCenter, Vec3(charW, charH, 1.0f),
+                              finalColor, 0.0f, m_atlas.get(),
                               g.s0, g.t0,
                               texScaleX, texScaleY);
         }

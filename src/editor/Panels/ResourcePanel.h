@@ -1,6 +1,7 @@
 #pragma once
 
 #include "IEditorPanel.h"
+#include "PopupMenu.h"
 #include "Project.h"
 #include <functional>
 #include <vector>
@@ -32,12 +33,15 @@ public:
     using ProjectActionCallback = std::function<void(int action)>;
     void OnProjectAction(ProjectActionCallback cb);
 
+    PopupMenu* GetPopupMenu() { return &m_popupMenu; }
+
 private:
     static constexpr float ITEM_HEIGHT = 22.0f;
     static constexpr float HEADER_HEIGHT = 24.0f;
 
     int HitTest(float localY) const;
 
+    PopupMenu m_popupMenu;
     const Project* m_project = nullptr;
 
     std::string m_selectedFile;

@@ -28,8 +28,6 @@ add_executable(editor
     Components/HitRect.h
     Components/PopupMenu.h
     Components/PopupMenu.cpp
-    Components/PopupManager.h
-    Components/PopupManager.cpp
     Dialogs/NewProjectDialog.h
     Dialogs/NewProjectDialog.cpp
     Dialogs/NewCuiFileDialog.h

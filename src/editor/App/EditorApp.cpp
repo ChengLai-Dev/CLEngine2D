@@ -14,6 +14,7 @@
 #include "NewCuiFileDialog.h"
 #include "RenameDialog.h"
 #include "FileDialog.h"
+#include "PopupMenu.h"
 
 #include <Scene.h>
 #include <SceneGraph/Node.h>
@@ -25,7 +26,7 @@
 #include <SceneGraph/CanvasPanel.h>
 #include <SceneGraph/Layout.h>
 #include <SceneGraph/UISystem.h>
-#include <Input/InputSystem.h>
+#include <SceneGraph/UITools.h>
 #include <Input/RawInput.h>
 #include <Input/InputCodes.h>
 #include <Render/Renderer.h>
@@ -80,7 +81,6 @@ void EditorApp::OnInit() {
         Logger::Warn("Failed to load font, text will not be rendered");
     }
 
-    InputSystem::GetInstance().SetInputMode(EInputMode::GameAndUI);
     UISystem::GetInstance().SetFontRenderer(m_fontRenderer.get());
 
     EditorUISystem& ui = m_uiSystem;
@@ -92,17 +92,10 @@ void EditorApp::OnInit() {
         SelectWidget(widget);
     });
 
-    auto popupOpener = [this](PopupRequest req) {
-        m_uiSystem.OpenPopup(req.screenX, req.screenY, req.items, req.count,
-                             std::move(req.onSelected), std::move(req.onDismissed));
-    };
-
-    auto popupCloser = [this]() { m_uiSystem.ClosePopup(); };
-
     m_menuBar = std::make_unique<MenuBar>();
     m_menuBar->SetFontRenderer(m_fontRenderer.get());
-    m_menuBar->SetPopupOpener(popupOpener);
-    m_menuBar->SetPopupCloser(popupCloser);
+    m_menuBar->GetPopupMenu()->SetFontRenderer(m_fontRenderer.get());
+    ui.Register(m_menuBar->GetPopupMenu(), -1);
     m_menuBar->OnAction([this](MenuBarAction action) {
         switch (action) {
             case MenuBarAction::FILE_NEW_PROJECT:  ShowNewProjectDialog(); break;
@@ -137,8 +130,11 @@ void EditorApp::OnInit() {
     m_widgetPalette->OnAction([this](WidgetPaletteAction action, float mx, float my) {
         auto hit = m_canvasView->GetHitRect();
         if (hit.Contains(mx, my)) {
+            Scene* editedScene = m_canvasView->GetEditedScene();
+            if (!editedScene) return;
+
             Vec3 pos = m_canvasView->ScreenToWorld(Vec2(mx, my));
-            Widget* target = UISystem::GetInstance().HitTestScene(pos);
+            Widget* target = UITools::HitTestDesign(editedScene->GetRoot(), pos);
             Node* parent = nullptr;
             if (target && (dynamic_cast<CanvasPanel*>(target) || dynamic_cast<Layout*>(target))) {
                 parent = target;
@@ -160,7 +156,6 @@ void EditorApp::OnInit() {
 
     m_propertyPanel = std::make_unique<PropertyPanel>();
     m_propertyPanel->SetFontRenderer(m_fontRenderer.get());
-    m_propertyPanel->SetPopupOpener(popupOpener);
     m_propertyPanel->SetParentHwnd(glfwGetWin32Window(GetWindow()->GetNativeWindow()));
     m_propertyPanel->OnPropertyChanged([this]() { SetTabDirty(); });
     m_propertyPanel->OnNameChanged([this]() {
@@ -180,7 +175,8 @@ void EditorApp::OnInit() {
 
     m_resourcePanel = std::make_unique<ResourcePanel>();
     m_resourcePanel->SetFontRenderer(m_fontRenderer.get());
-    m_resourcePanel->SetPopupOpener(popupOpener);
+    m_resourcePanel->GetPopupMenu()->SetFontRenderer(m_fontRenderer.get());
+    ui.Register(m_resourcePanel->GetPopupMenu(), -1);
     m_resourcePanel->OnFileClick([this](const std::string& filename) {
         HandleCuiFileClick(filename);
     });
@@ -379,14 +375,12 @@ void EditorApp::OnRender() {
         RenderPanel(m_renameDialog.get());
     }
 
-    // Popup on top of everything (full window, no viewport clip)
+    // Popup menus on top of everything
+    RenderPanel(m_menuBar->GetPopupMenu());
+    RenderPanel(m_resourcePanel->GetPopupMenu());
+
     int winW = GetWindow()->GetWidth();
     int winH = GetWindow()->GetHeight();
-    RenderCommand::SetViewport(0, 0, winW, winH);
-    m_renderer->BeginScene(Mat4::Ortho(0, static_cast<float>(winW), static_cast<float>(winH), 0, -1, 1));
-    m_uiSystem.DrawPopup(*m_renderer, m_fontRenderer.get());
-    m_renderer->EndScene();
-
     RenderCommand::SetViewport(0, 0, winW, winH);
     DrawPanelBorders();
 }
@@ -418,27 +412,27 @@ void EditorApp::DrawPanelBorders() {
 
     // MenuBar bottom edge
     m_renderer->DrawQuad(
-        Mat4::Translate(Vec3(winW * 0.5f, cfg.menuBarHeight - t * 0.5f, 0.0f)),
-        Vec2(winW, t), borderColor);
+        Vec3(winW * 0.5f, cfg.menuBarHeight - t * 0.5f, 0.0f),
+        Vec3(winW, t, 1.0f), borderColor);
 
     // Left panel right edge
     float lx = cfg.leftPanelWidth;
     float sideH = winH - cfg.menuBarHeight;
     m_renderer->DrawQuad(
-        Mat4::Translate(Vec3(lx - t * 0.5f, cfg.menuBarHeight + sideH * 0.5f, 0.0f)),
-        Vec2(t, sideH), borderColor);
+        Vec3(lx - t * 0.5f, cfg.menuBarHeight + sideH * 0.5f, 0.0f),
+        Vec3(t, sideH, 1.0f), borderColor);
 
     // Right panel left edge
     float rx = winW - cfg.rightPanelWidth;
     m_renderer->DrawQuad(
-        Mat4::Translate(Vec3(rx - t * 0.5f, cfg.menuBarHeight + sideH * 0.5f, 0.0f)),
-        Vec2(t, sideH), borderColor);
+        Vec3(rx - t * 0.5f, cfg.menuBarHeight + sideH * 0.5f, 0.0f),
+        Vec3(t, sideH, 1.0f), borderColor);
 
     // ResourcePanel bottom edge (divider 1)
     float div1Y = cfg.menuBarHeight + cfg.leftPanelDivider1Y;
     m_renderer->DrawQuad(
-        Mat4::Translate(Vec3(cfg.leftPanelWidth * 0.5f, div1Y - t * 0.5f, 0.0f)),
-        Vec2(cfg.leftPanelWidth, t), borderColor);
+        Vec3(cfg.leftPanelWidth * 0.5f, div1Y - t * 0.5f, 0.0f),
+        Vec3(cfg.leftPanelWidth, t, 1.0f), borderColor);
 
     // WidgetPalette bottom edge (divider 2)
     float div2Y = cfg.menuBarHeight + cfg.leftPanelDivider2Y;
@@ -446,8 +440,8 @@ void EditorApp::DrawPanelBorders() {
     float palBot = cfg.menuBarHeight + cfg.leftPanelDivider1Y + paletteHeight;
     float actualDiv2Y = (std::max)(palBot, div2Y);
     m_renderer->DrawQuad(
-        Mat4::Translate(Vec3(cfg.leftPanelWidth * 0.5f, actualDiv2Y - t * 0.5f, 0.0f)),
-        Vec2(cfg.leftPanelWidth, t), borderColor);
+        Vec3(cfg.leftPanelWidth * 0.5f, actualDiv2Y - t * 0.5f, 0.0f),
+        Vec3(cfg.leftPanelWidth, t, 1.0f), borderColor);
 
     m_renderer->EndScene();
 }
@@ -591,6 +585,12 @@ void EditorApp::RecalculateLayout(int windowWidth, int windowHeight) {
     m_renameDialog->SetRect(0.0f, 0.0f,
                             static_cast<float>(windowWidth),
                             static_cast<float>(windowHeight));
+    m_menuBar->GetPopupMenu()->SetRect(0.0f, 0.0f,
+                                       static_cast<float>(windowWidth),
+                                       static_cast<float>(windowHeight));
+    m_resourcePanel->GetPopupMenu()->SetRect(0.0f, 0.0f,
+                                             static_cast<float>(windowWidth),
+                                             static_cast<float>(windowHeight));
 
     m_menuBar->SetWindowHeight(windowHeight);
     m_widgetPalette->SetWindowHeight(windowHeight);
@@ -600,6 +600,8 @@ void EditorApp::RecalculateLayout(int windowWidth, int windowHeight) {
     m_newProjectDialog->SetWindowHeight(windowHeight);
     m_newCuiFileDialog->SetWindowHeight(windowHeight);
     m_renameDialog->SetWindowHeight(windowHeight);
+    m_menuBar->GetPopupMenu()->SetWindowHeight(windowHeight);
+    m_resourcePanel->GetPopupMenu()->SetWindowHeight(windowHeight);
 }
 
 // ---- Project Management ----
@@ -682,7 +684,6 @@ void EditorApp::CloseProject() {
     m_canvasView->GetGizmo()->SetTarget(nullptr);
     m_widgetTreePanel->SelectNode(nullptr);
     m_canvasView->SetEditedScene(nullptr);
-    UISystem::GetInstance().SetUIRoot(nullptr);
     SaveEditorState();
 }
 
@@ -961,7 +962,6 @@ void EditorApp::SwitchTab(int index) {
     Node* root = tab.scene->GetRoot();
     m_widgetTreePanel->SetRoot(root);
     m_canvasView->SetEditedScene(tab.scene.get());
-    UISystem::GetInstance().SetUIRoot(static_cast<Widget*>(root));
     SelectWidget(nullptr);
 
     UpdateTabBar();
@@ -1138,7 +1138,6 @@ void EditorApp::AddWidgetToScene(const std::string& type, const Vec3& position, 
         Node* root = scene->GetRoot();
         m_widgetTreePanel->SetRoot(root);
         m_canvasView->SetEditedScene(scene);
-        UISystem::GetInstance().SetUIRoot(static_cast<Widget*>(root));
     } else {
         Node* parent = parentOverride ? parentOverride : scene->GetRoot();
         widget->SetZOrder(static_cast<int>(parent->GetChildCount()));

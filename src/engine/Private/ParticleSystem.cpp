@@ -112,8 +112,8 @@ void ParticleEmitter::Render(Renderer& renderer) const {
         if (!p.active) continue;
 
         renderer.DrawQuad(p.position, Vec3(p.size, p.size, 1.0f),
-                          p.rotation,
-                          Color(p.color.x, p.color.y, p.color.z, p.color.w), tex);
+                          Color(p.color.x, p.color.y, p.color.z, p.color.w),
+                          p.rotation, tex);
     }
 }
 

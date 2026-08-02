@@ -1,39 +1,39 @@
 #pragma once
 
-#include "HitRect.h"
-#include <string>
+#include "IEditorPanel.h"
+#include <Math/Vec2.h>
 #include <functional>
+#include <string>
+#include <vector>
 
-class Renderer;
-class TextRenderer;
-
-class PopupMenu {
+class PopupMenu : public IEditorPanel {
 public:
     struct Item {
         std::string label;
         int data = 0;
     };
 
-    static void Draw(Renderer& renderer, TextRenderer* font,
-                     float screenX, float screenY,
-                     const Item* items, int count,
-                     float itemWidth = 160.0f, float itemHeight = 22.0f);
+    void Open(Vec2 pos, std::vector<Item> items,
+              std::function<void(int)> onSelected = nullptr,
+              std::function<void()> onDismissed = nullptr);
+    void Close();
+    bool IsOpen() const;
 
-    static int HitTest(float mx, float my,
-                       float menuScreenX, float menuScreenY,
-                       int count,
-                       float itemWidth = 160.0f, float itemHeight = 22.0f);
+    // IEditorPanel
+    bool IsVisible() const override;
+    void OnUpdate(float deltaTime) override;
+    void OnRender(Renderer& renderer) override;
+    bool OnMouseEvent(const MouseEvent& event) override;
 
-    static HitRect GetHitRect(float menuScreenX, float menuScreenY,
-                              int count,
-                              float itemWidth = 160.0f, float itemHeight = 22.0f);
-};
+    float itemWidth = 160.0f;
+    float itemHeight = 22.0f;
 
-struct PopupRequest {
-    float screenX = 0.0f;
-    float screenY = 0.0f;
-    const PopupMenu::Item* items = nullptr;
-    int count = 0;
-    std::function<void(int)> onSelected;
-    std::function<void()> onDismissed;
+private:
+    int HitTest(Vec2 pos) const;
+
+    bool m_open = false;
+    Vec2 m_pos;
+    std::vector<Item> m_items;
+    std::function<void(int)> m_onSelected;
+    std::function<void()> m_onDismissed;
 };

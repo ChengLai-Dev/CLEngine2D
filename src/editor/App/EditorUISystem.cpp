@@ -28,25 +28,6 @@ void EditorUISystem::ReleaseCapture() {
     m_capturedButton = MouseEvent::None;
 }
 
-void EditorUISystem::OpenPopup(float screenX, float screenY,
-                                const PopupMenu::Item* items, int count,
-                                std::function<void(int)> onSelected,
-                                std::function<void()> onDismissed) {
-    m_popup.Open(screenX, screenY, items, count, std::move(onSelected), std::move(onDismissed));
-}
-
-void EditorUISystem::ClosePopup() {
-    m_popup.Close();
-}
-
-bool EditorUISystem::IsPopupOpen() const {
-    return m_popup.IsOpen();
-}
-
-void EditorUISystem::DrawPopup(Renderer& renderer, TextRenderer* font) const {
-    m_popup.Draw(renderer, font);
-}
-
 void EditorUISystem::ProcessInput() {
     Vec2 pos = RawInput::GetMousePosition();
 
@@ -58,82 +39,74 @@ void EditorUISystem::ProcessInput() {
     bool rightReleased = RawInput::IsMouseButtonReleased(MouseCode::ButtonRight);
     float scroll = RawInput::GetScrollDeltaY();
 
-    // Popup 优先处理点击
-    if (m_popup.IsOpen()) {
-        if (leftPressed && m_popup.OnMouseClick(pos.x, pos.y)) return;
-        if (rightPressed && m_popup.OnMouseClick(pos.x, pos.y)) return;
-    }
-
-    if (scroll != 0.0f) {
-        for (const PanelEntry& entry : m_panels) {
-            HitRect hit = entry.panel->GetHitRect();
-            if (hit.Contains(pos.x, pos.y)) {
-                MouseEvent ev{ MouseEvent::Scroll, pos, MouseEvent::None, scroll };
-                if (entry.panel->OnMouseEvent(ev)) break;
-            }
-        }
-    }
-
-    // Hover: 始终向光标下方面板发送 Move 事件（button=-1 表示非按键移动）
-    for (const PanelEntry& entry : m_panels) {
-        HitRect hit = entry.panel->GetHitRect();
-        if (hit.Contains(pos.x, pos.y)) {
-            MouseEvent ev{ MouseEvent::Move, pos, MouseEvent::None, 0.0f };
-            entry.panel->OnMouseEvent(ev);
-            break;
-        }
-    }
+    DispatchScroll(pos, scroll);
+    DispatchHover(pos);
 
     if (m_capturedPanel) {
         bool held = (m_capturedButton == MouseEvent::Left) ? leftDown : rightDown;
         bool released = (m_capturedButton == MouseEvent::Left) ? leftReleased : rightReleased;
-
-        if (released) {
-            MouseEvent ev{ MouseEvent::Release, pos, m_capturedButton, 0.0f };
-            m_capturedPanel->OnMouseEvent(ev);
-            ReleaseCapture();
-        } else if (held) {
-            MouseEvent ev{ MouseEvent::Move, pos, m_capturedButton, 0.0f };
-            m_capturedPanel->OnMouseEvent(ev);
-        }
+        DispatchCapture(pos, held, released);
         return;
     }
 
-    if (leftPressed) {
-        for (const PanelEntry& entry : m_panels) {
-            HitRect hit = entry.panel->GetHitRect();
-            if (hit.Contains(pos.x, pos.y)) {
-                MouseEvent ev{ MouseEvent::Press, pos, MouseEvent::Left, 0.0f };
-                if (entry.panel->OnMouseEvent(ev)) {
-                    if (entry.panel->IsCapturing()) {
-                        Capture(entry.panel, MouseEvent::Left);
-                    }
-                    break;
-                }
-            }
+    if (leftPressed) DispatchPress(pos, MouseEvent::Left);
+    if (rightPressed) DispatchPress(pos, MouseEvent::Right);
+}
+
+bool EditorUISystem::DispatchScroll(const Vec2& pos, float scrollDelta) {
+    if (scrollDelta == 0.0f) return false;
+    for (const PanelEntry& entry : m_panels) {
+        if (!entry.panel->IsVisible()) continue;
+        HitRect hit = entry.panel->GetHitRect();
+        if (hit.Contains(pos.x, pos.y)) {
+            MouseEvent ev{ MouseEvent::Scroll, pos, MouseEvent::None, scrollDelta };
+            if (entry.panel->OnMouseEvent(ev)) return true;
         }
     }
+    return false;
+}
 
-    if (rightPressed) {
-        for (const PanelEntry& entry : m_panels) {
-            HitRect hit = entry.panel->GetHitRect();
-            if (hit.Contains(pos.x, pos.y)) {
-                MouseEvent ev{ MouseEvent::Press, pos, MouseEvent::Right, 0.0f };
-                if (entry.panel->OnMouseEvent(ev)) {
-                    if (entry.panel->IsCapturing()) {
-                        Capture(entry.panel, MouseEvent::Right);
-                    }
-                    break;
-                }
-            }
+void EditorUISystem::DispatchHover(const Vec2& pos) {
+    for (const PanelEntry& entry : m_panels) {
+        if (!entry.panel->IsVisible()) continue;
+        HitRect hit = entry.panel->GetHitRect();
+        if (hit.Contains(pos.x, pos.y)) {
+            MouseEvent ev{ MouseEvent::Move, pos, MouseEvent::None, 0.0f };
+            entry.panel->OnMouseEvent(ev);
+            return;
         }
     }
 }
 
-void EditorUISystem::UpdatePanels(float deltaTime) {
-    if (m_popup.IsOpen() && RawInput::IsKeyPressed(KeyCode::Escape)) {
-        m_popup.Close();
+bool EditorUISystem::DispatchPress(const Vec2& pos, MouseEvent::ButtonType button) {
+    for (const PanelEntry& entry : m_panels) {
+        if (!entry.panel->IsVisible()) continue;
+        HitRect hit = entry.panel->GetHitRect();
+        if (hit.Contains(pos.x, pos.y)) {
+            MouseEvent ev{ MouseEvent::Press, pos, button, 0.0f };
+            if (entry.panel->OnMouseEvent(ev)) {
+                if (entry.panel->IsCapturing()) {
+                    Capture(entry.panel, button);
+                }
+                return true;
+            }
+        }
     }
+    return false;
+}
+
+void EditorUISystem::DispatchCapture(const Vec2& pos, bool held, bool released) {
+    if (released) {
+        MouseEvent ev{ MouseEvent::Release, pos, m_capturedButton, 0.0f };
+        m_capturedPanel->OnMouseEvent(ev);
+        ReleaseCapture();
+    } else if (held) {
+        MouseEvent ev{ MouseEvent::Move, pos, m_capturedButton, 0.0f };
+        m_capturedPanel->OnMouseEvent(ev);
+    }
+}
+
+void EditorUISystem::UpdatePanels(float deltaTime) {
     for (const PanelEntry& entry : m_panels) {
         entry.panel->OnUpdate(deltaTime);
     }

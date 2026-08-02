@@ -83,7 +83,7 @@ void PythonScriptApp::OnInit()
     RenderCommand::SetBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     m_gameCamera = std::unique_ptr<OrthographicCamera>(
-        new OrthographicCamera(-16.0f, 16.0f, -9.0f, 9.0f));
+        new OrthographicCamera(-16.0f, 16.0f, 9.0f, -9.0f));
     m_uiCamera = std::unique_ptr<OrthographicCamera>(
         new OrthographicCamera(0.0f, 1280.0f, 720.0f, 0.0f));
 
