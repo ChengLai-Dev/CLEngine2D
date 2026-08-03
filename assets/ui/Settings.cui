@@ -1,0 +1,283 @@
+{
+  "version": 1,
+  "widgets": {
+    "type": "Widget",
+    "name": "Root",
+    "position": { "x": 0, "y": 0, "z": 0 },
+    "size": { "x": 1280, "y": 720 },
+    "visible": true,
+    "zOrder": 0,
+    "opacity": 1.0,
+    "enabled": true,
+    "touchEnabled": true,
+    "children": [
+      {
+        "type": "Image",
+        "name": "Mask",
+        "position": { "x": 0, "y": 0, "z": 0 },
+        "size": { "x": 1280, "y": 720 },
+        "visible": true,
+        "zOrder": 0,
+        "opacity": 1.0,
+        "enabled": true,
+        "touchEnabled": false,
+        "color": { "x": 0.0, "y": 0.0, "z": 0.0, "w": 0.6 }
+      },
+      {
+        "type": "Image",
+        "name": "SettingsPanel",
+        "position": { "x": 0, "y": 0, "z": 0 },
+        "size": { "x": 640, "y": 420 },
+        "visible": true,
+        "zOrder": 1,
+        "opacity": 0.96,
+        "enabled": true,
+        "touchEnabled": false,
+        "texture": "assets/placeholder/ui/panel_9slice.png",
+        "scale9Enabled": true,
+        "capInsets": { "x": 8, "y": 8, "z": 8, "w": 8 }
+      },
+      {
+        "type": "Label",
+        "name": "TitleLabel",
+        "position": { "x": 0, "y": 165, "z": 0 },
+        "size": { "x": 200, "y": 48 },
+        "visible": true,
+        "zOrder": 2,
+        "opacity": 1.0,
+        "enabled": true,
+        "touchEnabled": false,
+        "text": "设置",
+        "fontSize": 32,
+        "textColor": { "x": 1.0, "y": 1.0, "z": 1.0, "w": 1.0 }
+      },
+      {
+        "type": "CanvasPanel",
+        "name": "BgmRow",
+        "position": { "x": 0, "y": 85, "z": 0 },
+        "size": { "x": 480, "y": 40 },
+        "visible": true,
+        "zOrder": 2,
+        "opacity": 1.0,
+        "enabled": true,
+        "touchEnabled": false,
+        "children": [
+          {
+            "type": "Label",
+            "name": "BgmLabel",
+            "position": { "x": -120, "y": 0, "z": 0 },
+            "size": { "x": 200, "y": 40 },
+            "visible": true,
+            "zOrder": 0,
+            "opacity": 1.0,
+            "enabled": true,
+            "touchEnabled": false,
+            "text": "BGM 音量　80%",
+            "fontSize": 22,
+            "textColor": { "x": 0.6, "y": 0.6, "z": 0.6, "w": 1.0 }
+          },
+          {
+            "type": "Image",
+            "name": "BgmBarBg",
+            "position": { "x": 110, "y": 0, "z": 0 },
+            "size": { "x": 240, "y": 16 },
+            "visible": true,
+            "zOrder": 1,
+            "opacity": 0.4,
+            "enabled": true,
+            "touchEnabled": false,
+            "texture": "assets/placeholder/ui/hpbar_bg.png"
+          },
+          {
+            "type": "Image",
+            "name": "BgmBarFill",
+            "position": { "x": -10, "y": 0, "z": 0 },
+            "size": { "x": 192, "y": 16 },
+            "anchor": { "x": 0, "y": 0.5 },
+            "visible": true,
+            "zOrder": 2,
+            "opacity": 0.4,
+            "enabled": true,
+            "touchEnabled": false,
+            "texture": "assets/placeholder/ui/hpbar_fill.png"
+          }
+        ]
+      },
+      {
+        "type": "CanvasPanel",
+        "name": "SfxRow",
+        "position": { "x": 0, "y": 35, "z": 0 },
+        "size": { "x": 480, "y": 40 },
+        "visible": true,
+        "zOrder": 2,
+        "opacity": 1.0,
+        "enabled": true,
+        "touchEnabled": false,
+        "children": [
+          {
+            "type": "Label",
+            "name": "SfxLabel",
+            "position": { "x": -120, "y": 0, "z": 0 },
+            "size": { "x": 200, "y": 40 },
+            "visible": true,
+            "zOrder": 0,
+            "opacity": 1.0,
+            "enabled": true,
+            "touchEnabled": false,
+            "text": "音效音量　70%",
+            "fontSize": 22,
+            "textColor": { "x": 0.6, "y": 0.6, "z": 0.6, "w": 1.0 }
+          },
+          {
+            "type": "Image",
+            "name": "SfxBarBg",
+            "position": { "x": 110, "y": 0, "z": 0 },
+            "size": { "x": 240, "y": 16 },
+            "visible": true,
+            "zOrder": 1,
+            "opacity": 0.4,
+            "enabled": true,
+            "touchEnabled": false,
+            "texture": "assets/placeholder/ui/hpbar_bg.png"
+          },
+          {
+            "type": "Image",
+            "name": "SfxBarFill",
+            "position": { "x": -10, "y": 0, "z": 0 },
+            "size": { "x": 168, "y": 16 },
+            "anchor": { "x": 0, "y": 0.5 },
+            "visible": true,
+            "zOrder": 2,
+            "opacity": 0.4,
+            "enabled": true,
+            "touchEnabled": false,
+            "texture": "assets/placeholder/ui/hpbar_fill.png"
+          }
+        ]
+      },
+      {
+        "type": "CanvasPanel",
+        "name": "SpeedRow",
+        "position": { "x": 0, "y": -25, "z": 0 },
+        "size": { "x": 520, "y": 56 },
+        "visible": true,
+        "zOrder": 2,
+        "opacity": 1.0,
+        "enabled": true,
+        "touchEnabled": true,
+        "children": [
+          {
+            "type": "Label",
+            "name": "SpeedLabel",
+            "position": { "x": -180, "y": 0, "z": 0 },
+            "size": { "x": 140, "y": 40 },
+            "visible": true,
+            "zOrder": 0,
+            "opacity": 1.0,
+            "enabled": true,
+            "touchEnabled": false,
+            "text": "文字速度",
+            "fontSize": 22,
+            "textColor": { "x": 1.0, "y": 1.0, "z": 1.0, "w": 1.0 }
+          },
+          {
+            "type": "CanvasPanel",
+            "name": "SpeedButtons",
+            "position": { "x": 50, "y": 0, "z": 0 },
+            "size": { "x": 340, "y": 56 },
+            "visible": true,
+            "zOrder": 1,
+            "opacity": 1.0,
+            "enabled": true,
+            "touchEnabled": true,
+            "children": [
+              {
+                "type": "Layout",
+                "name": "SpeedLayout",
+                "position": { "x": 0, "y": 0, "z": 0 },
+                "size": { "x": 340, "y": 56 },
+                "visible": true,
+                "zOrder": 0,
+                "opacity": 1.0,
+                "enabled": true,
+                "touchEnabled": true,
+                "layoutType": "HORIZONTAL",
+                "spacing": 12,
+                "children": [
+                  {
+                    "type": "Button",
+                    "name": "BtnSpeedSlow",
+                    "position": { "x": 0, "y": 0, "z": 0 },
+                    "size": { "x": 100, "y": 48 },
+                    "visible": true,
+                    "zOrder": 0,
+                    "opacity": 1.0,
+                    "enabled": true,
+                    "touchEnabled": true,
+                    "focusable": true,
+                    "text": "慢",
+                    "fontSize": 20,
+                    "textColor": { "x": 1.0, "y": 1.0, "z": 1.0, "w": 1.0 },
+                    "normalTex": "assets/placeholder/ui/btn_icon_normal.png",
+                    "pressedTex": "assets/placeholder/ui/btn_icon_pressed.png"
+                  },
+                  {
+                    "type": "Button",
+                    "name": "BtnSpeedNormal",
+                    "position": { "x": 0, "y": 0, "z": 0 },
+                    "size": { "x": 100, "y": 48 },
+                    "visible": true,
+                    "zOrder": 0,
+                    "opacity": 1.0,
+                    "enabled": true,
+                    "touchEnabled": true,
+                    "focusable": true,
+                    "text": "中",
+                    "fontSize": 20,
+                    "textColor": { "x": 1.0, "y": 1.0, "z": 1.0, "w": 1.0 },
+                    "normalTex": "assets/placeholder/ui/btn_icon_normal.png",
+                    "pressedTex": "assets/placeholder/ui/btn_icon_pressed.png"
+                  },
+                  {
+                    "type": "Button",
+                    "name": "BtnSpeedFast",
+                    "position": { "x": 0, "y": 0, "z": 0 },
+                    "size": { "x": 100, "y": 48 },
+                    "visible": true,
+                    "zOrder": 0,
+                    "opacity": 1.0,
+                    "enabled": true,
+                    "touchEnabled": true,
+                    "focusable": true,
+                    "text": "快",
+                    "fontSize": 20,
+                    "textColor": { "x": 1.0, "y": 1.0, "z": 1.0, "w": 1.0 },
+                    "normalTex": "assets/placeholder/ui/btn_icon_normal.png",
+                    "pressedTex": "assets/placeholder/ui/btn_icon_pressed.png"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "Button",
+        "name": "BtnBack",
+        "position": { "x": 0, "y": -135, "z": 0 },
+        "size": { "x": 220, "y": 56 },
+        "visible": true,
+        "zOrder": 3,
+        "opacity": 1.0,
+        "enabled": true,
+        "touchEnabled": true,
+        "focusable": true,
+        "text": "返回",
+        "fontSize": 24,
+        "textColor": { "x": 1.0, "y": 1.0, "z": 1.0, "w": 1.0 },
+        "normalTex": "assets/placeholder/ui/btn_main_normal.png",
+        "pressedTex": "assets/placeholder/ui/btn_main_pressed.png"
+      }
+    ]
+  }
+}

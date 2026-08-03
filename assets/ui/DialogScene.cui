@@ -1,0 +1,292 @@
+{
+  "version": 1,
+  "widgets": {
+    "type": "Widget",
+    "name": "Root",
+    "position": { "x": 0, "y": 0, "z": 0 },
+    "size": { "x": 1280, "y": 720 },
+    "visible": true,
+    "zOrder": 0,
+    "opacity": 1.0,
+    "enabled": true,
+    "touchEnabled": true,
+    "children": [
+      {
+        "type": "Image",
+        "name": "BgScene",
+        "position": { "x": 0, "y": 0, "z": 0 },
+        "size": { "x": 1280, "y": 720 },
+        "visible": true,
+        "zOrder": 0,
+        "opacity": 1.0,
+        "enabled": true,
+        "touchEnabled": false,
+        "texture": "assets/placeholder/backgrounds/bg_library_fire.png"
+      },
+      {
+        "type": "CanvasPanel",
+        "name": "PortraitLeft",
+        "position": { "x": -320, "y": 0, "z": 0 },
+        "size": { "x": 640, "y": 720 },
+        "visible": true,
+        "zOrder": 1,
+        "opacity": 1.0,
+        "enabled": true,
+        "touchEnabled": false,
+        "children": [
+          {
+            "type": "Sprite",
+            "name": "SpritePortraitLeft",
+            "position": { "x": 0, "y": 0, "z": 0 },
+            "size": { "x": 480, "y": 720 },
+            "visible": false,
+            "zOrder": 0,
+            "opacity": 1.0,
+            "enabled": true,
+            "touchEnabled": false,
+            "texture": "assets/placeholder/portraits/suyan_normal.png"
+          }
+        ]
+      },
+      {
+        "type": "CanvasPanel",
+        "name": "PortraitRight",
+        "position": { "x": 320, "y": 0, "z": 0 },
+        "size": { "x": 640, "y": 720 },
+        "visible": true,
+        "zOrder": 1,
+        "opacity": 1.0,
+        "enabled": true,
+        "touchEnabled": false,
+        "children": [
+          {
+            "type": "Sprite",
+            "name": "SpritePortraitRight",
+            "position": { "x": 0, "y": 0, "z": 0 },
+            "size": { "x": 480, "y": 720 },
+            "visible": false,
+            "zOrder": 0,
+            "opacity": 1.0,
+            "enabled": true,
+            "touchEnabled": false,
+            "texture": "assets/placeholder/portraits/jin_normal.png"
+          }
+        ]
+      },
+      {
+        "type": "CanvasPanel",
+        "name": "PortraitCenter",
+        "position": { "x": 0, "y": -30, "z": 0 },
+        "size": { "x": 480, "y": 720 },
+        "visible": true,
+        "zOrder": 1,
+        "opacity": 1.0,
+        "enabled": true,
+        "touchEnabled": false,
+        "children": [
+          {
+            "type": "Sprite",
+            "name": "SpritePortraitCenter",
+            "position": { "x": 0, "y": 0, "z": 0 },
+            "size": { "x": 480, "y": 720 },
+            "visible": false,
+            "zOrder": 0,
+            "opacity": 1.0,
+            "enabled": true,
+            "touchEnabled": false,
+            "texture": "assets/placeholder/portraits/yinchuan_normal.png"
+          }
+        ]
+      },
+      {
+        "type": "Image",
+        "name": "DialogBox",
+        "position": { "x": 0, "y": -260, "z": 0 },
+        "size": { "x": 640, "y": 200 },
+        "visible": true,
+        "zOrder": 2,
+        "opacity": 0.92,
+        "enabled": true,
+        "touchEnabled": false,
+        "texture": "assets/placeholder/ui/panel_9slice.png",
+        "scale9Enabled": true,
+        "capInsets": { "x": 8, "y": 8, "z": 8, "w": 8 }
+      },
+      {
+        "type": "CanvasPanel",
+        "name": "NamePlate",
+        "position": { "x": -260, "y": -138, "z": 0 },
+        "size": { "x": 120, "y": 44 },
+        "visible": true,
+        "zOrder": 3,
+        "opacity": 1.0,
+        "enabled": true,
+        "touchEnabled": false,
+        "children": [
+          {
+            "type": "Image",
+            "name": "NamePlateBg",
+            "position": { "x": 0, "y": 0, "z": 0 },
+            "size": { "x": 120, "y": 44 },
+            "visible": true,
+            "zOrder": 0,
+            "opacity": 0.9,
+            "enabled": true,
+            "touchEnabled": false,
+            "texture": "assets/placeholder/ui/panel_9slice.png",
+            "scale9Enabled": true,
+            "capInsets": { "x": 8, "y": 8, "z": 8, "w": 8 }
+          },
+          {
+            "type": "Label",
+            "name": "NameLabel",
+            "position": { "x": 0, "y": 0, "z": 0 },
+            "size": { "x": 120, "y": 44 },
+            "visible": true,
+            "zOrder": 1,
+            "opacity": 1.0,
+            "enabled": true,
+            "touchEnabled": false,
+            "text": "苏言",
+            "fontSize": 26,
+            "textColor": { "x": 1.0, "y": 1.0, "z": 1.0, "w": 1.0 }
+          }
+        ]
+      },
+      {
+        "type": "Image",
+        "name": "PortraitMini",
+        "position": { "x": -232, "y": -138, "z": 0 },
+        "size": { "x": 64, "y": 64 },
+        "visible": false,
+        "zOrder": 3,
+        "opacity": 1.0,
+        "enabled": true,
+        "touchEnabled": false,
+        "texture": "assets/placeholder/ui/portrait_frame.png"
+      },
+      {
+        "type": "Label",
+        "name": "DialogueText",
+        "position": { "x": 0, "y": -260, "z": 0 },
+        "size": { "x": 580, "y": 140 },
+        "visible": true,
+        "zOrder": 3,
+        "opacity": 1.0,
+        "enabled": true,
+        "touchEnabled": false,
+        "text": "——又见面了，守夜人。",
+        "fontSize": 28,
+        "textColor": { "x": 1.0, "y": 1.0, "z": 1.0, "w": 1.0 }
+      },
+      {
+        "type": "Sprite",
+        "name": "ArrowNext",
+        "position": { "x": 284, "y": -148, "z": 0 },
+        "size": { "x": 40, "y": 26 },
+        "visible": false,
+        "zOrder": 3,
+        "opacity": 1.0,
+        "enabled": true,
+        "touchEnabled": false,
+        "texture": "assets/placeholder/ui/arrow_next.png"
+      },
+      {
+        "type": "CanvasPanel",
+        "name": "OptionPanel",
+        "position": { "x": 0, "y": -20, "z": 0 },
+        "size": { "x": 480, "y": 296 },
+        "visible": true,
+        "zOrder": 4,
+        "opacity": 1.0,
+        "enabled": true,
+        "touchEnabled": true,
+        "children": [
+          {
+            "type": "Layout",
+            "name": "OptionLayout",
+            "position": { "x": 0, "y": 0, "z": 0 },
+            "size": { "x": 480, "y": 296 },
+            "visible": true,
+            "zOrder": 0,
+            "opacity": 1.0,
+            "enabled": true,
+            "touchEnabled": true,
+            "layoutType": "VERTICAL",
+            "spacing": 8,
+            "children": [
+              {
+                "type": "Button",
+                "name": "Option0",
+                "position": { "x": 0, "y": 0, "z": 0 },
+                "size": { "x": 480, "y": 64 },
+                "visible": false,
+                "zOrder": 0,
+                "opacity": 1.0,
+                "enabled": true,
+                "touchEnabled": true,
+                "focusable": true,
+                "text": "选项一",
+                "fontSize": 24,
+                "textColor": { "x": 1.0, "y": 1.0, "z": 1.0, "w": 1.0 },
+                "normalTex": "assets/placeholder/ui/btn_main_normal.png",
+                "pressedTex": "assets/placeholder/ui/btn_main_pressed.png"
+              },
+              {
+                "type": "Button",
+                "name": "Option1",
+                "position": { "x": 0, "y": 0, "z": 0 },
+                "size": { "x": 480, "y": 64 },
+                "visible": false,
+                "zOrder": 0,
+                "opacity": 1.0,
+                "enabled": true,
+                "touchEnabled": true,
+                "focusable": true,
+                "text": "选项二",
+                "fontSize": 24,
+                "textColor": { "x": 1.0, "y": 1.0, "z": 1.0, "w": 1.0 },
+                "normalTex": "assets/placeholder/ui/btn_main_normal.png",
+                "pressedTex": "assets/placeholder/ui/btn_main_pressed.png"
+              },
+              {
+                "type": "Button",
+                "name": "Option2",
+                "position": { "x": 0, "y": 0, "z": 0 },
+                "size": { "x": 480, "y": 64 },
+                "visible": false,
+                "zOrder": 0,
+                "opacity": 1.0,
+                "enabled": true,
+                "touchEnabled": true,
+                "focusable": true,
+                "text": "选项三",
+                "fontSize": 24,
+                "textColor": { "x": 1.0, "y": 1.0, "z": 1.0, "w": 1.0 },
+                "normalTex": "assets/placeholder/ui/btn_main_normal.png",
+                "pressedTex": "assets/placeholder/ui/btn_main_pressed.png"
+              },
+              {
+                "type": "Button",
+                "name": "Option3",
+                "position": { "x": 0, "y": 0, "z": 0 },
+                "size": { "x": 480, "y": 64 },
+                "visible": false,
+                "zOrder": 0,
+                "opacity": 1.0,
+                "enabled": true,
+                "touchEnabled": true,
+                "focusable": true,
+                "text": "选项四",
+                "fontSize": 24,
+                "textColor": { "x": 1.0, "y": 1.0, "z": 1.0, "w": 1.0 },
+                "normalTex": "assets/placeholder/ui/btn_main_normal.png",
+                "pressedTex": "assets/placeholder/ui/btn_main_pressed.png"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

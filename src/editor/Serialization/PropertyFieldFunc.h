@@ -7,6 +7,7 @@
 #include <SceneGraph/Sprite.h>
 #include <SceneGraph/Image.h>
 #include <SceneGraph/Button.h>
+#include <SceneGraph/Layout.h>
 #include <AssetManager.h>
 #include <Render/Texture.h>
 #include <algorithm>
@@ -333,4 +334,65 @@ inline std::string GetBtnTextColorA(Node* n) { return FormatFloat(static_cast<Bu
 inline void SetBtnTextColorA(Node* n, const std::string& s) {
     auto* btn = static_cast<Button*>(n);
     Vec4 c = btn->GetTextColor(); c.w = ParseFloat(s, 0.0f, 1.0f); btn->SetTextColor(c);
+}
+
+// ======================================================================
+// Layout
+// ======================================================================
+
+inline std::string GetLayoutType(Node* n) {
+    switch (static_cast<Layout*>(n)->GetLayoutType()) {
+        case Layout::Type::VERTICAL: return "VERTICAL";
+        case Layout::Type::HORIZONTAL: return "HORIZONTAL";
+        case Layout::Type::GRID: return "GRID";
+    }
+    return "VERTICAL";
+}
+
+inline void SetLayoutType(Node* n, const std::string& v) {
+    auto* layout = static_cast<Layout*>(n);
+    if (v == "HORIZONTAL") layout->SetLayoutType(Layout::Type::HORIZONTAL);
+    else if (v == "GRID") layout->SetLayoutType(Layout::Type::GRID);
+    else if (v == "VERTICAL") layout->SetLayoutType(Layout::Type::VERTICAL);
+    layout->DoLayout();
+}
+
+inline std::string GetLayoutSpacing(Node* n) { return FormatFloat(static_cast<Layout*>(n)->GetSpacing()); }
+inline void SetLayoutSpacing(Node* n, const std::string& s) {
+    static_cast<Layout*>(n)->SetSpacing(ParseFloat(s, 0.0f, 1000.0f));
+    static_cast<Layout*>(n)->DoLayout();
+}
+
+inline std::string GetLayoutGridColumns(Node* n) { return std::format("{}", static_cast<Layout*>(n)->GetGridColumns()); }
+inline void SetLayoutGridColumns(Node* n, const std::string& s) {
+    static_cast<Layout*>(n)->SetGridColumns(ParseInt(s, 1, 16));
+    static_cast<Layout*>(n)->DoLayout();
+}
+
+inline std::string GetLayoutPaddingL(Node* n) { return FormatFloat(static_cast<Layout*>(n)->GetPadding().x); }
+inline void SetLayoutPaddingL(Node* n, const std::string& s) {
+    auto* layout = static_cast<Layout*>(n);
+    Vec4 v = layout->GetPadding(); v.x = ParseFloat(s, 0.0f, 10000.0f); layout->SetPadding(v);
+    layout->DoLayout();
+}
+
+inline std::string GetLayoutPaddingT(Node* n) { return FormatFloat(static_cast<Layout*>(n)->GetPadding().y); }
+inline void SetLayoutPaddingT(Node* n, const std::string& s) {
+    auto* layout = static_cast<Layout*>(n);
+    Vec4 v = layout->GetPadding(); v.y = ParseFloat(s, 0.0f, 10000.0f); layout->SetPadding(v);
+    layout->DoLayout();
+}
+
+inline std::string GetLayoutPaddingR(Node* n) { return FormatFloat(static_cast<Layout*>(n)->GetPadding().z); }
+inline void SetLayoutPaddingR(Node* n, const std::string& s) {
+    auto* layout = static_cast<Layout*>(n);
+    Vec4 v = layout->GetPadding(); v.z = ParseFloat(s, 0.0f, 10000.0f); layout->SetPadding(v);
+    layout->DoLayout();
+}
+
+inline std::string GetLayoutPaddingB(Node* n) { return FormatFloat(static_cast<Layout*>(n)->GetPadding().w); }
+inline void SetLayoutPaddingB(Node* n, const std::string& s) {
+    auto* layout = static_cast<Layout*>(n);
+    Vec4 v = layout->GetPadding(); v.w = ParseFloat(s, 0.0f, 10000.0f); layout->SetPadding(v);
+    layout->DoLayout();
 }

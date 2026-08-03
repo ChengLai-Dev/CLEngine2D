@@ -129,6 +129,27 @@ JsonValue UISerializer::SerializeNode(Node* node) {
             label->GetTextColor().z != 1.0f || label->GetTextColor().w != 1.0f) {
             json.Set("textColor", SerializeVec4(label->GetTextColor()));
         }
+        if (label->GetHAlign() != Label::Align::Center) {
+            std::string alignStr;
+            switch (label->GetHAlign()) {
+                case Label::Align::Left: alignStr = "Left"; break;
+                case Label::Align::Right: alignStr = "Right"; break;
+                case Label::Align::Center: alignStr = "Center"; break;
+            }
+            json.Set("hAlign", JsonValue(alignStr));
+        }
+        if (label->GetVAlign() != Label::VAlign::Middle) {
+            std::string alignStr;
+            switch (label->GetVAlign()) {
+                case Label::VAlign::Top: alignStr = "Top"; break;
+                case Label::VAlign::Middle: alignStr = "Middle"; break;
+                case Label::VAlign::Bottom: alignStr = "Bottom"; break;
+            }
+            json.Set("vAlign", JsonValue(alignStr));
+        }
+        if (label->GetLineSpacing() != 1.0f) {
+            json.Set("lineSpacing", JsonValue(static_cast<double>(label->GetLineSpacing())));
+        }
         auto bg = label->GetBackground();
         if (bg && !bg->GetFilePath().empty()) {
             json.Set("background", JsonValue(bg->GetFilePath()));
@@ -265,7 +286,8 @@ Node* UISerializer::DeserializeNode(const JsonValue& json) {
         ));
     }
 
-    if (json.Get("anchor").GetType() != JsonValue::Type::Null) {
+    if (json.Get("anchor").GetType() != JsonValue::Type::Null &&
+        json.Get("anchor").Get("min").GetType() == JsonValue::Type::Null) {
         node->SetAnchor(DeserializeVec2(json.Get("anchor")));
     }
 
@@ -297,6 +319,21 @@ Node* UISerializer::DeserializeNode(const JsonValue& json) {
         if (json.Get("textColor").GetType() != JsonValue::Type::Null)
             label->SetTextColor(DeserializeVec4(json.Get("textColor")));
         SetTextureField(json, "background", [label](auto tex) { label->SetBackground(tex); });
+        if (json.Get("hAlign").GetType() != JsonValue::Type::Null) {
+            std::string alignStr = json.Get("hAlign").AsString();
+            if (alignStr == "Left") label->SetHAlign(Label::Align::Left);
+            else if (alignStr == "Right") label->SetHAlign(Label::Align::Right);
+            else if (alignStr == "Center") label->SetHAlign(Label::Align::Center);
+        }
+        if (json.Get("vAlign").GetType() != JsonValue::Type::Null) {
+            std::string alignStr = json.Get("vAlign").AsString();
+            if (alignStr == "Top") label->SetVAlign(Label::VAlign::Top);
+            else if (alignStr == "Middle") label->SetVAlign(Label::VAlign::Middle);
+            else if (alignStr == "Bottom") label->SetVAlign(Label::VAlign::Bottom);
+        }
+        if (json.Get("lineSpacing").GetType() != JsonValue::Type::Null) {
+            label->SetLineSpacing(static_cast<float>(json.Get("lineSpacing").AsNumber()));
+        }
     }
 
     if (Button* btn = dynamic_cast<Button*>(node.get())) {
@@ -354,8 +391,11 @@ Node* UISerializer::DeserializeNode(const JsonValue& json) {
         for (const JsonValue& childJson : childrenArr) {
             Node* child = DeserializeNode(childJson);
 
-            if (canvasPanel && childJson.Get("anchor").GetType() != JsonValue::Type::Null) {
-                const JsonValue& anchorJson = childJson.Get("anchor");
+            const JsonValue& anchorJson = childJson.Get("anchor");
+            bool isAnchorData = (anchorJson.GetType() != JsonValue::Type::Null &&
+                                 anchorJson.Get("min").GetType() != JsonValue::Type::Null);
+
+            if (canvasPanel && isAnchorData) {
                 FAnchorData anchorData;
                 anchorData.AnchorMin = DeserializeVec2(anchorJson.Get("min"));
                 anchorData.AnchorMax = DeserializeVec2(anchorJson.Get("max"));
@@ -415,6 +455,15 @@ bool UISerializer::SaveToFile(Node* root, const std::string& filepath) {
     return true;
 }
 
+static void AutoLayoutNode(Node* node) {
+    for (size_t i = 0; i < node->GetChildCount(); ++i) {
+        AutoLayoutNode(node->GetChild(i));
+    }
+    if (auto* layout = dynamic_cast<Layout*>(node)) {
+        layout->DoLayout();
+    }
+}
+
 Node* UISerializer::LoadFromFile(const std::string& filepath) {
     std::ifstream file(filepath);
     if (!file.is_open()) return nullptr;
@@ -427,5 +476,9 @@ Node* UISerializer::LoadFromFile(const std::string& filepath) {
     if (json.Get("version").AsInt() != 1) return nullptr;
 
     const JsonValue& widgetsJson = json.Get("widgets");
-    return DeserializeNode(widgetsJson);
+    Node* root = DeserializeNode(widgetsJson);
+    if (root) {
+        AutoLayoutNode(root);
+    }
+    return root;
 }

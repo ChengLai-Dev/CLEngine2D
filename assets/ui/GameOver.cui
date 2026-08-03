@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "widgets": {
+    "type": "Widget",
+    "name": "Root",
+    "position": { "x": 0, "y": 0, "z": 0 },
+    "size": { "x": 1280, "y": 720 },
+    "visible": true,
+    "zOrder": 0,
+    "opacity": 1.0,
+    "enabled": true,
+    "touchEnabled": true,
+    "children": [
+      {
+        "type": "Image",
+        "name": "BgGameOver",
+        "position": { "x": 0, "y": 0, "z": 0 },
+        "size": { "x": 1280, "y": 720 },
+        "visible": true,
+        "zOrder": 0,
+        "opacity": 1.0,
+        "enabled": true,
+        "touchEnabled": false,
+        "color": { "x": 0.16, "y": 0.03, "z": 0.03, "w": 1.0 }
+      },
+      {
+        "type": "Label",
+        "name": "TitleLabel",
+        "position": { "x": 0, "y": 70, "z": 0 },
+        "size": { "x": 400, "y": 80 },
+        "visible": true,
+        "zOrder": 1,
+        "opacity": 1.0,
+        "enabled": true,
+        "touchEnabled": false,
+        "text": "书页合上",
+        "fontSize": 48,
+        "textColor": { "x": 0.92, "y": 0.62, "z": 0.62, "w": 1.0 }
+      },
+      {
+        "type": "Label",
+        "name": "HintLabel",
+        "position": { "x": 0, "y": -10, "z": 0 },
+        "size": { "x": 640, "y": 40 },
+        "visible": true,
+        "zOrder": 1,
+        "opacity": 1.0,
+        "enabled": true,
+        "touchEnabled": false,
+        "text": "战斗失败，故事从这场战斗前重新开始",
+        "fontSize": 24,
+        "textColor": { "x": 0.85, "y": 0.85, "z": 0.85, "w": 1.0 }
+      },
+      {
+        "type": "Button",
+        "name": "BtnRetry",
+        "position": { "x": 0, "y": -110, "z": 0 },
+        "size": { "x": 260, "y": 56 },
+        "visible": true,
+        "zOrder": 2,
+        "opacity": 1.0,
+        "enabled": true,
+        "touchEnabled": true,
+        "focusable": true,
+        "text": "重新翻开这一页",
+        "fontSize": 24,
+        "textColor": { "x": 1.0, "y": 1.0, "z": 1.0, "w": 1.0 },
+        "normalTex": "assets/placeholder/ui/btn_main_normal.png",
+        "pressedTex": "assets/placeholder/ui/btn_main_pressed.png"
+      }
+    ]
+  }
+}

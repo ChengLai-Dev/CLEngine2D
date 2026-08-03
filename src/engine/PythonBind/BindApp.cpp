@@ -93,7 +93,7 @@ void PythonScriptApp::OnInit()
     m_renderer->Init();
 
     m_fontRenderer = std::unique_ptr<TextRenderer>(new TextRenderer());
-    if (!m_fontRenderer->LoadFont("assets/fonts/arial.ttf", 14.0f)) {
+    if (!m_fontRenderer->LoadFont("assets/fonts/NotoSansSC.ttf", 14.0f)) {
         Logger::Warn("Failed to load font, text will not be rendered");
     }
     UISystem::GetInstance().SetFontRenderer(m_fontRenderer.get());

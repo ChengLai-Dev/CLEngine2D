@@ -93,6 +93,19 @@ static const std::vector<PropertySectionDef> s_sections = {
             { "Text Color A", FieldType::Float, GetBtnTextColorA, SetBtnTextColorA, 0.0f, 1.0f },
         }
     },
+    {
+        "Layout",
+        [](Node* n) { return dynamic_cast<Layout*>(n) != nullptr; },
+        {
+            { "Type", FieldType::Enum, GetLayoutType, SetLayoutType, 0.0f, 0.0f, { "VERTICAL", "HORIZONTAL", "GRID" } },
+            { "Spacing", FieldType::Float, GetLayoutSpacing, SetLayoutSpacing, 0.0f, 1000.0f },
+            { "Grid Columns", FieldType::Int, GetLayoutGridColumns, SetLayoutGridColumns, 1.0f, 16.0f },
+            { "Padding L", FieldType::Float, GetLayoutPaddingL, SetLayoutPaddingL, 0.0f, 10000.0f },
+            { "Padding T", FieldType::Float, GetLayoutPaddingT, SetLayoutPaddingT, 0.0f, 10000.0f },
+            { "Padding R", FieldType::Float, GetLayoutPaddingR, SetLayoutPaddingR, 0.0f, 10000.0f },
+            { "Padding B", FieldType::Float, GetLayoutPaddingB, SetLayoutPaddingB, 0.0f, 10000.0f },
+        }
+    },
 };
 
 const std::vector<PropertySectionDef>& PropertyFieldRegistry::GetAll() {

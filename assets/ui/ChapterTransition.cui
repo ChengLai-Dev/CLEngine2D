@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "widgets": {
+    "type": "Widget",
+    "name": "Root",
+    "position": { "x": 0, "y": 0, "z": 0 },
+    "size": { "x": 1280, "y": 720 },
+    "visible": true,
+    "zOrder": 0,
+    "opacity": 1.0,
+    "enabled": true,
+    "touchEnabled": true,
+    "children": [
+      {
+        "type": "Image",
+        "name": "BgChapter",
+        "position": { "x": 0, "y": 0, "z": 0 },
+        "size": { "x": 1280, "y": 720 },
+        "visible": true,
+        "zOrder": 0,
+        "opacity": 1.0,
+        "enabled": true,
+        "touchEnabled": false,
+        "color": { "x": 0.05, "y": 0.08, "z": 0.18, "w": 1.0 }
+      },
+      {
+        "type": "Sprite",
+        "name": "ChapterIcon",
+        "position": { "x": 0, "y": 130, "z": 0 },
+        "size": { "x": 160, "y": 160 },
+        "visible": true,
+        "zOrder": 1,
+        "opacity": 0.9,
+        "enabled": true,
+        "touchEnabled": false,
+        "texture": "assets/placeholder/ui/logo_ring.png"
+      },
+      {
+        "type": "Label",
+        "name": "ChapterLabel",
+        "position": { "x": 0, "y": -20, "z": 0 },
+        "size": { "x": 800, "y": 96 },
+        "visible": true,
+        "zOrder": 2,
+        "opacity": 1.0,
+        "enabled": true,
+        "touchEnabled": false,
+        "text": "第二章　锈蚀之城",
+        "fontSize": 56,
+        "textColor": { "x": 1.0, "y": 0.84, "z": 0.0, "w": 1.0 }
+      }
+    ]
+  }
+}

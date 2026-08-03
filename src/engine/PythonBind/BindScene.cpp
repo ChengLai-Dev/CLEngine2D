@@ -1,4 +1,6 @@
 #include <pybind11/pybind11.h>
+#include <pybind11/functional.h>
+#include <pybind11/stl.h>
 #include <Scene.h>
 #include <AssetManager.h>
 #include <SceneGraph/Node.h>
@@ -12,6 +14,7 @@
 #include <SceneGraph/UISystem.h>
 #include <Render/Texture.h>
 #include <Render/Renderer.h>
+#include <TextRenderer.h>
 #include <Timer.h>
 #include <Logger.h>
 #include <UI/UISerializer.h>
@@ -115,7 +118,13 @@ void RegisterSceneBindings(py::module_& m)
         .def("GetTextColor", &Label::GetTextColor,
              py::return_value_policy::reference)
         .def("SetBackground", &Label::SetBackground)
-        .def("GetBackground", &Label::GetBackground);
+        .def("GetBackground", &Label::GetBackground)
+        .def("SetHAlign", &Label::SetHAlign)
+        .def("GetHAlign", &Label::GetHAlign)
+        .def("SetVAlign", &Label::SetVAlign)
+        .def("GetVAlign", &Label::GetVAlign)
+        .def("SetLineSpacing", &Label::SetLineSpacing)
+        .def("GetLineSpacing", &Label::GetLineSpacing);
 
     py::class_<CanvasPanel, Widget>(m, "CanvasPanel")
         .def(py::init<>())
@@ -146,6 +155,94 @@ void RegisterSceneBindings(py::module_& m)
         return UISerializer::LoadFromFile(filepath);
     }, "Load a .cui UI file and return the deserialized Node tree",
        py::return_value_policy::reference);
+
+    // === E1: 动态创建 UI 控件并挂载到任意已有节点 ===
+    // 生命周期由 C++ 侧持有（随父节点销毁）；Python 侧只持引用。
+    // 挂到 Layout 下后需调用 Layout.DoLayout() 生效。parent 无效时返回 None。
+
+    m.def("CreateButton", [](Node* parent, const std::string& name) -> Button* {
+        if (!parent) return nullptr;
+        auto widget = std::make_unique<Button>();
+        widget->SetName(name);
+        Button* raw = widget.get();
+        parent->AddChild(std::move(widget));
+        return raw;
+    }, py::arg("parent"), py::arg("name"),
+       "Create a Button attached to parent", py::return_value_policy::reference);
+
+    m.def("CreateLabel", [](Node* parent, const std::string& name) -> Label* {
+        if (!parent) return nullptr;
+        auto widget = std::make_unique<Label>();
+        widget->SetName(name);
+        Label* raw = widget.get();
+        parent->AddChild(std::move(widget));
+        return raw;
+    }, py::arg("parent"), py::arg("name"),
+       "Create a Label attached to parent", py::return_value_policy::reference);
+
+    m.def("CreateImage", [](Node* parent, const std::string& name) -> Image* {
+        if (!parent) return nullptr;
+        auto widget = std::make_unique<Image>();
+        widget->SetName(name);
+        Image* raw = widget.get();
+        parent->AddChild(std::move(widget));
+        return raw;
+    }, py::arg("parent"), py::arg("name"),
+       "Create an Image attached to parent", py::return_value_policy::reference);
+
+    m.def("CreateSprite", [](Node* parent, const std::string& name) -> Sprite* {
+        if (!parent) return nullptr;
+        auto widget = std::make_unique<Sprite>();
+        widget->SetName(name);
+        Sprite* raw = widget.get();
+        parent->AddChild(std::move(widget));
+        return raw;
+    }, py::arg("parent"), py::arg("name"),
+       "Create a Sprite attached to parent", py::return_value_policy::reference);
+
+    m.def("CreateCanvasPanel", [](Node* parent, const std::string& name) -> CanvasPanel* {
+        if (!parent) return nullptr;
+        auto widget = std::make_unique<CanvasPanel>();
+        widget->SetName(name);
+        CanvasPanel* raw = widget.get();
+        parent->AddChild(std::move(widget));
+        return raw;
+    }, py::arg("parent"), py::arg("name"),
+       "Create a CanvasPanel attached to parent", py::return_value_policy::reference);
+
+    m.def("CreateLayout", [](Node* parent, const std::string& name) -> Layout* {
+        if (!parent) return nullptr;
+        auto widget = std::make_unique<Layout>();
+        widget->SetName(name);
+        Layout* raw = widget.get();
+        parent->AddChild(std::move(widget));
+        return raw;
+    }, py::arg("parent"), py::arg("name"),
+       "Create a Layout attached to parent", py::return_value_policy::reference);
+
+    py::enum_<TextRenderer::Align>(m, "TextAlign")
+        .value("LEFT", TextRenderer::Align::Left)
+        .value("CENTER", TextRenderer::Align::Center)
+        .value("RIGHT", TextRenderer::Align::Right);
+
+    py::enum_<TextRenderer::VAlign>(m, "VAlign")
+        .value("TOP", TextRenderer::VAlign::Top)
+        .value("MIDDLE", TextRenderer::VAlign::Middle)
+        .value("BOTTOM", TextRenderer::VAlign::Bottom);
+
+    m.def("WrapText", [](const std::string& text, float maxWidth, float scale) {
+        TextRenderer* tr = UISystem::GetInstance().GetFontRenderer();
+        if (!tr) return std::vector<std::string>();
+        return tr->WrapString(text, maxWidth, scale);
+    }, py::arg("text"), py::arg("max_width"), py::arg("scale") = 1.0f,
+       "Wrap text to lines by max width (font scale), returns a list of lines");
+
+    m.def("MeasureText", [](const std::string& text, float scale) {
+        TextRenderer* tr = UISystem::GetInstance().GetFontRenderer();
+        if (!tr) return Vec2(0.0f, 0.0f);
+        return tr->MeasureString(text, scale);
+    }, py::arg("text"), py::arg("scale") = 1.0f,
+       "Measure text size in pixels (font scale)");
 
     py::enum_<Layout::Type>(m, "LayoutType")
         .value("VERTICAL", Layout::Type::VERTICAL)

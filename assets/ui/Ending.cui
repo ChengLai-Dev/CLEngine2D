@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "widgets": {
+    "type": "Widget",
+    "name": "Root",
+    "position": { "x": 0, "y": 0, "z": 0 },
+    "size": { "x": 1280, "y": 720 },
+    "visible": true,
+    "zOrder": 0,
+    "opacity": 1.0,
+    "enabled": true,
+    "touchEnabled": true,
+    "children": [
+      {
+        "type": "Image",
+        "name": "BgEnding",
+        "position": { "x": 0, "y": 0, "z": 0 },
+        "size": { "x": 1280, "y": 720 },
+        "visible": true,
+        "zOrder": 0,
+        "opacity": 1.0,
+        "enabled": true,
+        "touchEnabled": false,
+        "texture": "assets/placeholder/backgrounds/bg_ending_1.png"
+      },
+      {
+        "type": "Label",
+        "name": "EndingTitle",
+        "position": { "x": 0, "y": 250, "z": 0 },
+        "size": { "x": 400, "y": 80 },
+        "visible": true,
+        "zOrder": 1,
+        "opacity": 1.0,
+        "enabled": true,
+        "touchEnabled": false,
+        "text": "守望",
+        "fontSize": 56,
+        "textColor": { "x": 1.0, "y": 0.84, "z": 0.0, "w": 1.0 }
+      },
+      {
+        "type": "Label",
+        "name": "StaffRoll",
+        "position": { "x": 0, "y": -40, "z": 0 },
+        "size": { "x": 640, "y": 280 },
+        "visible": true,
+        "zOrder": 2,
+        "opacity": 1.0,
+        "enabled": true,
+        "touchEnabled": false,
+        "text": "《星环遗章》\nCLEngine2D 技术演示\n\n企划 · 脚本 · 程序\nCLEngine2D Team\n\n感谢游玩",
+        "fontSize": 24,
+        "textColor": { "x": 1.0, "y": 1.0, "z": 1.0, "w": 1.0 }
+      },
+      {
+        "type": "Button",
+        "name": "BtnBackToTitle",
+        "position": { "x": 0, "y": -300, "z": 0 },
+        "size": { "x": 220, "y": 56 },
+        "visible": false,
+        "zOrder": 3,
+        "opacity": 1.0,
+        "enabled": true,
+        "touchEnabled": true,
+        "focusable": true,
+        "text": "返回标题",
+        "fontSize": 24,
+        "textColor": { "x": 1.0, "y": 1.0, "z": 1.0, "w": 1.0 },
+        "normalTex": "assets/placeholder/ui/btn_main_normal.png",
+        "pressedTex": "assets/placeholder/ui/btn_main_pressed.png"
+      }
+    ]
+  }
+}

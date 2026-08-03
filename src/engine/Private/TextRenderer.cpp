@@ -7,9 +7,54 @@
 #include <stb_truetype.h>
 
 #include <algorithm>
+#include <cmath>
 #include <cstring>
 #include <fstream>
 #include <vector>
+
+struct StbttFontInfo {
+    stbtt_fontinfo info;
+};
+
+// 字形 alpha 对比度增强：提升中间调覆盖率，让小字号文字更实、更醒目
+static constexpr float kGlyphAlphaBoost = 0.6f;
+
+static unsigned char EnhanceGlyphAlpha(unsigned char alpha) {
+    if (alpha == 0 || alpha == 255) return alpha;
+    float boosted = std::pow(static_cast<float>(alpha) / 255.0f, kGlyphAlphaBoost);
+    return static_cast<unsigned char>(boosted * 255.0f + 0.5f);
+}
+
+static uint32_t DecodeUTF8(const char* text, size_t len, size_t& i) {
+    unsigned char c0 = static_cast<unsigned char>(text[i]);
+    if (c0 < 0x80) {
+        ++i;
+        return c0;
+    }
+    if ((c0 & 0xE0) == 0xC0 && i + 1 < len) {
+        uint32_t cp = ((c0 & 0x1Fu) << 6) |
+                      (static_cast<unsigned char>(text[i + 1]) & 0x3Fu);
+        i += 2;
+        return cp;
+    }
+    if ((c0 & 0xF0) == 0xE0 && i + 2 < len) {
+        uint32_t cp = ((c0 & 0x0Fu) << 12) |
+                      ((static_cast<unsigned char>(text[i + 1]) & 0x3Fu) << 6) |
+                      (static_cast<unsigned char>(text[i + 2]) & 0x3Fu);
+        i += 3;
+        return cp;
+    }
+    if ((c0 & 0xF8) == 0xF0 && i + 3 < len) {
+        uint32_t cp = ((c0 & 0x07u) << 18) |
+                      ((static_cast<unsigned char>(text[i + 1]) & 0x3Fu) << 12) |
+                      ((static_cast<unsigned char>(text[i + 2]) & 0x3Fu) << 6) |
+                      (static_cast<unsigned char>(text[i + 3]) & 0x3Fu);
+        i += 4;
+        return cp;
+    }
+    ++i;
+    return 0;
+}
 
 TextRenderer::TextRenderer()
     : m_glyphs(96), m_rawBearings(96, 0.0f)
@@ -34,23 +79,24 @@ bool TextRenderer::LoadFont(const std::string& filepath, float pixelHeight) {
         return false;
     }
 
-    stbtt_fontinfo fontInfo;
-    if (!stbtt_InitFont(&fontInfo, fontBuffer.data(), 0)) {
+    m_fontBuffer = std::move(fontBuffer);
+    m_fontInfo = std::make_unique<StbttFontInfo>();
+    if (!stbtt_InitFont(&m_fontInfo->info, m_fontBuffer.data(), 0)) {
         Logger::Error("TextRenderer: failed to init font '{}'", filepath);
         return false;
     }
 
     m_pixelHeight = pixelHeight;
     int ascent, descent, lineGap;
-    stbtt_GetFontVMetrics(&fontInfo, &ascent, &descent, &lineGap);
-    float scale = stbtt_ScaleForPixelHeight(&fontInfo, pixelHeight);
+    stbtt_GetFontVMetrics(&m_fontInfo->info, &ascent, &descent, &lineGap);
+    float scale = stbtt_ScaleForPixelHeight(&m_fontInfo->info, pixelHeight);
     m_ascent = ascent * scale;
     m_descent = descent * scale;
     m_lineGap = lineGap * scale;
 
     for (int i = 0; i < kCharCount; ++i) {
         int advanceWidth, leftSideBearing;
-        stbtt_GetCodepointHMetrics(&fontInfo, kFirstChar + i, &advanceWidth, &leftSideBearing);
+        stbtt_GetCodepointHMetrics(&m_fontInfo->info, kFirstChar + i, &advanceWidth, &leftSideBearing);
         m_rawBearings[static_cast<size_t>(i)] = static_cast<float>(leftSideBearing) * scale;
     }
 
@@ -59,7 +105,7 @@ bool TextRenderer::LoadFont(const std::string& filepath, float pixelHeight) {
     std::vector<unsigned char> bitmap(static_cast<size_t>(atlasW) * atlasH, 0);
 
     stbtt_bakedchar bakedChars[96];
-    int result = stbtt_BakeFontBitmap(fontBuffer.data(), 0, pixelHeight,
+    int result = stbtt_BakeFontBitmap(m_fontBuffer.data(), 0, pixelHeight,
                                       bitmap.data(), atlasW, atlasH,
                                       kFirstChar, kCharCount, bakedChars);
 
@@ -67,7 +113,7 @@ bool TextRenderer::LoadFont(const std::string& filepath, float pixelHeight) {
         atlasW = 1024;
         atlasH = 1024;
         bitmap.resize(static_cast<size_t>(atlasW) * atlasH, 0);
-        result = stbtt_BakeFontBitmap(fontBuffer.data(), 0, pixelHeight,
+        result = stbtt_BakeFontBitmap(m_fontBuffer.data(), 0, pixelHeight,
                                       bitmap.data(), atlasW, atlasH,
                                       kFirstChar, kCharCount, bakedChars);
     }
@@ -85,7 +131,7 @@ bool TextRenderer::LoadFont(const std::string& filepath, float pixelHeight) {
         rgbaBitmap[i * 4 + 0] = 255;
         rgbaBitmap[i * 4 + 1] = 255;
         rgbaBitmap[i * 4 + 2] = 255;
-        rgbaBitmap[i * 4 + 3] = bitmap[i];
+        rgbaBitmap[i * 4 + 3] = EnhanceGlyphAlpha(bitmap[i]);
     }
 
     m_atlas = std::unique_ptr<Texture>(new Texture(
@@ -138,14 +184,7 @@ void TextRenderer::RenderString(Renderer& renderer, const std::string& text,
     }
 
     if (align != Align::Left) {
-        float totalWidth = 0.0f;
-        for (size_t i = 0; i < text.size(); ++i) {
-            unsigned char c = static_cast<unsigned char>(text[i]);
-            if (c >= kFirstChar && c < kFirstChar + kCharCount) {
-                int idx = c - kFirstChar;
-                totalWidth += m_glyphs[idx].xadvance * scale;
-            }
-        }
+        float totalWidth = MeasureString(text, scale).x;
         if (align == Align::Center) {
             x -= totalWidth * 0.5f;
         } else {
@@ -155,23 +194,28 @@ void TextRenderer::RenderString(Renderer& renderer, const std::string& text,
 
     float cursorX = x;
     float cursorY = y;
+    size_t i = 0;
+    size_t len = text.size();
 
-    for (size_t i = 0; i < text.size(); ++i) {
-        unsigned char c = static_cast<unsigned char>(text[i]);
-        if (c == '\n') {
+    while (i < len) {
+        unsigned char c0 = static_cast<unsigned char>(text[i]);
+        if (c0 == '\n') {
             cursorX = x;
             cursorY += GetLineHeight(scale);
+            ++i;
             continue;
         }
 
-        if (c < static_cast<unsigned char>(kFirstChar) ||
-            c >= static_cast<unsigned char>(kFirstChar + kCharCount)) {
+        uint32_t codepoint = DecodeUTF8(text.c_str(), len, i);
+        if (codepoint == 0) continue;
+
+        const GlyphData* glyph = GetGlyph(codepoint);
+        if (!glyph) {
             cursorX += m_glyphs[0].xadvance * scale;
             continue;
         }
 
-        int idx = c - kFirstChar;
-        const GlyphData& g = m_glyphs[idx];
+        const GlyphData& g = *glyph;
 
         float charW = (g.x1 - g.x0) * scale;
         float charH = (g.y1 - g.y0) * scale;
@@ -179,13 +223,24 @@ void TextRenderer::RenderString(Renderer& renderer, const std::string& text,
         float charY = cursorY + g.yoff * scale;
 
         if (charW > 0.0f && charH > 0.0f) {
+            if (g.atlasIndex >= 0 &&
+                !m_dynBitmap.empty() &&
+                static_cast<size_t>(g.atlasIndex) >= m_dynAtlases.size()) {
+                FlushDynAtlas();
+            }
+            Texture* atlasTex = m_atlas.get();
+            if (g.atlasIndex >= 0 &&
+                static_cast<size_t>(g.atlasIndex) < m_dynAtlases.size()) {
+                atlasTex = m_dynAtlases[static_cast<size_t>(g.atlasIndex)].get();
+            }
+
             Vec3 charCenter(charX + charW * 0.5f, charY + charH * 0.5f, 0.0f);
 
             float texScaleX = (g.s1 - g.s0);
             float texScaleY = (g.t1 - g.t0);
 
             renderer.DrawQuad(charCenter, Vec3(charW, charH, 1.0f),
-                              finalColor, 0.0f, m_atlas.get(),
+                              finalColor, 0.0f, atlasTex,
                               g.s0, g.t0,
                               texScaleX, texScaleY);
         }
@@ -229,23 +284,209 @@ Vec2 TextRenderer::MeasureString(const std::string& text, float scale) const {
     float lineHeight = GetLineHeight(scale);
     float totalHeight = lineHeight;
 
-    for (size_t i = 0; i < text.size(); ++i) {
-        unsigned char c = static_cast<unsigned char>(text[i]);
-        if (c == '\n') {
+    size_t i = 0;
+    size_t len = text.size();
+    while (i < len) {
+        unsigned char c0 = static_cast<unsigned char>(text[i]);
+        if (c0 == '\n') {
             if (currentWidth > maxWidth) maxWidth = currentWidth;
             currentWidth = 0.0f;
             totalHeight += lineHeight;
+            ++i;
             continue;
         }
 
-        if (c >= kFirstChar && c < kFirstChar + kCharCount) {
-            int idx = c - kFirstChar;
-            currentWidth += m_glyphs[idx].xadvance * scale;
+        uint32_t codepoint = DecodeUTF8(text.c_str(), len, i);
+        if (codepoint == 0) continue;
+
+        const GlyphData* glyph = GetGlyph(codepoint);
+        if (glyph) {
+            currentWidth += glyph->xadvance * scale;
+        } else {
+            currentWidth += m_glyphs[0].xadvance * scale;
         }
     }
     if (currentWidth > maxWidth) maxWidth = currentWidth;
 
     return Vec2(maxWidth, totalHeight);
+}
+
+std::vector<std::string> TextRenderer::WrapString(const std::string& text,
+                                                  float maxWidth, float scale) const
+{
+    std::vector<std::string> lines;
+    if (!m_loaded || maxWidth <= 0.0f) {
+        lines.push_back(text);
+        return lines;
+    }
+
+    std::string currentLine;
+    float currentWidth = 0.0f;
+    // 最近空格断点的信息：lastBreakCharLen = 空格后位置（断点后已 append 的字符数），
+    // lastBreakWidth = 断点处（含空格）累计行宽
+    size_t lastBreakCharLen = 0;
+    float lastBreakWidth = 0.0f;
+
+    auto resetLine = [&]() {
+        currentLine.clear();
+        currentWidth = 0.0f;
+        lastBreakCharLen = 0;
+        lastBreakWidth = 0.0f;
+    };
+
+    size_t i = 0;
+    size_t len = text.size();
+    while (i < len) {
+        unsigned char c0 = static_cast<unsigned char>(text[i]);
+        if (c0 == '\n') {
+            lines.push_back(currentLine);
+            resetLine();
+            ++i;
+            continue;
+        }
+
+        size_t charStart = i;
+        uint32_t codepoint = DecodeUTF8(text.c_str(), len, i);
+        if (codepoint == 0) continue;
+
+        float charWidth = m_glyphs[0].xadvance * scale;
+        const GlyphData* glyph = GetGlyph(codepoint);
+        if (glyph) {
+            charWidth = glyph->xadvance * scale;
+        }
+
+        // 放不下时循环断行：优先回退最近空格断词，无断点则逐字断
+        while (!currentLine.empty() && currentWidth + charWidth > maxWidth) {
+            if (lastBreakCharLen > 0 && lastBreakCharLen < currentLine.size()) {
+                lines.push_back(currentLine.substr(0, lastBreakCharLen - 1));
+                currentLine.erase(0, lastBreakCharLen);
+                currentWidth -= lastBreakWidth;
+                lastBreakCharLen = 0;
+                lastBreakWidth = 0.0f;
+            } else {
+                lines.push_back(currentLine);
+                resetLine();
+            }
+        }
+
+        if (currentLine.empty()) {
+            if (codepoint == ' ') continue;  // 行首空格忽略
+            currentLine.assign(text, charStart, i - charStart);
+            currentWidth = charWidth;
+            continue;
+        }
+
+        currentLine.append(text, charStart, i - charStart);
+        currentWidth += charWidth;
+        if (codepoint == ' ') {
+            lastBreakCharLen = currentLine.size();
+            lastBreakWidth = currentWidth;
+        }
+    }
+    lines.push_back(currentLine);
+
+    return lines;
+}
+
+const TextRenderer::GlyphData* TextRenderer::GetGlyph(uint32_t codepoint) const {
+    if (codepoint >= static_cast<uint32_t>(kFirstChar) &&
+        codepoint < static_cast<uint32_t>(kFirstChar) + kCharCount) {
+        return &m_glyphs[codepoint - static_cast<uint32_t>(kFirstChar)];
+    }
+
+    auto it = m_dynGlyphs.find(codepoint);
+    if (it != m_dynGlyphs.end()) {
+        return &it->second;
+    }
+
+    auto result = m_dynGlyphs.emplace(codepoint, BakeDynamicGlyph(codepoint));
+    return &result.first->second;
+}
+
+TextRenderer::GlyphData TextRenderer::BakeDynamicGlyph(uint32_t codepoint) const {
+    GlyphData g;
+    if (!m_loaded || !m_fontInfo) return g;
+
+    float scale = stbtt_ScaleForPixelHeight(&m_fontInfo->info, m_pixelHeight);
+
+    int advanceWidth = 0, leftSideBearing = 0;
+    stbtt_GetCodepointHMetrics(&m_fontInfo->info, static_cast<int>(codepoint),
+                               &advanceWidth, &leftSideBearing);
+
+    int w = 0, h = 0, xoff = 0, yoff = 0;
+    unsigned char* bitmap = stbtt_GetCodepointBitmap(
+        &m_fontInfo->info, scale, scale, static_cast<int>(codepoint),
+        &w, &h, &xoff, &yoff);
+    if (!bitmap) {
+        g.xadvance = static_cast<float>(advanceWidth) * scale;
+        return g;
+    }
+
+    if (m_dynBitmap.empty()) {
+        m_dynBitmap.assign(static_cast<size_t>(kDynAtlasWidth) * kDynAtlasHeight, 0);
+        m_dynCursorX = 0;
+        m_dynCursorY = 0;
+        m_dynRowHeight = 0;
+    }
+
+    if (m_dynCursorX + w > kDynAtlasWidth) {
+        m_dynCursorX = 0;
+        m_dynCursorY += m_dynRowHeight + 1;
+        m_dynRowHeight = 0;
+    }
+    if (m_dynCursorY + h > kDynAtlasHeight) {
+        FlushDynAtlas();
+        m_dynBitmap.assign(static_cast<size_t>(kDynAtlasWidth) * kDynAtlasHeight, 0);
+        m_dynCursorX = 0;
+        m_dynCursorY = 0;
+        m_dynRowHeight = 0;
+    }
+
+    for (int yy = 0; yy < h; ++yy) {
+        for (int xx = 0; xx < w; ++xx) {
+            m_dynBitmap[static_cast<size_t>(m_dynCursorY + yy) * kDynAtlasWidth + (m_dynCursorX + xx)] =
+                bitmap[static_cast<size_t>(yy) * w + xx];
+        }
+    }
+
+    g.x0 = static_cast<float>(m_dynCursorX);
+    g.y0 = static_cast<float>(m_dynCursorY);
+    g.x1 = static_cast<float>(m_dynCursorX + w);
+    g.y1 = static_cast<float>(m_dynCursorY + h);
+    g.xoff = static_cast<float>(xoff);
+    g.yoff = static_cast<float>(yoff);
+    g.xadvance = static_cast<float>(advanceWidth) * scale;
+    g.atlasIndex = static_cast<int>(m_dynAtlases.size());
+
+    g.s0 = g.x0 / static_cast<float>(kDynAtlasWidth);
+    g.t0 = g.y1 / static_cast<float>(kDynAtlasHeight);
+    g.s1 = g.x1 / static_cast<float>(kDynAtlasWidth);
+    g.t1 = g.y0 / static_cast<float>(kDynAtlasHeight);
+
+    m_dynCursorX += w + 1;
+    m_dynRowHeight = (std::max)(m_dynRowHeight, h);
+
+    stbtt_FreeBitmap(bitmap, nullptr);
+    return g;
+}
+
+void TextRenderer::FlushDynAtlas() const {
+    if (m_dynBitmap.empty()) return;
+
+    std::vector<unsigned char> rgba(static_cast<size_t>(kDynAtlasWidth) * kDynAtlasHeight * 4);
+    for (int i = 0; i < kDynAtlasWidth * kDynAtlasHeight; ++i) {
+        rgba[static_cast<size_t>(i) * 4 + 0] = 255;
+        rgba[static_cast<size_t>(i) * 4 + 1] = 255;
+        rgba[static_cast<size_t>(i) * 4 + 2] = 255;
+        rgba[static_cast<size_t>(i) * 4 + 3] = EnhanceGlyphAlpha(m_dynBitmap[static_cast<size_t>(i)]);
+    }
+
+    m_dynAtlases.push_back(std::unique_ptr<Texture>(new Texture(
+        static_cast<unsigned int>(kDynAtlasWidth),
+        static_cast<unsigned int>(kDynAtlasHeight),
+        rgba.data()
+    )));
+    m_dynBitmap.clear();
 }
 
 float TextRenderer::GetGlyphBearingX(unsigned char c, float scale) const {

@@ -19,6 +19,7 @@ static constexpr float VALUE_PADDING = 6.0f;
 static constexpr float SECTION_TOP_MARGIN = 12.0f;
 static constexpr float CONTENT_TOP = 44.0f;
 static constexpr float TEXTURE_BUTTON_WIDTH = 20.0f;
+static constexpr float ENUM_BUTTON_WIDTH = 20.0f;
 
 PropertyPanel::PropertyPanel() {
     m_rectWidth = 300.0f;
@@ -35,6 +36,7 @@ void PropertyPanel::SetTarget(Node* target) {
     }
     m_target = target;
     m_scrollOffset = 0.0f;
+    m_openEnumField = -1;
     m_fields.clear();
     BuildFields();
 }
@@ -77,6 +79,7 @@ void PropertyPanel::BuildFields() {
             info.virtualY = y;
             info.minVal = field.minVal;
             info.maxVal = field.maxVal;
+            info.options = field.options;
             info.getter = [this, &field]() { return field.getter(m_target); };
             info.setter = [this, &field](const std::string& v) { field.setter(m_target, v); };
             m_fields.push_back(std::move(info));
@@ -146,10 +149,71 @@ void PropertyPanel::DrawFields(Renderer& renderer) {
 
         bool isActive = (i == m_activeFieldIndex);
         bool isBoolType = (field.type == FieldType::Bool);
+        bool isEnumType = (field.type == FieldType::Enum);
 
         DrawFieldLabel(renderer, field.label.c_str(), renderY);
 
-        if (isBoolType) {
+        if (isEnumType) {
+            bool isOpen = (i == m_openEnumField);
+            DrawFieldBackground(renderer, renderY, isOpen, true);
+            std::string text = field.getter ? field.getter() : "";
+            if (!text.empty() && m_fontRenderer) {
+                float textH = m_fontRenderer->GetLineHeight(1.0f);
+                float base = m_fontRenderer->GetBaselineOffset(1.0f);
+                float centerY = renderY + (FIELD_HEIGHT - textH) * 0.5f + base;
+                float valColor[4] = { 0.8f, 0.8f, 0.8f, 1.0f };
+                m_fontRenderer->RenderString(renderer, text,
+                    VALUE_LEFT + VALUE_PADDING, centerY, 1.0f, valColor, TextRenderer::Align::Left);
+            }
+            float btnLeft = VALUE_RIGHT - ENUM_BUTTON_WIDTH;
+            float btnColor[4] = { 0.25f, 0.25f, 0.28f, 1.0f };
+            float btnCx = btnLeft + ENUM_BUTTON_WIDTH * 0.5f;
+            float btnCy = renderY + FIELD_HEIGHT * 0.5f;
+            renderer.DrawQuad(Vec3(btnCx, btnCy, 0.0f),
+                              Vec3(ENUM_BUTTON_WIDTH - 1.0f, FIELD_HEIGHT - 2.0f, 1.0f),
+                              Color(btnColor[0], btnColor[1], btnColor[2], btnColor[3]));
+            if (m_fontRenderer) {
+                float txtColor[4] = { 0.9f, 0.9f, 0.9f, 1.0f };
+                float textH = m_fontRenderer->GetLineHeight(1.0f);
+                float base = m_fontRenderer->GetBaselineOffset(1.0f);
+                float txtY = renderY + (FIELD_HEIGHT - textH) * 0.5f + base;
+                m_fontRenderer->RenderString(renderer, "▾",
+                    btnLeft + 2.0f, txtY, 1.0f, txtColor, TextRenderer::Align::Left);
+            }
+            if (isOpen) {
+                int optIdx = 0;
+                for (const std::string& opt : field.options) {
+                    float optY = renderY + FIELD_HEIGHT + optIdx * FIELD_HEIGHT;
+                    if (optY + FIELD_HEIGHT < 0.0f || optY > m_rectHeight) { ++optIdx; continue; }
+                    bool isCurrent = (opt == text);
+                    float optBg[4];
+                    if (isCurrent) {
+                        optBg[0] = 0.18f; optBg[1] = 0.35f; optBg[2] = 0.55f; optBg[3] = 1.0f;
+                    } else {
+                        optBg[0] = 0.16f; optBg[1] = 0.16f; optBg[2] = 0.18f; optBg[3] = 1.0f;
+                    }
+                    float optCx = (VALUE_LEFT + VALUE_RIGHT) * 0.5f;
+                    float optCy = optY + FIELD_HEIGHT * 0.5f;
+                    renderer.DrawQuad(Vec3(optCx, optCy, 0.0f),
+                                      Vec3(VALUE_RIGHT - VALUE_LEFT, FIELD_HEIGHT - 1.0f, 1.0f),
+                                      Color(optBg[0], optBg[1], optBg[2], optBg[3]));
+                    if (m_fontRenderer) {
+                        float textH = m_fontRenderer->GetLineHeight(1.0f);
+                        float base = m_fontRenderer->GetBaselineOffset(1.0f);
+                        float centerY = optY + (FIELD_HEIGHT - textH) * 0.5f + base;
+                        float optColor[4];
+                        if (isCurrent) {
+                            optColor[0] = 1.0f; optColor[1] = 1.0f; optColor[2] = 1.0f; optColor[3] = 1.0f;
+                        } else {
+                            optColor[0] = 0.75f; optColor[1] = 0.75f; optColor[2] = 0.78f; optColor[3] = 1.0f;
+                        }
+                        m_fontRenderer->RenderString(renderer, opt,
+                            VALUE_LEFT + VALUE_PADDING, centerY, 1.0f, optColor, TextRenderer::Align::Left);
+                    }
+                    ++optIdx;
+                }
+            }
+        } else if (isBoolType) {
             DrawFieldBackground(renderer, renderY, false, true);
             std::string text = field.getter ? field.getter() : "";
             if (!text.empty() && m_fontRenderer) {
@@ -229,6 +293,38 @@ bool PropertyPanel::OnMouseEvent(const MouseEvent& event) {
             float localX = event.screenPos.x - m_rectLeft;
             float localY = event.screenPos.y - m_rectTop;
 
+            if (m_openEnumField >= 0) {
+                const FieldInfo& openField = m_fields[m_openEnumField];
+                float fieldRenderY = openField.virtualY - m_scrollOffset;
+                int optIdx = 0;
+                bool hitOption = false;
+                for (const std::string& opt : openField.options) {
+                    float optY = fieldRenderY + FIELD_HEIGHT + optIdx * FIELD_HEIGHT;
+                    if (localX >= VALUE_LEFT && localX <= VALUE_RIGHT &&
+                        localY >= optY && localY < optY + FIELD_HEIGHT) {
+                        hitOption = true;
+                        if (m_activeFieldIndex >= 0) CommitEdit();
+                        std::string oldVal = openField.getter ? openField.getter() : "";
+                        if (oldVal != opt) {
+                            auto setter = openField.setter;
+                            UndoRedoStack::GetInstance().ExecuteCommand(
+                                std::make_unique<PropertyChangeCommand>(
+                                    "Set " + openField.label,
+                                    [setter, opt]() { setter(opt); },
+                                    [setter, oldVal]() { setter(oldVal); }
+                                ));
+                            if (m_onPropertyChanged) m_onPropertyChanged();
+                        }
+                        m_openEnumField = -1;
+                        return true;
+                    }
+                    ++optIdx;
+                }
+                if (!hitOption) {
+                    m_openEnumField = -1;
+                }
+            }
+
             for (int i = 0; i < static_cast<int>(m_fields.size()); ++i) {
                 float fieldRenderY = m_fields[i].virtualY - m_scrollOffset;
                 if (localX >= LABEL_LEFT && localX <= VALUE_RIGHT &&
@@ -276,6 +372,12 @@ bool PropertyPanel::OnMouseEvent(const MouseEvent& event) {
                         }
                     }
 
+                    if (m_fields[i].type == FieldType::Enum) {
+                        if (m_activeFieldIndex >= 0) CommitEdit();
+                        m_openEnumField = (m_openEnumField == i) ? -1 : i;
+                        return true;
+                    }
+
                     if (i == m_activeFieldIndex) {
                         m_fields[i].editBox.OnMouseDown(m_fontRenderer, localX, VALUE_LEFT, VALUE_PADDING);
                     } else {
@@ -308,6 +410,9 @@ bool PropertyPanel::OnMouseEvent(const MouseEvent& event) {
         }
 
         case MouseEvent::Scroll: {
+            if (m_openEnumField >= 0) {
+                m_openEnumField = -1;
+            }
             float scrollAmount = event.scrollDelta * 36.0f;
             m_scrollOffset -= scrollAmount;
 

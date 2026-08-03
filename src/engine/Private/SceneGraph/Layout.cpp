@@ -45,43 +45,50 @@ void Layout::DoLayout() {
     float padRight = m_padding.z;
     float padBottom = m_padding.w;
 
+    // 内容区边界（局部坐标，锚点语义：position = 锚点位置）
+    float contentLeft = -m_anchor.x * m_contentSize.x + padLeft;
+    float contentTop = (1.0f - m_anchor.y) * m_contentSize.y - padTop;
+    float contentBottom = -m_anchor.y * m_contentSize.y + padBottom;
+
     float availW = m_contentSize.x - padLeft - padRight;
-    float availH = m_contentSize.y - padTop - padBottom;
 
     const float fillSize = 100.0f;
 
     switch (m_layoutType) {
     case Type::VERTICAL: {
-        float y = padTop;
+        float itemTop = contentTop;
         for (size_t i = 0; i < count; ++i) {
             Node* child = GetChild(i);
+            float childW = child->GetContentSize().x;
             float childH = child->GetContentSize().y;
             if (childH <= 0.0f) childH = fillSize;
 
             child->SetPosition(Vec3(
-                padLeft + child->GetContentSize().x * (child->GetAnchor().x - 0.5f),
-                y + childH * (child->GetAnchor().y - 0.5f),
+                contentLeft + childW * child->GetAnchor().x,
+                itemTop + childH * (child->GetAnchor().y - 1.0f),
                 0.0f
             ));
 
-            y += childH + m_spacing;
+            itemTop -= childH + m_spacing;
         }
         break;
     }
     case Type::HORIZONTAL: {
-        float x = padLeft;
+        float centerY = (contentTop + contentBottom) * 0.5f;
+        float itemLeft = contentLeft;
         for (size_t i = 0; i < count; ++i) {
             Node* child = GetChild(i);
             float childW = child->GetContentSize().x;
+            float childH = child->GetContentSize().y;
             if (childW <= 0.0f) childW = fillSize;
 
             child->SetPosition(Vec3(
-                x + childW * (child->GetAnchor().x - 0.5f),
-                padTop + child->GetContentSize().y * (child->GetAnchor().y - 0.5f),
+                itemLeft + childW * child->GetAnchor().x,
+                centerY + childH * (child->GetAnchor().y - 0.5f),
                 0.0f
             ));
 
-            x += childW + m_spacing;
+            itemLeft += childW + m_spacing;
         }
         break;
     }
@@ -90,20 +97,23 @@ void Layout::DoLayout() {
         if (cols <= 0) cols = 1;
         float cellW = (availW - m_spacing * (cols - 1)) / cols;
         int idx = 0;
-        float y = padTop;
+        float itemTop = contentTop;
 
         while (idx < static_cast<int>(count)) {
-            float x = padLeft;
+            float itemLeft = contentLeft;
             for (int c = 0; c < cols && idx < static_cast<int>(count); ++c, ++idx) {
                 Node* child = GetChild(idx);
+                float childW = child->GetContentSize().x;
+                float childH = child->GetContentSize().y;
+
                 child->SetPosition(Vec3(
-                    x + child->GetContentSize().x * (child->GetAnchor().x - 0.5f),
-                    y + child->GetContentSize().y * (child->GetAnchor().y - 0.5f),
+                    itemLeft + childW * child->GetAnchor().x,
+                    itemTop + childH * (child->GetAnchor().y - 1.0f),
                     0.0f
                 ));
-                x += cellW + m_spacing;
+                itemLeft += cellW + m_spacing;
             }
-            y += cellW + m_spacing;
+            itemTop -= cellW + m_spacing;
         }
         break;
     }

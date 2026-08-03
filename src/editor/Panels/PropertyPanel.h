@@ -43,6 +43,7 @@ private:
         float minVal = 0.0f;
         float maxVal = 0.0f;
         bool isTextureAsset = false;
+        std::vector<std::string> options;
         TextEditBox editBox;
     };
 
@@ -62,6 +63,7 @@ private:
     float m_contentHeight = 0.0f;
 
     int m_activeFieldIndex = -1;
+    int m_openEnumField = -1;
 
     float m_scrollOffset = 0.0f;
 

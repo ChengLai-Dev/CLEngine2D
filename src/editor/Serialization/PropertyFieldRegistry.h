@@ -6,7 +6,7 @@
 
 class Node;
 
-enum class FieldType { Float, Int, Bool, String, TextureAsset };
+enum class FieldType { Float, Int, Bool, String, TextureAsset, Enum };
 
 struct PropertyFieldDef {
     std::string label;
@@ -15,6 +15,7 @@ struct PropertyFieldDef {
     std::function<void(Node*, const std::string&)> setter;
     float minVal = -10000.0f;
     float maxVal = 10000.0f;
+    std::vector<std::string> options;
 };
 
 struct PropertySectionDef {

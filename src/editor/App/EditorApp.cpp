@@ -77,7 +77,7 @@ void EditorApp::OnInit() {
     m_renderer->Init();
 
     m_fontRenderer = std::make_unique<TextRenderer>();
-    if (!m_fontRenderer->LoadFont("assets/fonts/arial.ttf", 14.0f)) {
+    if (!m_fontRenderer->LoadFont("assets/fonts/NotoSansSC.ttf", 14.0f)) {
         Logger::Warn("Failed to load font, text will not be rendered");
     }
 
