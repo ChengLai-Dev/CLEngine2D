@@ -355,10 +355,10 @@ void EditorApp::OnRender() {
     RenderPanel(m_resourcePanel.get());
     RenderPanel(m_widgetPalette.get());
     RenderPanel(m_menuBar.get());
-    RenderPanel(m_tabBar.get());
     RenderPanel(m_canvasView.get(), true);
     RenderPanel(m_propertyPanel.get());
     RenderPanel(m_widgetTreePanel.get());
+    RenderPanel(m_tabBar.get());
     RenderPanel(m_leftDivider.get());
     RenderPanel(m_rightDivider.get());
     RenderPanel(m_leftDivider1.get());

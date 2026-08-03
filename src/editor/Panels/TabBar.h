@@ -45,6 +45,8 @@ private:
     static constexpr float MOVE_THRESHOLD = 3.0f;
     static constexpr float TAB_TEXT_LEFT = 8.0f;
     static constexpr float MAX_TEXT_WIDTH = 100.0f;
+    static constexpr float TOOLTIP_EXTRA_HEIGHT = 60.0f;
+    static constexpr float TOOLTIP_OFFSET = 12.0f;
 
     std::vector<TabInfo> m_tabs;
     int m_activeTab = -1;

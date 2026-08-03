@@ -18,7 +18,7 @@ void TabBar::SetActiveTab(int index) {
 HitRect TabBar::GetHitRect() const {
     HitRect r = { m_rectLeft, m_rectTop, m_rectWidth, m_rectHeight };
     if (m_tooltipTabIndex >= 0) {
-        r.h += 40.0f;
+        r.h += TOOLTIP_EXTRA_HEIGHT;
     }
     return r;
 }
@@ -150,17 +150,22 @@ void TabBar::OnRender(Renderer& renderer) {
             float textW = m_fontRenderer->MeasureString(tipText, scale).x;
             float tipH = lineH + 16.0f;
             float tipW = textW + 12.0f;
-            float tipX = m_mouseX;
-            if (tipX + tipW > m_rectLeft + m_rectWidth)
-                tipX = m_rectLeft + m_rectWidth - tipW;
-            if (tipX < m_rectLeft) tipX = m_rectLeft;
-            float tipY = m_rectTop + tabH + 2.0f;
+
+            float mouseLocalX = m_mouseX - m_rectLeft;
+            float mouseLocalY = m_mouseY - m_rectTop;
+            float tipX = mouseLocalX + TOOLTIP_OFFSET;
+            float tipY = mouseLocalY + TOOLTIP_OFFSET;
+
+            if (tipX + tipW > m_rectWidth)
+                tipX = mouseLocalX - tipW - TOOLTIP_OFFSET;
+            if (tipX < 0.0f) tipX = 0.0f;
+            if (tipY + tipH > GetHitRect().h)
+                tipY = mouseLocalY - tipH - TOOLTIP_OFFSET;
+            if (tipY < 0.0f) tipY = 0.0f;
 
             Color tipBg(0.05f, 0.05f, 0.08f, 0.95f);
-            Color tipBorder(0.25f, 0.25f, 0.3f, 1.0f);
             Vec3 tipPos(tipX + tipW * 0.5f, tipY + tipH * 0.5f, 0.0f);
             renderer.DrawQuad(tipPos, Vec3(tipW, tipH, 1.0f), tipBg);
-            renderer.DrawQuad(tipPos, Vec3(tipW, 1.0f, 1.0f), tipBorder);
 
             float base = m_fontRenderer->GetBaselineOffset(scale);
             m_fontRenderer->RenderString(renderer, tipText,
@@ -180,6 +185,8 @@ bool TabBar::OnMouseEvent(const MouseEvent& event) {
             m_mouseX = event.screenPos.x;
             m_mouseY = event.screenPos.y;
             if (event.button == MouseEvent::None) {
+                if (localY >= m_rectHeight) return false;
+
                 int newTab = HitTestTab(localX);
                 bool movedFar = std::abs(m_mouseX - m_lastHoverX) >= MOVE_THRESHOLD ||
                                 std::abs(m_mouseY - m_lastHoverY) >= MOVE_THRESHOLD;

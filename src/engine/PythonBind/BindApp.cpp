@@ -5,6 +5,7 @@
 #include <Scene.h>
 #include <SceneGraph/UISystem.h>
 #include <SceneGraph/Widget.h>
+#include <TextRenderer.h>
 #include <Logger.h>
 #include <Timer.h>
 #include <Audio/AudioEngine.h>
@@ -84,11 +85,21 @@ void PythonScriptApp::OnInit()
 
     m_gameCamera = std::unique_ptr<OrthographicCamera>(
         new OrthographicCamera(-16.0f, 16.0f, 9.0f, -9.0f));
+    // UI 相机以世界原点为中心，与编辑器 CanvasView 视口约定一致（.cui 数据以中心为原点）
     m_uiCamera = std::unique_ptr<OrthographicCamera>(
-        new OrthographicCamera(0.0f, 1280.0f, 720.0f, 0.0f));
+        new OrthographicCamera(-640.0f, 640.0f, 360.0f, -360.0f));
 
     m_renderer = std::unique_ptr<Renderer>(new Renderer());
     m_renderer->Init();
+
+    m_fontRenderer = std::unique_ptr<TextRenderer>(new TextRenderer());
+    if (!m_fontRenderer->LoadFont("assets/fonts/arial.ttf", 14.0f)) {
+        Logger::Warn("Failed to load font, text will not be rendered");
+    }
+    UISystem::GetInstance().SetFontRenderer(m_fontRenderer.get());
+    UISystem::GetInstance().SetUICamera(m_uiCamera.get());
+    UISystem::GetInstance().SetViewportSize(
+        GetWindow()->GetWidth(), GetWindow()->GetHeight());
 
     try {
         loadScriptFunctions();
@@ -142,11 +153,20 @@ void PythonScriptApp::OnRender()
     UISystem& ui = UISystem::GetInstance();
     Widget* uiRoot = ui.GetUIRoot();
     if (uiRoot) {
+        // UI 相机以 UI root 中心为原点、以画布尺寸为视口，与命中测试基准保持一致
+        float halfW = uiRoot->GetContentSize().x * 0.5f;
+        float halfH = uiRoot->GetContentSize().y * 0.5f;
+        m_uiCamera->SetProjection(-halfW, halfW, halfH, -halfH);
+
         Mat4 identity = Mat4::Identity();
         static_cast<Node*>(uiRoot)->Visit(*m_renderer, identity, 1.0f);
     }
 
     m_renderer->EndScene();
+}
+
+void PythonScriptApp::OnWindowResize(int width, int height) {
+    UISystem::GetInstance().SetViewportSize(width, height);
 }
 
 void PythonScriptApp::OnShutdown()

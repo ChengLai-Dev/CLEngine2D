@@ -56,12 +56,13 @@ bool Scene::LoadUI(const std::string& filepath) {
         return false;
     }
 
+    m_uiRoot.reset(uiRoot);
+
     Widget* uiWidget = dynamic_cast<Widget*>(uiRoot);
     if (uiWidget) {
         UISystem::GetInstance().SetUIRoot(uiWidget);
     }
 
-    m_root->AddChild(std::unique_ptr<Node>(uiRoot));
     Logger::Info("Scene::LoadUI: loaded {}", filepath);
     return true;
 }
@@ -70,6 +71,9 @@ void Scene::OnUpdate(float deltaTime) {
     if (m_root) {
         m_root->OnUpdate(deltaTime);
     }
+    if (m_uiRoot) {
+        m_uiRoot->OnUpdate(deltaTime);
+    }
 }
 
 void Scene::OnRender(Renderer& renderer) {
@@ -77,6 +81,10 @@ void Scene::OnRender(Renderer& renderer) {
         Mat4 identity = Mat4::Identity();
         m_root->Visit(renderer, identity, 1.0f);
     }
+}
+
+Node* Scene::GetUIRoot() const {
+    return m_uiRoot.get();
 }
 
 SceneManager& SceneManager::GetInstance() {

@@ -15,6 +15,7 @@
 #include <Timer.h>
 #include <Logger.h>
 #include <UI/UISerializer.h>
+#include <functional>
 #include <string>
 #include "BindApp.h"
 
@@ -78,7 +79,12 @@ void RegisterSceneBindings(py::module_& m)
         .def("SetTouchEnabled", &Widget::SetTouchEnabled)
         .def("IsTouchEnabled", &Widget::IsTouchEnabled)
         .def("SetFocusable", &Widget::SetFocusable)
-        .def("IsFocusable", &Widget::IsFocusable);
+        .def("IsFocusable", &Widget::IsFocusable)
+        .def("OnTouchStarted", &Widget::OnTouchStarted)
+        .def("OnTouchMoved", &Widget::OnTouchMoved)
+        .def("OnTouchEnded", &Widget::OnTouchEnded)
+        .def("OnKeyDown", &Widget::OnKeyDown)
+        .def("OnKeyUp", &Widget::OnKeyUp);
 
     py::class_<Button, Widget>(m, "Button")
         .def(py::init<>())
@@ -96,7 +102,8 @@ void RegisterSceneBindings(py::module_& m)
         .def("SetFontSize", &Button::SetFontSize)
         .def("GetFontSize", &Button::GetFontSize)
         .def("SetInteractable", &Button::SetInteractable)
-        .def("IsInteractable", &Button::IsInteractable);
+        .def("IsInteractable", &Button::IsInteractable)
+        .def("OnClicked", &Button::OnClicked);
 
     py::class_<Label, Widget>(m, "Label")
         .def(py::init<>())

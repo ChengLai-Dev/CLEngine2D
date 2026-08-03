@@ -72,8 +72,7 @@ void EditorUISystem::DispatchHover(const Vec2& pos) {
         HitRect hit = entry.panel->GetHitRect();
         if (hit.Contains(pos.x, pos.y)) {
             MouseEvent ev{ MouseEvent::Move, pos, MouseEvent::None, 0.0f };
-            entry.panel->OnMouseEvent(ev);
-            return;
+            if (entry.panel->OnMouseEvent(ev)) return;
         }
     }
 }

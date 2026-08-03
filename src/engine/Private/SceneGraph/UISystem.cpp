@@ -2,6 +2,8 @@
 #include "SceneGraph/Widget.h"
 #include "Input/InputSystem.h"
 #include "Input/RawInput.h"
+#include "Render/OrthographicCamera.h"
+#include "Math/Mat4.h"
 
 UISystem& UISystem::GetInstance() {
     static UISystem instance;
@@ -14,6 +16,25 @@ void UISystem::SetUIRoot(Widget* root) {
 
 Widget* UISystem::GetUIRoot() const {
     return m_uiRoot;
+}
+
+void UISystem::SetUICamera(const OrthographicCamera* camera) {
+    m_uiCamera = camera;
+}
+
+void UISystem::SetViewportSize(int width, int height) {
+    m_viewportWidth = static_cast<float>(width);
+    m_viewportHeight = static_cast<float>(height);
+}
+
+Vec3 UISystem::ScreenToWorld(const Vec2& screenPos) const {
+    if (m_uiCamera && m_viewportWidth > 0.0f && m_viewportHeight > 0.0f) {
+        float ndcX = screenPos.x / m_viewportWidth * 2.0f - 1.0f;
+        float ndcY = 1.0f - screenPos.y / m_viewportHeight * 2.0f;
+        Mat4 invViewProjection = Mat4::Inverse(m_uiCamera->GetViewProjectionMatrix());
+        return invViewProjection.TransformPoint(Vec3(ndcX, ndcY, 0.0f));
+    }
+    return Vec3(screenPos.x, screenPos.y, 0.0f);
 }
 
 Widget* UISystem::GetPressedWidget() const {
@@ -32,7 +53,7 @@ void UISystem::ProcessEvents() {
     if (!m_uiRoot) return;
 
     Vec2 pos2d = RawInput::GetMousePosition();
-    Vec3 mousePos(pos2d.x, pos2d.y, 0.0f);
+    Vec3 mousePos = ScreenToWorld(pos2d);
     m_lastMousePos = mousePos;
 
     bool leftDown = RawInput::IsMouseButtonDown(MouseCode::ButtonLeft);

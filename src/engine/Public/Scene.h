@@ -22,6 +22,8 @@ public:
     Node* GetRoot() const;
     void SetRoot(std::unique_ptr<Node> root);
 
+    Node* GetUIRoot() const;
+
     Sprite* CreateSprite(const Vec3& position, const Vec2& size,
                          std::shared_ptr<Texture> texture,
                          const float color[4] = nullptr,
@@ -33,6 +35,7 @@ public:
 
 private:
     std::unique_ptr<Node> m_root;
+    std::unique_ptr<Node> m_uiRoot;
 };
 
 class SceneManager {
