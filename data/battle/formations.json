@@ -1,0 +1,125 @@
+{
+  "b1": {
+    "id": "b1",
+    "name": "教学战 · 蚀页魔×2",
+    "enemies": [
+      { "enemy_id": "erosion_moth", "count": 2 }
+    ],
+    "boss": false,
+    "allow_flee": false,
+    "recommend_level": 1,
+    "interludes": [
+      {
+        "round": 1,
+        "speaker": "苏言",
+        "portrait": "suyan_normal",
+        "text": "那就是「形」——看见它翅膀上的字了吗？那些是还没被吃完的笔画。攻击，就是在替那些字报仇。先从指令栏的「攻击」开始吧。"
+      },
+      {
+        "round": 2,
+        "speaker": "苏言",
+        "portrait": "suyan_normal",
+        "text": "对，就是这样。集中打一个，它来不及还手。"
+      },
+      {
+        "round": 3,
+        "speaker": "苏言",
+        "portrait": "suyan_smile",
+        "text": "血条快见底了。结束之前再看看自己的——受伤了，就用道具里的「药草」。"
+      }
+    ],
+    "victory": "btl_b1_result",
+    "exp_reward": 0
+  },
+  "b2": {
+    "id": "b2",
+    "name": "明雷 · 雾影狼×2",
+    "enemies": [
+      { "enemy_id": "mist_wolf", "count": 2 }
+    ],
+    "boss": false,
+    "allow_flee": true,
+    "recommend_level": 2,
+    "interludes": [],
+    "victory": "btl_b2_result",
+    "exp_reward": 0
+  },
+  "b3": {
+    "id": "b3",
+    "name": "明雷 · 锈铁傀儡 + 蚀页魔×2",
+    "enemies": [
+      { "enemy_id": "rust_golem", "count": 1 },
+      { "enemy_id": "erosion_moth", "count": 2 }
+    ],
+    "boss": false,
+    "allow_flee": true,
+    "recommend_level": 3,
+    "interludes": [],
+    "victory": "btl_b3_result",
+    "exp_reward": 0
+  },
+  "b4": {
+    "id": "b4",
+    "name": "强制 · 锈铁战团长",
+    "enemies": [
+      { "enemy_id": "rust_commander", "count": 1 }
+    ],
+    "boss": false,
+    "allow_flee": false,
+    "recommend_level": 4,
+    "interludes": [],
+    "victory": "btl_b4_result",
+    "exp_reward": 0
+  },
+  "b5": {
+    "id": "b5",
+    "name": "明雷 · 静默主教 + 雾影狼×2",
+    "enemies": [
+      { "enemy_id": "silent_priest", "count": 1 },
+      { "enemy_id": "mist_wolf", "count": 2 }
+    ],
+    "boss": false,
+    "allow_flee": true,
+    "recommend_level": 5,
+    "interludes": [],
+    "victory": "btl_b5_result",
+    "exp_reward": 0
+  },
+  "b6": {
+    "id": "b6",
+    "name": "强制 · 静默司祭",
+    "enemies": [],
+    "boss": false,
+    "allow_flee": false,
+    "recommend_level": 6,
+    "interludes": [],
+    "victory": "btl_b6_result",
+    "exp_reward": 0
+  },
+  "b7": {
+    "id": "b7",
+    "name": "强制 · 无面者·伪",
+    "enemies": [
+      { "enemy_id": "faceless_false", "count": 1 }
+    ],
+    "boss": true,
+    "allow_flee": false,
+    "recommend_level": 8,
+    "interludes": [],
+    "victory": "btl_b7_result",
+    "exp_reward": 0
+  },
+  "b8": {
+    "id": "b8",
+    "name": "最终 · 无面者·真",
+    "enemies": [
+      { "enemy_id": "faceless_true", "count": 1 }
+    ],
+    "boss": true,
+    "allow_flee": false,
+    "recommend_level": 11,
+    "interludes": [],
+    "victory": "btl_b8_result",
+    "exp_reward": 0
+  }
+}

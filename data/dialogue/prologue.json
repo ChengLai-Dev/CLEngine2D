@@ -1,0 +1,485 @@
+{
+  "file": "prologue",
+  "nodes": [
+    {
+      "id": "pro_001",
+      "text": "我记不清火是怎么烧起来的。\n只记得书页在风里哗啦啦地响，像谁在叹气。",
+      "typewriter": 20
+    },
+    {
+      "id": "pro_002",
+      "text": "醒来时，大厅已经烧空了。\n穹顶的彩窗碎了一地，长椅翻倒，灰烬堆成小山。"
+    },
+    {
+      "id": "pro_002b",
+      "text": "火熄灭后的图书馆，安静得像一本书的背面。\n没有字的地方，只剩下灰。"
+    },
+    {
+      "id": "pro_003",
+      "text": "我叫尹川。\n这是我唯一记得的事。"
+    },
+    {
+      "id": "pro_004",
+      "text": "不对——我还记得另一件事。\n我守着一座图书馆，认得这里面每一本书。\n这是本能，和我失忆的脑子一样倔强。"
+    },
+    {
+      "id": "pro_005",
+      "text": "窗外的星还亮着。\n它们是这场大火里，唯一没被烧着的东西。"
+    },
+    {
+      "id": "pro_005b",
+      "text": "我试着站起来。\n膝盖上全是灰，掌心有道新疤——像被什么锋利的东西划过。"
+    },
+    {
+      "id": "pro_005c",
+      "text": "有人在这座大厅里哭过。\n灰烬里躺着一枚烧弯的钥匙，挂绳还是温的。"
+    },
+    {
+      "id": "pro_005d",
+      "text": "我把那枚烧弯的钥匙捡起来，揣进怀里。\n说不定，它还能打开某一扇门。"
+    },
+    {
+      "id": "pro_006",
+      "text": "一个人影从烟里走出来。\n旧袍落满灰，圆眼镜却擦得锃亮。\n是馆长，沈砚秋。"
+    },
+    {
+      "id": "pro_006b",
+      "text": "他咳嗽了两声，声音像翻动旧纸。\n我张了张嘴，不知该喊他馆长，还是该喊他师父。"
+    },
+    {
+      "id": "pro_007",
+      "speaker": "沈砚秋",
+      "portrait": "shenyanqiu_normal",
+      "pose": "left",
+      "text": "你醒了。\n这座图书馆烧了一整夜。只有你，和它，还活着。"
+    },
+    {
+      "id": "pro_008",
+      "speaker": "尹川",
+      "portrait": "yinchuan_normal",
+      "pose": "right",
+      "text": "馆长，火是——\n话没说完，一本没有封皮的书被塞进我怀里。"
+    },
+    {
+      "id": "pro_008b",
+      "text": "我认得他。\n哪怕不记得自己的名字，我也认得这个老人。\n是他教会我，书要轻拿轻放，像捧着一碗水。"
+    },
+    {
+      "id": "pro_009",
+      "speaker": "沈砚秋",
+      "portrait": "shenyanqiu_normal",
+      "pose": "left",
+      "text": "拿着。从今天起，它是你的。\n它没有名字。或者说，名字还没写完。"
+    },
+    {
+      "id": "pro_009b",
+      "speaker": "尹川",
+      "portrait": "yinchuan_normal",
+      "pose": "right",
+      "text": "为什么是我？\n我只是一个……连自己都忘了的管理员。"
+    },
+    {
+      "id": "pro_010",
+      "speaker": "沈砚秋",
+      "portrait": "shenyanqiu_serious",
+      "pose": "left",
+      "text": "因为只有你读得懂它。\n这本书记着你的一切。烧了它，你就真的什么都不剩了。\n听我说完。然后，忘了它。\n别让最后一行字找到你。"
+    },
+    {
+      "id": "pro_010b",
+      "speaker": "沈砚秋",
+      "portrait": "shenyanqiu_serious",
+      "pose": "left",
+      "text": "我守了一辈子书，最后让书守你一回。"
+    },
+    {
+      "id": "pro_011",
+      "text": "话音未落，馆长的指尖开始变透明。\n像纸浸了水，墨迹洇开，轮廓模糊。"
+    },
+    {
+      "id": "pro_012",
+      "speaker": "尹川",
+      "portrait": "yinchuan_surprised",
+      "pose": "right",
+      "text": "馆长——！"
+    },
+    {
+      "id": "pro_012b",
+      "text": "我想伸手拉住他。\n手穿过他的衣角，像穿过一缕没有重量的烟。"
+    },
+    {
+      "id": "pro_013",
+      "text": "沈砚秋站在原地，碎成漫天灰白的纸屑。\n纸屑落进火光里，没有发出一点声音。"
+    },
+    {
+      "id": "pro_014",
+      "text": "我低头。\n掌心里那本无名的书，自己翻开了。\n第一页上，浮现出一行字——"
+    },
+    {
+      "id": "pro_014b",
+      "text": "书页的边角烧焦了，字却一个没少。\n我数了数，书脊上只有一道浅浅的压痕——像被夹过什么。"
+    },
+    {
+      "id": "pro_015",
+      "text": "「当你读到这句话时，你已经忘了写下它的人。」"
+    },
+    {
+      "id": "pro_015b",
+      "text": "那行字亮了一会儿，又暗下去。\n像一盏等人来点的灯。"
+    },
+    {
+      "id": "pro_016",
+      "text": "书页间亮起一道光。\n少女赤足踏在焦黑的地板上，像踏进一汪浅水。"
+    },
+    {
+      "id": "pro_016b",
+      "text": "光落下来的地方，灰烬纷纷让开。\n她走得很轻，像从某一页里走出来的字。"
+    },
+    {
+      "id": "pro_017",
+      "speaker": "苏言",
+      "portrait": "suyan_normal",
+      "pose": "center",
+      "text": "——又见面了，守夜人。\n你手里的那本，是《星环遗章》吧？",
+      "typewriter": 25,
+      "bgm": "theme_suyan"
+    },
+    {
+      "id": "pro_018",
+      "speaker": "尹川",
+      "portrait": "yinchuan_surprised",
+      "pose": "right",
+      "text": "你是谁？书……怎么会说话？"
+    },
+    {
+      "id": "pro_019",
+      "speaker": "苏言",
+      "portrait": "suyan_smile",
+      "pose": "center",
+      "text": "我是这本书的卷首语。是你写下的第一行字。"
+    },
+    {
+      "id": "pro_019b",
+      "speaker": "尹川",
+      "portrait": "yinchuan_normal",
+      "pose": "right",
+      "text": "卷首语……是什么？"
+    },
+    {
+      "id": "pro_020",
+      "speaker": "尹川",
+      "portrait": "yinchuan_normal",
+      "pose": "right",
+      "text": "我写下的？可我连自己都不记得了。"
+    },
+    {
+      "id": "pro_020b",
+      "speaker": "苏言",
+      "portrait": "suyan_smile",
+      "pose": "center",
+      "text": "一本书的序，写给翻开它的人。\n你写下我的时候，大概也这样想过——想让我被谁读到。"
+    },
+    {
+      "id": "pro_020c",
+      "speaker": "尹川",
+      "portrait": "yinchuan_normal",
+      "pose": "right",
+      "text": "那你呢？书会记得自己的序吗？"
+    },
+    {
+      "id": "pro_020d",
+      "speaker": "苏言",
+      "portrait": "suyan_smile",
+      "pose": "center",
+      "text": "……会。只是序从不说出口。"
+    },
+    {
+      "id": "pro_021",
+      "speaker": "苏言",
+      "portrait": "suyan_normal",
+      "pose": "center",
+      "text": "没关系。字记得你。"
+    },
+    {
+      "id": "pro_022",
+      "speaker": "苏言",
+      "portrait": "suyan_serious",
+      "pose": "center",
+      "text": "尹川，接下来我说的话，请你一个字都不要忘。\n这世上有一种东西，叫「蚀」。\n它吃掉书页上的文字，也吃掉人脑中的记忆。"
+    },
+    {
+      "id": "pro_022b",
+      "speaker": "苏言",
+      "portrait": "suyan_serious",
+      "pose": "center",
+      "text": "蚀从《遗忘之书》里来。\n那是所有被遗忘的记忆，汇聚成的影子。"
+    },
+    {
+      "id": "pro_023",
+      "speaker": "苏言",
+      "portrait": "suyan_normal",
+      "pose": "center",
+      "text": "被它吃过的地方，文字会像被水浸过一样洇开、消失。\n然后，那些记忆会从所有人心里同时蒸发——就像从来没发生过。"
+    },
+    {
+      "id": "pro_023b",
+      "speaker": "尹川",
+      "portrait": "yinchuan_normal",
+      "pose": "right",
+      "text": "蚀……它会吃光所有书吗？"
+    },
+    {
+      "id": "pro_023c",
+      "speaker": "尹川",
+      "portrait": "yinchuan_surprised",
+      "pose": "right",
+      "text": "遗忘……也能变成吃人的东西吗？"
+    },
+    {
+      "id": "pro_024",
+      "speaker": "尹川",
+      "portrait": "yinchuan_normal",
+      "pose": "right",
+      "text": "所以馆长他……"
+    },
+    {
+      "id": "pro_024b",
+      "speaker": "苏言",
+      "portrait": "suyan_normal",
+      "pose": "center",
+      "text": "它已经吃光了大部分。\n剩下还没吃完的，都在我们脚下的这本《星环遗章》里。"
+    },
+    {
+      "id": "pro_025",
+      "speaker": "苏言",
+      "portrait": "suyan_serious",
+      "pose": "center",
+      "text": "他记得太深了。\n蚀最先咬的，就是最深的记忆。"
+    },
+    {
+      "id": "pro_025b",
+      "speaker": "苏言",
+      "portrait": "suyan_sad",
+      "pose": "center",
+      "text": "记忆是活的。\n活的东西被夺走，就会自己找回来。"
+    },
+    {
+      "id": "pro_026",
+      "speaker": "苏言",
+      "portrait": "suyan_normal",
+      "pose": "center",
+      "text": "这本书里封着五个书界。每一页，都是一段被蚀啃了一半的记忆。\n我们要赶在文字彻底消失之前，把它们夺回来。"
+    },
+    {
+      "id": "pro_026b",
+      "speaker": "苏言",
+      "portrait": "suyan_normal",
+      "pose": "center",
+      "text": "猎人、城池、王庭——五个书界，都是你写下这本书时见过的世界。"
+    },
+    {
+      "id": "pro_027",
+      "speaker": "尹川",
+      "portrait": "yinchuan_normal",
+      "pose": "right",
+      "text": "夺回来……然后呢？"
+    },
+    {
+      "id": "pro_027b",
+      "speaker": "苏言",
+      "portrait": "suyan_sad",
+      "pose": "center",
+      "text": "忘了的人不会痛。痛的是还记着的人。\n就像整座城的人忘了一场雨，只有屋顶记得。"
+    },
+    {
+      "id": "pro_028",
+      "speaker": "苏言",
+      "portrait": "suyan_smile",
+      "pose": "center",
+      "text": "然后，书页补全，记忆归位。\n世界会记得自己曾经是什么样子。\n而你，尹川——你会记得你写过什么，也会记得，你是谁。"
+    },
+    {
+      "id": "pro_029",
+      "text": "书界里的时间很慢。你在里面走一天，外面的星只挪一寸。\n所以不必急。但也不可以停。"
+    },
+    {
+      "id": "pro_029b",
+      "speaker": "苏言",
+      "portrait": "suyan_normal",
+      "pose": "center",
+      "text": "说完，她伸出手。\n掌心里躺着一枚小小的星形徽记——是图书馆的馆徽。"
+    },
+    {
+      "id": "pro_030",
+      "speaker": "苏言",
+      "portrait": "suyan_normal",
+      "pose": "center",
+      "text": "走吧。图书馆的门，只为我们开这一次。",
+      "options": [
+        {
+          "text": "跟着苏言走。",
+          "next": "pro_031a",
+          "flag_set": "aff_suyan=+1"
+        },
+        {
+          "text": "先把馆长的座椅搬正。",
+          "next": "pro_031b",
+          "flag_set": "aff_suyan=+2"
+        }
+      ]
+    },
+    {
+      "id": "pro_031a",
+      "speaker": "苏言",
+      "portrait": "suyan_smile",
+      "pose": "center",
+      "text": "你倒是干脆。\n守夜人走路从不回头。……我喜欢。"
+    },
+    {
+      "id": "pro_031b",
+      "speaker": "苏言",
+      "portrait": "suyan_smile",
+      "pose": "center",
+      "text": "苏言停在门边，静静看尹川把倒下的座椅扶正。\n你连一张空椅子，都不肯让它倒着。\n尹川，你真好懂。"
+    },
+    {
+      "id": "pro_032",
+      "speaker": "尹川",
+      "portrait": "yinchuan_serious",
+      "pose": "right",
+      "text": "走吧。去把馆长忘掉的那些字，找回来。"
+    },
+    {
+      "id": "pro_033",
+      "speaker": "苏言",
+      "portrait": "suyan_normal",
+      "pose": "center",
+      "text": "嗯。第一页，在灰雾森林。"
+    },
+    {
+      "id": "pro_033b",
+      "text": "苏言走在前面，影子拖得很长。\n我忽然觉得，她好像等这一刻，等了很久。"
+    },
+    {
+      "id": "pro_034",
+      "text": "书页在指尖发烫。\n焦黑的地板像水波一样荡开，倒映出另一片天空。"
+    },
+    {
+      "id": "pro_034b",
+      "text": "雾里有沙沙的声响，像有人在一页一页翻书。\n翻到最后一页的时候，声音停了。"
+    },
+    {
+      "id": "pro_035",
+      "speaker": "苏言",
+      "portrait": "suyan_serious",
+      "pose": "center",
+      "text": "小心。蚀的造物醒了。\n它们叫蚀页魔，是最早被吃掉的那批字的影子。\n尹川——记住，攻击之前，先看它们的「形」。",
+      "event": "battle_start",
+      "event_param": "b1",
+      "next": "battle_b1"
+    },
+    {
+      "id": "btl_b1_result",
+      "text": "蚀页魔在火光里碎成墨点，像被雨洗掉的笔画。",
+      "event": "battle_end",
+      "next": "pro_036"
+    },
+    {
+      "id": "pro_036",
+      "speaker": "苏言",
+      "portrait": "suyan_smile",
+      "pose": "center",
+      "text": "做得不错。你比这本书记得更多。"
+    },
+    {
+      "id": "pro_036b",
+      "speaker": "苏言",
+      "portrait": "suyan_normal",
+      "pose": "center",
+      "text": "手还稳吗？\n我看你刚才握书的指节，都发白了。"
+    },
+    {
+      "id": "pro_036c",
+      "speaker": "尹川",
+      "portrait": "yinchuan_normal",
+      "pose": "right",
+      "text": "稳。只是书页有点烫。"
+    },
+    {
+      "id": "pro_037",
+      "speaker": "尹川",
+      "portrait": "yinchuan_normal",
+      "pose": "right",
+      "text": "……像做过一万次的事。"
+    },
+    {
+      "id": "pro_037b",
+      "speaker": "苏言",
+      "portrait": "suyan_normal",
+      "pose": "center",
+      "text": "因为写字的人，不会忘记握笔的姿势。"
+    },
+    {
+      "id": "pro_038",
+      "speaker": "苏言",
+      "portrait": "suyan_serious",
+      "pose": "center",
+      "text": "蚀页魔的翅膀上还有字。你看见了吗？\n那是它们没吃完的部分。每打倒一只，那些字就会回来。"
+    },
+    {
+      "id": "pro_038c",
+      "speaker": "苏言",
+      "portrait": "suyan_serious",
+      "pose": "center",
+      "text": "记住这种手感。\n蚀的造物，永远用「没有字」的部分攻击你。\n而有字的部分——是它们的弱点。"
+    },
+    {
+      "id": "pro_038b",
+      "text": "第一页的空白处，慢慢长出几行细小的字。\n形状像极了蚀页魔翅膀上的笔画。"
+    },
+    {
+      "id": "pro_039",
+      "speaker": "苏言",
+      "portrait": "suyan_normal",
+      "pose": "center",
+      "text": "那本书的每一页，都是你写的。\n等你一页一页找回它们，你就知道自己是谁了。"
+    },
+    {
+      "id": "pro_039c",
+      "speaker": "尹川",
+      "portrait": "yinchuan_normal",
+      "pose": "right",
+      "text": "苏言。\n我忘掉的那二十年里，你一个人守着这本书……不冷吗？"
+    },
+    {
+      "id": "pro_039b",
+      "speaker": "苏言",
+      "portrait": "suyan_smile",
+      "pose": "center",
+      "text": "累的话，就歇一歇。书界不会跑。\n但火会。"
+    },
+    {
+      "id": "pro_040",
+      "text": "第一页在掌心亮起来，像一盏被点亮的灯。\n我听见远处的森林在呼吸。"
+    },
+    {
+      "id": "pro_040b",
+      "text": "我把书贴到胸口。纸页是温的，像一颗很小的心脏。"
+    },
+    {
+      "id": "pro_040d",
+      "text": "第一页的角落，浮出一行极淡的小字——\n『谢谢你，还记得我。』"
+    },
+    {
+      "id": "pro_040c",
+      "text": "我推开那扇虚掩的门。\n门外的雾很凉，像被谁轻轻呼出的气。"
+    },
+    {
+      "id": "pro_041",
+      "text": "第一章　灰雾森林",
+      "event": "chapter",
+      "event_param": "1",
+      "next": "ch1_001"
+    }
+  ]
+}

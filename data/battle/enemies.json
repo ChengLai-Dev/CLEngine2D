@@ -1,0 +1,198 @@
+{
+  "erosion_moth": {
+    "id": "erosion_moth",
+    "name": "蚀页魔",
+    "portrait": "assets/placeholder/enemies/erosion_moth.png",
+    "hp": 45,
+    "atk": 10,
+    "def": 5,
+    "mag": 8,
+    "mdef": 5,
+    "spd": 6,
+    "element": "暗",
+    "ai": "simple",
+    "skills": [
+      {
+        "id": "bite",
+        "name": "撕咬",
+        "type": "物理",
+        "target": "单体",
+        "multiplier": 1.0,
+        "effect": "伤害",
+        "effect_value": 0,
+        "duration": 0,
+        "chance": 1.0
+      }
+    ]
+  },
+  "mist_wolf": {
+    "id": "mist_wolf",
+    "name": "雾影狼",
+    "portrait": "assets/placeholder/enemies/mist_wolf.png",
+    "hp": 60,
+    "atk": 13,
+    "def": 4,
+    "mag": 0,
+    "mdef": 6,
+    "spd": 12,
+    "element": "无",
+    "ai": "simple",
+    "skills": [
+      {
+        "id": "shadow_pounce",
+        "name": "影扑",
+        "type": "物理",
+        "target": "单体",
+        "multiplier": 1.2,
+        "effect": "伤害",
+        "effect_value": 0,
+        "duration": 0,
+        "chance": 1.0,
+        "crit_bonus": 0.2
+      }
+    ]
+  },
+  "rust_golem": {
+    "id": "rust_golem",
+    "name": "锈铁傀儡",
+    "portrait": "assets/placeholder/enemies/rust_golem.png",
+    "hp": 90,
+    "atk": 15,
+    "def": 12,
+    "mag": 0,
+    "mdef": 8,
+    "spd": 4,
+    "element": "无",
+    "ai": "tank",
+    "skills": [
+      {
+        "id": "iron_wall",
+        "name": "铁壁",
+        "type": "物理",
+        "target": "单体",
+        "multiplier": 0.0,
+        "effect": "防御up",
+        "effect_value": 50,
+        "duration": 2,
+        "chance": 0.5
+      }
+    ]
+  },
+  "silent_priest": {
+    "id": "silent_priest",
+    "name": "静默主教",
+    "portrait": "assets/placeholder/enemies/silent_priest.png",
+    "hp": 150,
+    "atk": 18,
+    "def": 8,
+    "mag": 20,
+    "mdef": 14,
+    "spd": 9,
+    "element": "光",
+    "ai": "caster",
+    "skills": [
+      {
+        "id": "silent_prayer",
+        "name": "沉默祷言",
+        "type": "魔法",
+        "target": "单体",
+        "multiplier": 0.0,
+        "effect": "封印",
+        "effect_value": 0,
+        "duration": 2,
+        "chance": 0.4
+      },
+      {
+        "id": "holy_shot",
+        "name": "圣光弹",
+        "type": "魔法",
+        "target": "单体",
+        "multiplier": 1.3,
+        "effect": "伤害",
+        "effect_value": 0,
+        "duration": 0,
+        "chance": 0.6
+      }
+    ]
+  },
+  "faceless_false": {
+    "id": "faceless_false",
+    "name": "无面者·伪",
+    "portrait": "assets/placeholder/enemies/faceless_false.png",
+    "hp": 200,
+    "atk": 22,
+    "def": 10,
+    "mag": 24,
+    "mdef": 16,
+    "spd": 13,
+    "element": "暗",
+    "ai": "boss",
+    "skills": [
+      {
+        "id": "erode",
+        "name": "侵蚀",
+        "type": "魔法",
+        "target": "单体",
+        "multiplier": 1.4,
+        "effect": "伤害",
+        "effect_value": 0,
+        "duration": 0,
+        "chance": 0.6,
+        "extra_effect": "降攻",
+        "extra_value": 20,
+        "extra_duration": 2
+      },
+      {
+        "id": "erase",
+        "name": "抹除",
+        "type": "魔法",
+        "target": "全体",
+        "multiplier": 0.9,
+        "effect": "伤害",
+        "effect_value": 0,
+        "duration": 0,
+        "chance": 0.4
+      }
+    ]
+  },
+  "faceless_true": {
+    "id": "faceless_true",
+    "name": "无面者·真",
+    "portrait": "assets/placeholder/enemies/faceless_true.png",
+    "hp": 260,
+    "atk": 26,
+    "def": 12,
+    "mag": 30,
+    "mdef": 18,
+    "spd": 16,
+    "element": "暗",
+    "ai": "boss",
+    "skills": [
+      {
+        "id": "forget_vortex",
+        "name": "遗忘漩涡",
+        "type": "魔法",
+        "target": "全体",
+        "multiplier": 1.0,
+        "effect": "伤害",
+        "effect_value": 0,
+        "duration": 0,
+        "chance": 0.5,
+        "extra_effect": "禁SP",
+        "extra_value": 0,
+        "extra_duration": 1
+      },
+      {
+        "id": "final_page",
+        "name": "终焉之书",
+        "type": "魔法",
+        "target": "全体",
+        "multiplier": 2.0,
+        "effect": "蓄力",
+        "effect_value": 0,
+        "duration": 1,
+        "chance": 0.5
+      }
+    ]
+  }
+}

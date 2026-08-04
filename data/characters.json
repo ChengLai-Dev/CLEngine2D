@@ -1,0 +1,30 @@
+{
+  "portraits": {
+    "yinchuan_normal": { "texture": "assets/placeholder/portraits/yinchuan_normal.png", "avatar": "assets/placeholder/ui/portrait_frame.png" },
+    "yinchuan_smile": { "texture": "assets/placeholder/portraits/yinchuan_smile.png", "avatar": "assets/placeholder/ui/portrait_frame.png" },
+    "yinchuan_serious": { "texture": "assets/placeholder/portraits/yinchuan_serious.png", "avatar": "assets/placeholder/ui/portrait_frame.png" },
+    "yinchuan_surprised": { "texture": "assets/placeholder/portraits/yinchuan_surprised.png", "avatar": "assets/placeholder/ui/portrait_frame.png" },
+    "suyan_normal": { "texture": "assets/placeholder/portraits/suyan_normal.png", "avatar": "assets/placeholder/ui/portrait_frame.png" },
+    "suyan_smile": { "texture": "assets/placeholder/portraits/suyan_smile.png", "avatar": "assets/placeholder/ui/portrait_frame.png" },
+    "suyan_serious": { "texture": "assets/placeholder/portraits/suyan_serious.png", "avatar": "assets/placeholder/ui/portrait_frame.png" },
+    "suyan_sad": { "texture": "assets/placeholder/portraits/suyan_sad.png", "avatar": "assets/placeholder/ui/portrait_frame.png" },
+    "suyan_surprised": { "texture": "assets/placeholder/portraits/suyan_surprised.png", "avatar": "assets/placeholder/ui/portrait_frame.png" },
+    "suyan_tears": { "texture": "assets/placeholder/portraits/suyan_tears.png", "avatar": "assets/placeholder/ui/portrait_frame.png" },
+    "jin_normal": { "texture": "assets/placeholder/portraits/jin_normal.png", "avatar": "assets/placeholder/ui/portrait_frame.png" },
+    "jin_serious": { "texture": "assets/placeholder/portraits/jin_serious.png", "avatar": "assets/placeholder/ui/portrait_frame.png" },
+    "jin_angry": { "texture": "assets/placeholder/portraits/jin_angry.png", "avatar": "assets/placeholder/ui/portrait_frame.png" },
+    "qixia_normal": { "texture": "assets/placeholder/portraits/qixia_normal.png", "avatar": "assets/placeholder/ui/portrait_frame.png" },
+    "qixia_proud": { "texture": "assets/placeholder/portraits/qixia_proud.png", "avatar": "assets/placeholder/ui/portrait_frame.png" },
+    "qixia_panic": { "texture": "assets/placeholder/portraits/qixia_panic.png", "avatar": "assets/placeholder/ui/portrait_frame.png" },
+    "qixia_sad": { "texture": "assets/placeholder/portraits/qixia_sad.png", "avatar": "assets/placeholder/ui/portrait_frame.png" },
+    "shenyanqiu_normal": { "texture": "assets/placeholder/portraits/shenyanqiu_normal.png", "avatar": "assets/placeholder/ui/portrait_frame.png" },
+    "shenyanqiu_serious": { "texture": "assets/placeholder/portraits/shenyanqiu_serious.png", "avatar": "assets/placeholder/ui/portrait_frame.png" },
+    "faceless_false": { "texture": "assets/placeholder/portraits/faceless_false.png", "avatar": "assets/placeholder/ui/portrait_frame.png" },
+    "faceless_true": { "texture": "assets/placeholder/portraits/faceless_true.png", "avatar": "assets/placeholder/ui/portrait_frame.png" }
+  },
+  "poses": {
+    "left": { "panel": "PortraitLeft", "sprite": "SpritePortraitLeft" },
+    "center": { "panel": "PortraitCenter", "sprite": "SpritePortraitCenter" },
+    "right": { "panel": "PortraitRight", "sprite": "SpritePortraitRight" }
+  }
+}

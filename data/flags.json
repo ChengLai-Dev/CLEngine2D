@@ -1,0 +1,23 @@
+{
+  "initial": {
+    "aff_suyan": 0,
+    "aff_jin": 0,
+    "aff_qixia": 0,
+    "visited_b1": 0,
+    "visited_b2": 0,
+    "visited_b3": 0,
+    "visited_b4": 0,
+    "visited_b5": 0,
+    "visited_b6": 0,
+    "visited_b7": 0,
+    "visited_b8": 0,
+    "item_herb": 2,
+    "item_dew": 2,
+    "item_fragment": 0,
+    "chapter": 0
+  },
+  "ending": {
+    "threshold": 5,
+    "watch_extra": "aff_suyan>=5&&aff_jin>=5"
+  }
+}

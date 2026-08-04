@@ -1,0 +1,269 @@
+{
+  "yinchuan": {
+    "id": "yinchuan",
+    "name": "尹川",
+    "element": "光",
+    "level": 1,
+    "max_level": 12,
+    "base": {
+      "hp": 60,
+      "sp": 20,
+      "atk": 20,
+      "def": 8,
+      "mag": 12,
+      "mdef": 6,
+      "spd": 7
+    },
+    "growth": {
+      "hp": 12,
+      "sp": 4,
+      "atk": 2,
+      "def": 1,
+      "mag": 2,
+      "mdef": 1,
+      "spd": 1
+    },
+    "skills": [
+      {
+        "id": "light_slash",
+        "name": "光刃",
+        "power": 1.2,
+        "element": "光",
+        "type": "物理",
+        "target": "单体",
+        "effect": "伤害",
+        "effect_value": 0,
+        "duration": 0,
+        "desc": "挥出一道凝实的白光，斩击单个敌人。"
+      },
+      {
+        "id": "light_burst",
+        "name": "辉光",
+        "power": 0.8,
+        "element": "光",
+        "type": "魔法",
+        "target": "全体",
+        "effect": "伤害",
+        "effect_value": 0,
+        "duration": 0,
+        "desc": "书页间的光迸裂开来，灼烧全体敌人。"
+      },
+      {
+        "id": "mend",
+        "name": "抚书",
+        "power": 0.0,
+        "element": "光",
+        "type": "魔法",
+        "target": "单体",
+        "effect": "回复",
+        "effect_value": 30,
+        "duration": 0,
+        "desc": "以书页的温度抚平伤口，恢复我方单体 30 点 HP。",
+        "unlock_level": 4
+      }
+    ],
+    "portrait": "yinchuan_normal",
+    "avatar": "assets/placeholder/ui/portrait_frame.png"
+  },
+  "suyan": {
+    "id": "suyan",
+    "name": "苏言",
+    "element": "水",
+    "level": 1,
+    "max_level": 12,
+    "base": {
+      "hp": 48,
+      "sp": 30,
+      "atk": 8,
+      "def": 5,
+      "mag": 20,
+      "mdef": 10,
+      "spd": 6
+    },
+    "growth": {
+      "hp": 12,
+      "sp": 4,
+      "atk": 2,
+      "def": 1,
+      "mag": 2,
+      "mdef": 1,
+      "spd": 1
+    },
+    "skills": [
+      {
+        "id": "water_shard",
+        "name": "水刃",
+        "power": 1.2,
+        "element": "水",
+        "type": "魔法",
+        "target": "单体",
+        "effect": "伤害",
+        "effect_value": 0,
+        "duration": 0,
+        "desc": "凝水成刃，切开单个敌人。"
+      },
+      {
+        "id": "tidal_wave",
+        "name": "潮涌",
+        "power": 0.8,
+        "element": "水",
+        "type": "魔法",
+        "target": "全体",
+        "effect": "伤害",
+        "effect_value": 0,
+        "duration": 0,
+        "desc": "卷起书页般的浪潮，拍击全体敌人。"
+      },
+      {
+        "id": "chill",
+        "name": "寒息",
+        "power": 0.0,
+        "element": "水",
+        "type": "魔法",
+        "target": "单体",
+        "effect": "减速",
+        "effect_value": 20,
+        "duration": 2,
+        "desc": "以寒息凝滞敌人的脚步，降低其速度 2 回合。",
+        "unlock_level": 5
+      }
+    ],
+    "portrait": "suyan_normal",
+    "avatar": "assets/placeholder/ui/portrait_frame.png"
+  },
+  "jin": {
+    "id": "jin",
+    "name": "烬",
+    "element": "火",
+    "level": 1,
+    "max_level": 12,
+    "base": {
+      "hp": 75,
+      "sp": 15,
+      "atk": 24,
+      "def": 10,
+      "mag": 5,
+      "mdef": 5,
+      "spd": 5
+    },
+    "growth": {
+      "hp": 12,
+      "sp": 4,
+      "atk": 2,
+      "def": 1,
+      "mag": 2,
+      "mdef": 1,
+      "spd": 1
+    },
+    "skills": [
+      {
+        "id": "blaze_slash",
+        "name": "破锋斩",
+        "power": 1.6,
+        "element": "火",
+        "type": "物理",
+        "target": "单体",
+        "effect": "伤害",
+        "effect_value": 0,
+        "duration": 0,
+        "desc": "刀锋燃起余烬，重创单个敌人。"
+      },
+      {
+        "id": "armor_break",
+        "name": "裂甲斩",
+        "power": 1.0,
+        "element": "火",
+        "type": "物理",
+        "target": "单体",
+        "effect": "伤害",
+        "effect_value": 0,
+        "duration": 0,
+        "desc": "斩裂敌人的甲胄，造成伤害并降低其防御 2 回合。",
+        "extra_effect": "降防",
+        "extra_value": 20,
+        "extra_duration": 2
+      },
+      {
+        "id": "steel_body",
+        "name": "钢躯",
+        "power": 0.0,
+        "element": "火",
+        "type": "物理",
+        "target": "单体",
+        "effect": "防御up",
+        "effect_value": 50,
+        "duration": 2,
+        "desc": "以战意覆盖全身，自身防御提升 50%，持续 2 回合。",
+        "unlock_level": 4
+      }
+    ],
+    "portrait": "jin_normal",
+    "avatar": "assets/placeholder/ui/portrait_frame.png"
+  },
+  "qixia": {
+    "id": "qixia",
+    "name": "栖霞",
+    "element": "雷",
+    "level": 1,
+    "max_level": 12,
+    "base": {
+      "hp": 55,
+      "sp": 28,
+      "atk": 10,
+      "def": 7,
+      "mag": 15,
+      "mdef": 8,
+      "spd": 9
+    },
+    "growth": {
+      "hp": 12,
+      "sp": 4,
+      "atk": 2,
+      "def": 1,
+      "mag": 2,
+      "mdef": 1,
+      "spd": 1
+    },
+    "skills": [
+      {
+        "id": "thunder_crash",
+        "name": "雷轰",
+        "power": 0.9,
+        "element": "雷",
+        "type": "魔法",
+        "target": "全体",
+        "effect": "伤害",
+        "effect_value": 0,
+        "duration": 0,
+        "desc": "机关臂引落雷光，轰击全体敌人。"
+      },
+      {
+        "id": "haste",
+        "name": "疾风",
+        "power": 0.0,
+        "element": "雷",
+        "type": "魔法",
+        "target": "单体",
+        "effect": "速度up",
+        "effect_value": 20,
+        "duration": 2,
+        "desc": "为同伴注入机关之风，速度提升 2 回合。"
+      },
+      {
+        "id": "barrier",
+        "name": "护盾",
+        "power": 0.0,
+        "element": "雷",
+        "type": "魔法",
+        "target": "单体",
+        "effect": "护盾",
+        "effect_value": 30,
+        "duration": 1,
+        "desc": "展开一层雷光屏障，为我方单体吸收 30 点伤害。",
+        "unlock_level": 5
+      }
+    ],
+    "portrait": "qixia_normal",
+    "avatar": "assets/placeholder/ui/portrait_frame.png"
+  }
+}

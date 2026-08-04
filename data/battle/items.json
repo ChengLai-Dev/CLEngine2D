@@ -1,0 +1,29 @@
+{
+  "herb": {
+    "id": "herb",
+    "name": "药草",
+    "desc": "恢复 60 点 HP。",
+    "icon": "assets/placeholder/ui/icon_item_herb.png",
+    "effect_type": "heal_hp",
+    "effect_value": 60,
+    "usable_in_battle": true
+  },
+  "dew": {
+    "id": "dew",
+    "name": "凝露",
+    "desc": "恢复 30 点 SP。",
+    "icon": "assets/placeholder/ui/icon_item_dew.png",
+    "effect_type": "heal_sp",
+    "effect_value": 30,
+    "usable_in_battle": true
+  },
+  "fragment": {
+    "id": "fragment",
+    "name": "记忆碎片",
+    "desc": "书界恢复时掉落的记忆残影，收进书里封存。",
+    "icon": "assets/placeholder/ui/icon_item_fragment.png",
+    "effect_type": "story",
+    "effect_value": 0,
+    "usable_in_battle": false
+  }
+}
