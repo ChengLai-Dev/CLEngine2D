@@ -13,7 +13,7 @@ from CLEngine.Math import Vec2
 from CLEngine.SceneGraph import Scene, SceneManager, UISystem
 
 from components.Tweener import Tweener
-from game.GameState import GameState
+from game.GameState import GameState, SPEED_PRESETS
 
 # 档位按钮（控件契约）：慢/中/快 = 20/30/45
 SPEED_BUTTONS = {"slow": "BtnSpeedSlow", "normal": "BtnSpeedNormal", "fast": "BtnSpeedFast"}
@@ -97,7 +97,7 @@ class SettingsScene:
         for preset, btn in self.speed_buttons.items():
             if btn is None:
                 continue
-            value = GameState.SPEED_PRESETS.get(preset, 30)
+            value = SPEED_PRESETS.get(preset, 30)
             btn.SetOpacity(1.0 if value == current else 0.5)
 
     # ---------- 返回 ----------
