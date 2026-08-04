@@ -42,7 +42,8 @@
     "recommend_level": 2,
     "interludes": [],
     "victory": "btl_b2_result",
-    "exp_reward": 0
+    "exp_reward": 35,
+    "bg": "assets/placeholder/backgrounds/bg_forest_1.png"
   },
   "b3": {
     "id": "b3",
@@ -54,9 +55,23 @@
     "boss": false,
     "allow_flee": true,
     "recommend_level": 3,
-    "interludes": [],
+    "interludes": [
+      {
+        "round": 1,
+        "speaker": "苏言",
+        "portrait": "suyan_normal",
+        "text": "看中间那只——锈铁傀儡。它是整座城的记忆铸成的壳，防御厚得咬不动。先别管它，把两边会咬人的字先清掉。"
+      },
+      {
+        "round": 3,
+        "speaker": "烬",
+        "portrait": "jin_serious",
+        "text": "壳再厚，也有缝。破防的斩击留着，等它立起铁壁再劈——一刀下去，它就知道什么叫疼。"
+      }
+    ],
     "victory": "btl_b3_result",
-    "exp_reward": 0
+    "exp_reward": 40,
+    "bg": "assets/placeholder/backgrounds/bg_city_1.png"
   },
   "b4": {
     "id": "b4",
@@ -67,34 +82,84 @@
     "boss": false,
     "allow_flee": false,
     "recommend_level": 4,
-    "interludes": [],
+    "interludes": [
+      {
+        "round": 1,
+        "speaker": "栖霞",
+        "portrait": "qixia_normal",
+        "text": "小心！那身铁甲是活的——它会像守军一样列阵、加防。趁它还没来得及把城铸进甲里，先废掉它的刀。"
+      },
+      {
+        "round": 2,
+        "speaker": "烬",
+        "portrait": "jin_serious",
+        "text": "铁壁一立，就换裂甲斩。甲碎了，人也就跟着碎了。"
+      },
+      {
+        "round": 4,
+        "speaker": "苏言",
+        "portrait": "suyan_smile",
+        "text": "撑住。这座城守了三十天——今天轮到我们替它守完最后三回合。"
+      }
+    ],
     "victory": "btl_b4_result",
-    "exp_reward": 0
+    "exp_reward": 80,
+    "bg": "assets/placeholder/backgrounds/bg_city_1.png"
   },
   "b5": {
     "id": "b5",
     "name": "明雷 · 静默主教 + 雾影狼×2",
     "enemies": [
-      { "enemy_id": "silent_priest", "count": 1 },
+      { "enemy_id": "silent_bishop", "count": 1 },
       { "enemy_id": "mist_wolf", "count": 2 }
     ],
     "boss": false,
     "allow_flee": true,
     "recommend_level": 5,
-    "interludes": [],
+    "interludes": [
+      {
+        "round": 1,
+        "speaker": "苏言",
+        "portrait": "suyan_serious",
+        "text": "主教在念祷言——那会让你们说不出招式。被它点名的人，先退后防御，让没被封住的人打。"
+      },
+      {
+        "round": 3,
+        "speaker": "栖霞",
+        "portrait": "qixia_normal",
+        "text": "我拆过它的祷文：封住的只是「招式」，不是「拳头」。普攻也能把它敲到闭嘴。"
+      }
+    ],
     "victory": "btl_b5_result",
-    "exp_reward": 0
+    "exp_reward": 45,
+    "bg": "assets/placeholder/backgrounds/bg_throne_1.png"
   },
   "b6": {
     "id": "b6",
     "name": "强制 · 静默司祭",
-    "enemies": [],
+    "enemies": [
+      { "enemy_id": "silent_priest", "count": 2 }
+    ],
     "boss": false,
     "allow_flee": false,
     "recommend_level": 6,
-    "interludes": [],
+    "interludes": [
+      {
+        "round": 1,
+        "speaker": "烬",
+        "portrait": "jin_serious",
+        "text": "两个祷者。一起念，就是两道锁。别让封印同时落在一人身上——轮着扛。"
+      },
+      {
+        "round": 3,
+        "speaker": "苏言",
+        "portrait": "suyan_smile",
+        "text": "全体的一击，能同时打断两个人的祷言。记住：雨落下来，火才会熄。"
+      }
+    ],
     "victory": "btl_b6_result",
-    "exp_reward": 0
+    "exp_reward": 70,
+    "bg": "assets/placeholder/backgrounds/bg_throne_1.png"
   },
   "b7": {
     "id": "b7",
@@ -107,7 +172,8 @@
     "recommend_level": 8,
     "interludes": [],
     "victory": "btl_b7_result",
-    "exp_reward": 0
+    "exp_reward": 100,
+    "bg": "assets/placeholder/backgrounds/bg_ring_top.png"
   },
   "b8": {
     "id": "b8",
@@ -120,6 +186,7 @@
     "recommend_level": 11,
     "interludes": [],
     "victory": "btl_b8_result",
-    "exp_reward": 0
+    "exp_reward": 120,
+    "bg": "assets/placeholder/backgrounds/bg_ring_top.png"
   }
 }

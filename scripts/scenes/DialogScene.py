@@ -109,7 +109,7 @@ class DialogScene:
         params = params or {}
         resume_node = params.get("resume_node")
         if resume_node:
-            # 战斗胜利后返回：从 battle_end 节点继续
+            # 战斗胜利/探索返回：从指定节点继续
             self.dialog.start(self.game_state.dialogue_file, resume_node)
             self._show_current()
             return
@@ -155,6 +155,9 @@ class DialogScene:
         event, event_param = self.dialog.get_event()
         if event == "battle_start":
             self._trigger_battle(event_param)
+            return
+        if event == "enter_scene":
+            self._trigger_explore(event_param)
             return
         if event == "chapter":
             self._trigger_chapter(event_param)
@@ -307,8 +310,22 @@ class DialogScene:
             self._on_advance_fallback()
             return
         self.game_state.set_battle_return(formation.get("victory"))
+        self.game_state.battle_source = "dialog"
         self.state = "event"
         self.main_ref.push("battle", {"formation": formation_id})
+
+    def _trigger_explore(self, scene_id):
+        """enter_scene：记录返回节点（当前节点的 next），push ExploreScene。"""
+        node = self.dialog.get_node()
+        if node is None:
+            self._on_advance_fallback()
+            return
+        next_id = node.get("next")
+        if not next_id:
+            next_id = self.dialog._resolve_next(node)
+        self.game_state.explore_return_node = next_id
+        self.state = "event"
+        self.main_ref.push("explore", {"scene": scene_id})
 
     def _trigger_chapter(self, chapter_no):
         """chapter：AddUI 叠加 ChapterTransition.cui，淡入淡出后继续。"""

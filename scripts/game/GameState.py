@@ -37,6 +37,8 @@ class GameState:
         self.dialogue_file = None
         self.dialogue_node = None
         self.battle_return_node = None   # 战斗胜利后回 DialogScene 从该节点继续
+        self.battle_source = "dialog"    # 战斗来源："dialog"（剧情强制）/ "explore"（明雷）
+        self.explore_return_node = None  # 探索返回 DialogScene 的节点（enter_scene 的 next）
         self.battle_snapshot = None      # 战前队伍快照（GameOver 重试恢复）
         self.battle_result = None        # 战斗结果缓存（ResultScene 读取）
         self.settings = {"text_speed": 30}   # 中速（D-07 档位：慢/中/快 = 20/30/45）
@@ -64,6 +66,8 @@ class GameState:
         self.dialogue_file = None
         self.dialogue_node = None
         self.battle_return_node = None
+        self.battle_source = "dialog"
+        self.explore_return_node = None
         self.battle_snapshot = None
         self.battle_result = None
         self.formation_id = None
@@ -85,6 +89,14 @@ class GameState:
 
     def apply_flag_set(self, expr):
         Flags.apply_set(expr, self.flags)
+        self.check_party_join()
+
+    def check_party_join(self):
+        """角色入队钩子：flag jin_joined/qixia_joined 置位后自动解锁入队（幂等）。"""
+        if self.flags.get("jin_joined", 0) > 0 and "jin" not in self.party:
+            self.add_party_member("jin")
+        if self.flags.get("qixia_joined", 0) > 0 and "qixia" not in self.party:
+            self.add_party_member("qixia")
 
     # ---------- 队伍状态 ----------
 
@@ -121,18 +133,23 @@ class GameState:
         return result
 
     def add_party_member(self, pid):
-        """按剧情解锁新队友（烬/栖霞），以 1 级初始状态入队。"""
+        """按剧情解锁新队友（烬/栖霞），以当前队伍最高等级入队（追平，避免拖后腿）。"""
         if pid in self.party:
             return
         p = DataLoader.get_players().get(pid)
         if p is None:
             return
         base = p.get("base", {})
+        levels = [m.get("level", 1) for m in self.party.values()]
+        level = max(levels) if levels else p.get("level", 1)
+        stats = {}
+        for key in ("hp", "sp", "atk", "def", "mag", "mdef", "spd"):
+            stats[key] = base.get(key, 0) + p.get("growth", {}).get(key, 0) * (level - 1)
         self.party[pid] = {
-            "level": p.get("level", 1),
+            "level": level,
             "exp": 0,
-            "hp": base.get("hp", 1),
-            "sp": base.get("sp", 0),
+            "hp": stats.get("hp", 1),
+            "sp": stats.get("sp", 0),
         }
 
     # ---------- 道具（经 flags 表） ----------
@@ -163,12 +180,22 @@ class GameState:
     # ---------- 战斗快照 / 结果 ----------
 
     def snapshot_party(self):
-        """战前队伍快照（HP/SP/等级/经验），GameOver 重试恢复用。"""
-        self.battle_snapshot = copy.deepcopy(self.party)
+        """战前快照（队伍 HP/SP/等级/经验 + 道具数量），GameOver 重试恢复用。"""
+        items = {}
+        for key in ("item_herb", "item_dew", "item_fragment"):
+            items[key] = self.flags.get(key, 0)
+        self.battle_snapshot = {
+            "party": copy.deepcopy(self.party),
+            "items": items,
+        }
 
     def restore_party_snapshot(self):
-        if self.battle_snapshot is not None:
-            self.party = copy.deepcopy(self.battle_snapshot)
+        """恢复战前快照：队伍状态与道具数量一并回滚。"""
+        if self.battle_snapshot is None:
+            return
+        self.party = copy.deepcopy(self.battle_snapshot.get("party", {}))
+        for key, value in self.battle_snapshot.get("items", {}).items():
+            self.flags[key] = value
 
     def set_battle_result(self, result):
         self.battle_result = result

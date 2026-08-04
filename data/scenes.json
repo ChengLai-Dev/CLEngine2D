@@ -1,0 +1,58 @@
+{
+  "forest": {
+    "id": "forest",
+    "bg": "assets/placeholder/backgrounds/bg_forest_1.png",
+    "title": "林间空地",
+    "hotspots": [
+      {
+        "text": "芦苇荡边",
+        "action": "dialogue",
+        "target": "ch1_053"
+      },
+      {
+        "text": "雾的深处",
+        "action": "dialogue",
+        "target": "ch1_053"
+      },
+      {
+        "text": "回木屋的路",
+        "action": "dialogue",
+        "target": "ch1_053"
+      }
+    ],
+    "enemy": {
+      "name": "雾影狼",
+      "texture": "assets/placeholder/enemies/mist_wolf.png",
+      "formation": "b2"
+    },
+    "return_node": "ch1_053"
+  },
+  "city": {
+    "id": "city",
+    "bg": "assets/placeholder/backgrounds/bg_city_1.png",
+    "title": "城门废墟",
+    "hotspots": [
+      {
+        "text": "翻开的书页",
+        "action": "battle",
+        "formation": "b3"
+      },
+      {
+        "text": "城门废墟",
+        "action": "dialogue",
+        "target": "ch2_030"
+      },
+      {
+        "text": "断墙边",
+        "action": "dialogue",
+        "target": "ch2_030"
+      }
+    ],
+    "enemy": {
+      "name": "蚀页魔",
+      "texture": "assets/placeholder/enemies/erosion_moth.png",
+      "formation": "b3"
+    },
+    "return_node": "ch2_030"
+  }
+}

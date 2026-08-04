@@ -78,8 +78,48 @@
       }
     ]
   },
-  "silent_priest": {
-    "id": "silent_priest",
+  "rust_commander": {
+    "id": "rust_commander",
+    "name": "锈铁战团长",
+    "portrait": "assets/placeholder/enemies/rust_commander.png",
+    "hp": 150,
+    "atk": 20,
+    "def": 14,
+    "mag": 6,
+    "mdef": 10,
+    "spd": 8,
+    "element": "无",
+    "ai": "tank",
+    "skills": [
+      {
+        "id": "armor_break_strike",
+        "name": "裂甲斩",
+        "type": "物理",
+        "target": "单体",
+        "multiplier": 1.3,
+        "effect": "伤害",
+        "effect_value": 0,
+        "duration": 0,
+        "chance": 0.6,
+        "extra_effect": "降防",
+        "extra_value": 20,
+        "extra_duration": 2
+      },
+      {
+        "id": "iron_wall_2",
+        "name": "铁壁",
+        "type": "物理",
+        "target": "单体",
+        "multiplier": 0.0,
+        "effect": "防御up",
+        "effect_value": 50,
+        "duration": 2,
+        "chance": 0.4
+      }
+    ]
+  },
+  "silent_bishop": {
+    "id": "silent_bishop",
     "name": "静默主教",
     "portrait": "assets/placeholder/enemies/silent_priest.png",
     "hp": 150,
@@ -104,6 +144,43 @@
       },
       {
         "id": "holy_shot",
+        "name": "圣光弹",
+        "type": "魔法",
+        "target": "单体",
+        "multiplier": 1.3,
+        "effect": "伤害",
+        "effect_value": 0,
+        "duration": 0,
+        "chance": 0.6
+      }
+    ]
+  },
+  "silent_priest": {
+    "id": "silent_priest",
+    "name": "静默司祭",
+    "portrait": "assets/placeholder/enemies/silent_priest.png",
+    "hp": 180,
+    "atk": 14,
+    "def": 10,
+    "mag": 24,
+    "mdef": 16,
+    "spd": 10,
+    "element": "光",
+    "ai": "caster",
+    "skills": [
+      {
+        "id": "silent_prayer_2",
+        "name": "沉默祷言",
+        "type": "魔法",
+        "target": "单体",
+        "multiplier": 0.0,
+        "effect": "封印",
+        "effect_value": 0,
+        "duration": 2,
+        "chance": 0.4
+      },
+      {
+        "id": "holy_shot_2",
         "name": "圣光弹",
         "type": "魔法",
         "target": "单体",

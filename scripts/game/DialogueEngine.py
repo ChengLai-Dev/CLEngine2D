@@ -91,24 +91,42 @@ class DialogueEngine:
     def _resolve_next(self, node):
         if node.get("next"):
             return node["next"]
-        # 数组顺序：找当前节点在 nodes 列表中的位置，取下一项
+        # 数组顺序：向后扫描，跳过 flag_require 不满足的节点（差分并排节点用）
         data = DataLoader.get_dialogue(self.file)
         if data is None:
             return None
         nodes = data.get("nodes", [])
         for i, n in enumerate(nodes):
             if n.get("id") == self.node_id:
-                if i + 1 < len(nodes):
-                    return nodes[i + 1].get("id")
+                for j in range(i + 1, len(nodes)):
+                    candidate = nodes[j]
+                    if self.game_state.eval_flag_require(candidate.get("flag_require")):
+                        return candidate.get("id")
                 return None
         return None
 
     def _jump(self, target):
         if target is None:
             return None
+        # 跨文件跳转：目标节点不在当前文件时，切换到目标所在文件
+        # （否则后续数组顺序推进会在旧文件中找不到位置）
+        if not self._node_in_file(self.file, target):
+            for f in DataLoader.get_dialogue_files():
+                if self._node_in_file(f, target):
+                    self.file = f
+                    break
         self.node_id = target
         node = self.get_node()
         if node is not None:
             self.game_state.apply_flag_set(node.get("flag_set"))
         self.game_state.set_dialogue_context(self.file, target)
         return target
+
+    def _node_in_file(self, file_name, node_id):
+        data = DataLoader.get_dialogue(file_name)
+        if data is None:
+            return False
+        for n in data.get("nodes", []):
+            if n.get("id") == node_id:
+                return True
+        return False

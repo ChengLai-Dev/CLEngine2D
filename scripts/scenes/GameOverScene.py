@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
-"""失败画面控制器（GameOver.cui，最小版）。
+"""失败画面控制器（GameOver.cui）。
 
 - "书页合上" 标题 + 提示
-- 重试按钮：恢复战前队伍快照 → 弹回 DialogScene → 原参数重 push BattleScene
+- 重试按钮：恢复战前快照（队伍 + 道具）→ 弹回战前场景 → 原参数重 push BattleScene
+- 战前场景按 battle_source 分叉：dialog → pop_until("dialog")；explore → pop_until("explore")
+  （明雷战失败重试后 ExploreScene 状态不丢）
 """
 
 from CLEngine.SceneGraph import Scene, SceneManager, UISystem
@@ -51,8 +53,9 @@ class GameOverScene:
         if formation_id is None:
             self.main_ref.switch_to("title", None)
             return
-        # 恢复战前队伍状态（HP/SP/等级/经验）
+        # 恢复战前队伍状态（HP/SP/等级/经验 + 道具数量）
         self.game_state.restore_party_snapshot()
-        # 弹回 DialogScene（保持战斗前的剧情等待状态），再重 push 当前战斗
-        self.main_ref.pop_until("dialog", None)
+        # 弹回战前场景（明雷战回 ExploreScene，剧情战回 DialogScene），再重 push 当前战斗
+        target = "explore" if self.game_state.battle_source == "explore" else "dialog"
+        self.main_ref.pop_until(target, None)
         self.main_ref.push("battle", {"formation": formation_id})

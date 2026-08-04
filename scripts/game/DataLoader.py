@@ -12,16 +12,18 @@ DATA_DIR = "data"
 DIALOGUE_DIR = os.path.join(DATA_DIR, "dialogue")
 BATTLE_DIR = os.path.join(DATA_DIR, "battle")
 
-# 全量数据文件清单（阶段 2 契约）
+# 全量数据文件清单（阶段 2 契约 + 阶段 4 增补）
 DATA_FILES = [
     "data/dialogue/prologue.json",
     "data/dialogue/ch1.json",
+    "data/dialogue/ch2.json",
     "data/battle/enemies.json",
     "data/battle/players.json",
     "data/battle/formations.json",
     "data/battle/items.json",
     "data/characters.json",
     "data/flags.json",
+    "data/scenes.json",
 ]
 
 _CACHE = {}
@@ -83,6 +85,11 @@ def get_flags_config():
     return _get("flags", "data/flags.json", fallback={})
 
 
+def get_scenes():
+    """探索场景配置表（data/scenes.json）：bg/title/hotspots/enemy/return_node。"""
+    return _get("scenes", "data/scenes.json", fallback={})
+
+
 def get_dialogue_files():
     """已固化的对话文件清单（存在才算数）。"""
     files = []
@@ -90,6 +97,8 @@ def get_dialogue_files():
         files.append("prologue")
     if os.path.isfile(os.path.join(DIALOGUE_DIR, "ch1.json")):
         files.append("ch1")
+    if os.path.isfile(os.path.join(DIALOGUE_DIR, "ch2.json")):
+        files.append("ch2")
     return files
 
 
@@ -115,9 +124,17 @@ def find_node(file_name, node_id):
 # ---------- 基础校验（verify_stage3 使用） ----------
 
 def validate_dialogue(file_name, known_external=None):
-    """校验单个对话文件，返回错误消息列表（空 = 通过）。"""
+    """校验单个对话文件，返回错误消息列表（空 = 通过）。
+    known_external：调用方声明的合法外部引用；其余已固化对话文件的节点视为已知。"""
     errors = []
     known_external = known_external or set()
+    known = set(known_external)
+    for f in get_dialogue_files():
+        if f == file_name:
+            continue
+        data = get_dialogue(f)
+        if data:
+            known.update(n["id"] for n in data.get("nodes", []))
     data = get_dialogue(file_name)
     if data is None:
         return ["对话文件缺失: " + file_name]
@@ -156,11 +173,11 @@ def validate_dialogue(file_name, known_external=None):
     for node in nodes:
         nid = node["id"]
         nxt = node.get("next")
-        if nxt and nxt not in ids and nxt not in known_external:
+        if nxt and nxt not in ids and nxt not in known:
             errors.append("节点 {} next 指向不存在: {}".format(nid, nxt))
         for i, opt in enumerate(node.get("options") or []):
             if isinstance(opt, dict) and opt.get("next") and \
-                    opt["next"] not in ids and opt["next"] not in known_external:
+                    opt["next"] not in ids and opt["next"] not in known:
                 errors.append("节点 {} options[{}] next 指向不存在: {}".format(nid, i, opt["next"]))
     return errors
 
@@ -171,16 +188,26 @@ def validate_all(known_external=None):
     warns = []
     for path in DATA_FILES:
         if not os.path.isfile(path):
-            if path.endswith("ch1.json"):
-                warns.append("缺少数据文件 {}：第一章剧本待确认后固化（D-01 流程）".format(path))
-            else:
-                errors.append("缺少数据文件: " + path)
+            errors.append("缺少数据文件: " + path)
     if errors:
         return errors, warns
 
     # 对话文件
     for f in get_dialogue_files():
         errors += validate_dialogue(f, known_external)
+
+    # 后续章节（阶段 5 未固化）的跨文件节点引用降级为 WARN，不阻断
+    pending_prefixes = ("ch3_", "ch4_", "fin_", "end_",
+                        "btl_b5_", "btl_b6_", "btl_b7_", "btl_b8_")
+    kept_errors = []
+    for e in errors:
+        if " 指向不存在: " in e:
+            target = e.rsplit(": ", 1)[-1]
+            if target.startswith(pending_prefixes):
+                warns.append("后续章节未固化引用（阶段 5 补齐）: " + e)
+                continue
+        kept_errors.append(e)
+    errors = kept_errors
 
     # enemies / players / formations / items / characters / flags 顶层结构
     enemies = get_enemies()
@@ -211,10 +238,7 @@ def validate_all(known_external=None):
                 errors.append("编成 {} 缺少字段 {}".format(fid, key))
         for e in f.get("enemies", []):
             if isinstance(e, dict) and e.get("enemy_id") not in enemy_ids:
-                if e.get("enemy_id") == "rust_commander":
-                    warns.append("编成 {} 引用 {}：素材存在但 §6.5 无数值行，待阶段 4".format(fid, e["enemy_id"]))
-                else:
-                    errors.append("编成 {} 引用不存在敌人: {}".format(fid, e.get("enemy_id")))
+                errors.append("编成 {} 引用不存在敌人: {}".format(fid, e.get("enemy_id")))
         victory = f.get("victory", "")
         if victory and victory not in dialogue_ids:
             if victory.startswith("btl_b"):
@@ -235,5 +259,36 @@ def validate_all(known_external=None):
     for pname, pose in characters.get("poses", {}).items():
         if not isinstance(pose, dict) or "panel" not in pose or "sprite" not in pose:
             errors.append("poses.{} 缺少 panel/sprite".format(pname))
+
+    # 探索场景配置表（阶段 4 新增）
+    scenes = get_scenes()
+    formation_ids = set(formations.keys())
+    for sid, scene in scenes.items():
+        if not isinstance(scene, dict):
+            errors.append("场景 {} 不是对象".format(sid))
+            continue
+        if not scene.get("bg") or not scene.get("title"):
+            errors.append("场景 {} 缺少 bg/title".format(sid))
+        hotspots = scene.get("hotspots")
+        if not isinstance(hotspots, list) or not (1 <= len(hotspots) <= 3):
+            errors.append("场景 {} hotspots 数量非法（1~3）".format(sid))
+        else:
+            for i, h in enumerate(hotspots):
+                if not isinstance(h, dict) or not h.get("text"):
+                    errors.append("场景 {} hotspots[{}] 缺少 text".format(sid, i))
+                elif h.get("action") == "battle" and h.get("formation") not in formation_ids:
+                    errors.append("场景 {} hotspots[{}] formation 不存在: {}".format(
+                        sid, i, h.get("formation")))
+                elif h.get("action") == "dialogue" and not h.get("target"):
+                    errors.append("场景 {} hotspots[{}] 缺少 target".format(sid, i))
+        enemy = scene.get("enemy")
+        if enemy is not None:
+            if not enemy.get("texture") or not enemy.get("name"):
+                errors.append("场景 {} enemy 缺少 texture/name".format(sid))
+            if enemy.get("formation") not in formation_ids:
+                errors.append("场景 {} enemy.formation 不存在: {}".format(
+                    sid, enemy.get("formation")))
+        if not scene.get("return_node"):
+            errors.append("场景 {} 缺少 return_node".format(sid))
 
     return errors, warns

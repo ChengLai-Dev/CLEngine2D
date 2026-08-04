@@ -21,9 +21,9 @@ OPS = {
 
 
 def eval_require(expr, flags):
-    """求值条件表达式；表达式为空或非法一律返回 False。"""
+    """求值条件表达式；表达式为空 = 无条件通过（无 flag_require 的节点可正常进入）。"""
     if not expr:
-        return False
+        return True
     parts = [p.strip() for p in expr.split("&&")]
     for part in parts:
         m = _OP_RE.match(part)

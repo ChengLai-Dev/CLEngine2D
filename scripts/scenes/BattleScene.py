@@ -17,6 +17,7 @@ import random
 from CLEngine.Math import Vec2, Vec3
 from CLEngine.SceneGraph import (
     Scene, SceneManager, UISystem, LoadTexture,
+    CreateLabel,
 )
 
 from components.Tweener import Tweener
@@ -27,6 +28,17 @@ from game.GameState import GameState
 
 DIALOG_SPEED = 30.0
 DMG_POOL_SIZE = 10
+
+# 我方状态图标映射（StatusIcon{i}_{j} 按优先级显示，4 位最多同时 4 种）
+_STATUS_ICONS = [
+    ("护盾", "assets/placeholder/ui/icon_status_shield.png"),
+    ("封印", "assets/placeholder/ui/icon_status_seal.png"),
+    ("降攻", "assets/placeholder/ui/icon_status_atk_dn.png"),
+    ("防御up", "assets/placeholder/ui/icon_status_atk_up.png"),
+    ("速度up", "assets/placeholder/ui/icon_status_spd_up.png"),
+    ("减速", "assets/placeholder/ui/icon_status_spd_dn.png"),
+]
+STATUS_ICON_SLOTS = 4
 
 # 我方/敌方槽位 UI 前缀
 _SLOT_ATTRS = {
@@ -61,6 +73,7 @@ class BattleScene:
 
         root = self.ui_root
         self.turn_label = root.FindChild("TurnLabel")
+        self.bg_battle = root.FindChild("BgBattle")
         self.turn_slots = self._find_slots(root, "TurnSlot{}", 6)
         self.enemy_slots = self._find_slots(root, "EnemySlot{}", 3)
         self.player_slots = self._find_slots(root, "PlayerSlot{}", 3)
@@ -71,6 +84,13 @@ class BattleScene:
         self.player_name = [s.FindChild("PlayerName{}".format(i)) for i, s in enumerate(self.player_slots)]
         self.player_hp_fill = [s.FindChild("HpBarFill{}".format(i)) for i, s in enumerate(self.player_slots)]
         self.player_sp_fill = [s.FindChild("SpBarFill{}".format(i)) for i, s in enumerate(self.player_slots)]
+        # 我方状态图标区（StatusIcon{i}_{0..3}）
+        self.status_icons = [
+            [s.FindChild("StatusIcon{}_".format(i) + str(j)) for j in range(STATUS_ICON_SLOTS)]
+            for i, s in enumerate(self.player_slots)
+        ]
+        # 敌方蓄力警示标签（动态 Label，挂敌方槽位头顶）
+        self.charge_labels = [None] * 3
 
         self.skill_name_label = root.FindChild("SkillNameLabel")
         self.dmg_labels = [root.FindChild("DmgLabel{}".format(i)) for i in range(DMG_POOL_SIZE)]
@@ -162,12 +182,18 @@ class BattleScene:
         self.state = "idle"
         self._pending_events = []
         self._tex_cache = {}
+        self.charge_labels = [None] * 3
         self.engine = None
 
     # ---------- 战斗构建与 UI 布置 ----------
 
     def _setup_units_ui(self):
         formation = self.engine.get_formation()
+        # 战斗背景（formation.bg 扩展字段；缺省用 .cui 默认）
+        if self.bg_battle is not None:
+            tex = self._load_tex(formation.get("bg"))
+            if tex is not None:
+                self.bg_battle.SetTexture(tex)
         # 敌方槽位
         enemies = self.engine.get_alive_enemies()
         for i in range(3):
@@ -206,6 +232,10 @@ class BattleScene:
         if self.btn_flee is not None:
             allowed = formation.get("allow_flee") is True and formation.get("boss") is not True
             self.btn_flee.SetInteractable(allowed)
+        # 状态图标 / 蓄力警示初始化
+        self._init_charge_labels()
+        self._refresh_status_icons()
+        self._refresh_charge_labels()
 
     def _refresh_turn_order(self):
         order = self.engine.get_turn_order()
@@ -234,6 +264,58 @@ class BattleScene:
             if highlight is not None:
                 highlight.SetVisible(unit is actor)
 
+    # ---------- 状态图标与蓄力警示 ----------
+
+    def _refresh_status_icons(self):
+        """我方状态图标联动：按 status 显隐对应图标（4 位，优先级取前 4 种）。"""
+        players = self.engine.get_player_units()
+        for i in range(3):
+            if i >= len(self.status_icons):
+                continue
+            icons = [ic for ic in self.status_icons[i] if ic is not None]
+            shown = []
+            if i < len(players):
+                unit = players[i]
+                for effect, texture in _STATUS_ICONS:
+                    if unit.has_status(effect):
+                        shown.append((effect, texture))
+            for j, icon in enumerate(icons):
+                if j < len(shown):
+                    tex = self._load_tex(shown[j][1])
+                    if tex is not None:
+                        icon.SetTexture(tex)
+                    icon.SetVisible(True)
+                else:
+                    icon.SetVisible(False)
+
+    def _init_charge_labels(self):
+        """为敌方槽位创建「蓄力中」动态标签（E1 CreateLabel）。"""
+        for i, slot in enumerate(self.enemy_slots):
+            if slot is None:
+                continue
+            if self.charge_labels[i] is not None:
+                continue
+            label = CreateLabel(slot, "ChargeLabel{}".format(i))
+            if label is None:
+                continue
+            label.SetText("蓄力中")
+            label.SetFontSize(22)
+            label.SetContentSize(Vec2(120, 30))
+            label.SetPosition(Vec3(0, 138, 0))
+            label.SetVisible(False)
+            self.charge_labels[i] = label
+
+    def _refresh_charge_labels(self):
+        """按引擎单位 charging 状态显隐蓄力警示标签。"""
+        enemies = [u for u in self.engine.units if u.side == "enemy"]
+        for i, label in enumerate(self.charge_labels):
+            if label is None:
+                continue
+            if i < len(enemies) and enemies[i].is_alive() and enemies[i].charging is not None:
+                label.SetVisible(True)
+            else:
+                label.SetVisible(False)
+
     # ---------- 回合流程 ----------
 
     def _begin_battle(self):
@@ -249,6 +331,8 @@ class BattleScene:
             return
         self.current_actor = actor
         self._highlight_actor(actor)
+        self._refresh_status_icons()
+        self._refresh_charge_labels()
         if actor.side == "player":
             self.state = "player_choice"
             if self.command_bar is not None:
@@ -322,12 +406,18 @@ class BattleScene:
         if not (0 <= index < len(skills)):
             return
         skill = skills[index]
-        cost = 0
         from game.BattleEngine import SKILL_SP_COST
         cost = SKILL_SP_COST.get(skill.get("id"), 0)
+        if actor.has_status("封印"):
+            return
+        if cost > 0 and actor.has_status("禁SP"):
+            return
         if actor.sp < cost:
             return
-        if skill.get("target") == "全体" or skill.get("effect") not in ("伤害",):
+        # 需要选敌方目标的技能：伤害 / 降防 / 减速（单体）
+        needs_target = skill.get("target") == "单体" and \
+            skill.get("effect") in ("伤害", "降防", "减速")
+        if not needs_target:
             self._close_skill_menu()
             self._execute_command("skill", skill=skill, target=None)
             return
@@ -367,6 +457,9 @@ class BattleScene:
             events = self.engine.do_item(self.current_actor, item)
         elif kind == "flee":
             events = self.engine.do_flee()
+            # 逃跑失败消耗当前行动者的行动（成功则战斗结束）
+            if not any(ev.get("type") == "flee_success" for ev in events):
+                self.engine.mark_acted(self.current_actor)
         else:
             events = []
         self._pending_events = events
@@ -389,8 +482,21 @@ class BattleScene:
             self._play_death(ev)
         elif etype in ("heal", "heal_sp"):
             self._play_heal(ev)
-        elif etype in ("guard", "status"):
-            self._hint_text(self._status_text(ev), self._play_next_event)
+        elif etype == "guard":
+            self._hint_text("{}：防御姿态！".format(self._unit_name(ev.get("target"))),
+                            self._play_next_event)
+        elif etype == "status":
+            self._hint_text(self._status_text(ev), lambda: (self._refresh_status_icons(),
+                                                            self._play_next_event()))
+        elif etype == "charge":
+            self._hint_text("{}：开始蓄力！".format(self._unit_name(ev.get("target"))),
+                            lambda: (self._refresh_charge_labels(), self._play_next_event()))
+        elif etype == "charge_broken":
+            self._hint_text("{}：蓄力被打断了！".format(self._unit_name(ev.get("target"))),
+                            lambda: (self._refresh_charge_labels(), self._play_next_event()))
+        elif etype == "shield_hit":
+            self._hint_text("护盾吸收了 {} 点伤害！".format(ev.get("absorbed", 0)),
+                            self._play_next_event)
         elif etype == "flee_success":
             self._hint_text("逃跑了！", self._play_next_event)
         elif etype == "flee_fail":
@@ -401,6 +507,8 @@ class BattleScene:
             self._play_next_event()
 
     def _on_events_done(self):
+        self._refresh_status_icons()
+        self._refresh_charge_labels()
         if self.engine.is_over():
             self._on_battle_over()
             return
@@ -590,6 +698,8 @@ class BattleScene:
         if actor is None:
             return
         from game.BattleEngine import SKILL_SP_COST
+        sealed = actor.has_status("封印")
+        sp_blocked = actor.has_status("禁SP")
         for i, btn in enumerate(self.skill_buttons):
             if btn is None:
                 continue
@@ -598,11 +708,17 @@ class BattleScene:
                 cost = SKILL_SP_COST.get(skill.get("id"), 0)
                 btn.SetVisible(True)
                 btn.SetText("{}（SP {}）".format(skill.get("name", ""), cost))
-                btn.SetInteractable(actor.sp >= cost)
+                usable = not sealed and not (sp_blocked and cost > 0) and actor.sp >= cost
+                btn.SetInteractable(usable)
             else:
                 btn.SetVisible(False)
         if self.skill_desc is not None:
-            self.skill_desc.SetText("技能说明：点击技能查看。SP 不足时按钮置灰。")
+            if sealed:
+                self.skill_desc.SetText("已被封印：无法使用技能，只能用攻击/防御/道具。")
+            elif sp_blocked:
+                self.skill_desc.SetText("SP 被禁：本回合无法消耗 SP 施放技能。")
+            else:
+                self.skill_desc.SetText("技能说明：点击技能查看。SP 不足时按钮置灰。")
 
     def _fill_item_menu(self):
         items = DataLoader.get_items()
@@ -673,12 +789,18 @@ class BattleScene:
                         on_finish=lambda: self._reset_skill_label(on_done))
 
     @staticmethod
+    def _unit_name(unit):
+        return unit.name if unit is not None else ""
+
+    @staticmethod
     def _status_text(ev):
         effect = ev.get("effect", "")
         target = ev.get("target")
-        name = target.name if target is not None else ""
+        name = BattleScene._unit_name(target)
         names = {"防御up": "防御提升了", "速度up": "速度提升了",
-                 "降防": "防御下降了", "减速": "速度下降了"}
+                 "降防": "防御下降了", "减速": "速度下降了",
+                 "降攻": "攻击下降了", "封印": "被封印了，无法使用技能",
+                 "护盾": "展开了护盾，可吸收伤害", "禁SP": "SP 被禁用了"}
         return "{}：{}！".format(name, names.get(effect, effect))
 
     @staticmethod
@@ -686,7 +808,10 @@ class BattleScene:
         reason = ev.get("reason", "")
         return {"sp": "SP 不足！", "item": "道具不存在！", "count": "道具数量不足！",
                 "unusable": "该道具无法在战斗中使用！",
-                "no_flee": "这场战斗无法逃跑！"}.get(reason, "失败了！")
+                "no_flee": "这场战斗无法逃跑！",
+                "sealed": "被封印了，无法使用技能！",
+                "sp_blocked": "SP 被禁用了！",
+                "target": "目标无效！"}.get(reason, "失败了！")
 
     # ---------- 胜负 ----------
 
@@ -696,6 +821,8 @@ class BattleScene:
         if over == "victory":
             self.state = "victory"
             formation = self.engine.get_formation()
+            # 记录已击败编成（ExploreScene 据此隐藏明雷/事件触发）
+            self.game_state.set_flag("visited_" + self.engine.formation_id, 1)
             exp = formation.get("exp_reward", 0)
             level_ups = self.engine.gain_exp(exp)
             self.game_state.set_battle_result({"exp": exp, "level_ups": level_ups})
