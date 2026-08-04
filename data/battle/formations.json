@@ -170,7 +170,33 @@
     "boss": true,
     "allow_flee": false,
     "recommend_level": 8,
-    "interludes": [],
+    "interludes": [
+      {
+        "round": 1,
+        "speaker": "苏言",
+        "portrait": "suyan_serious",
+        "text": "小心，它是「遗忘」的分身——被它擦到的地方，力气会被吞掉。降了攻的人，先退后吃药。"
+      },
+      {
+        "round": 1,
+        "speaker": "烬",
+        "portrait": "jin_serious",
+        "flag_require": "let_go=1",
+        "text": "烬与栖霞化作的书页，正绕着战局盘旋——他们守过的城，会替我们挡住遗忘。"
+      },
+      {
+        "round": 3,
+        "speaker": "烬",
+        "portrait": "jin_serious",
+        "text": "影子也会累。把它压到喘不过气，它就只能抡一个方向。"
+      },
+      {
+        "round": 5,
+        "speaker": "苏言",
+        "portrait": "suyan_normal",
+        "text": "SP 省着点——真身还在后面。这一仗，是热身。"
+      }
+    ],
     "victory": "btl_b7_result",
     "exp_reward": 100,
     "bg": "assets/placeholder/backgrounds/bg_ring_top.png"
@@ -184,7 +210,26 @@
     "boss": true,
     "allow_flee": false,
     "recommend_level": 11,
-    "interludes": [],
+    "interludes": [
+      {
+        "round": 1,
+        "speaker": "苏言",
+        "portrait": "suyan_serious",
+        "text": "它翻开最后一页了！看见「蓄力中」就全力打断——那是它唯一的死穴！"
+      },
+      {
+        "round": 3,
+        "speaker": "栖霞",
+        "portrait": "qixia_normal",
+        "text": "全体一击它才不管谁在挡——能开盾的开盾，不能的，站我后面。"
+      },
+      {
+        "round": 5,
+        "speaker": "烬",
+        "portrait": "jin_serious",
+        "text": "最后一页了。这一刀，替我守过的城，替你们记住的一切——一起劈下去！"
+      }
+    ],
     "victory": "btl_b8_result",
     "exp_reward": 120,
     "bg": "assets/placeholder/backgrounds/bg_ring_top.png"

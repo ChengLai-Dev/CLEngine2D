@@ -54,5 +54,33 @@
       "formation": "b3"
     },
     "return_node": "ch2_030"
+  },
+  "court": {
+    "id": "court",
+    "bg": "assets/placeholder/backgrounds/bg_throne_1.png",
+    "title": "王都宫门",
+    "hotspots": [
+      {
+        "text": "宫门石阶",
+        "action": "dialogue",
+        "target": "ch3_030"
+      },
+      {
+        "text": "门内甬道",
+        "action": "dialogue",
+        "target": "ch3_030"
+      },
+      {
+        "text": "广场铜像",
+        "action": "dialogue",
+        "target": "ch3_030"
+      }
+    ],
+    "enemy": {
+      "name": "静默主教",
+      "texture": "assets/placeholder/enemies/silent_priest.png",
+      "formation": "b5"
+    },
+    "return_node": "ch3_030"
   }
 }

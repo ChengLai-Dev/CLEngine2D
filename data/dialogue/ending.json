@@ -1,0 +1,67 @@
+{
+  "file": "ending",
+  "endings": {
+    "watch": {
+      "title": "守望",
+      "extra_require": "aff_suyan>=5&&aff_jin>=5",
+      "extra_lines": [
+        {
+          "speaker": "苏言",
+          "portrait": "suyan_tears",
+          "text": "尹川，还记得我说过的话吗？\n「写书的人，总怕被忘记。」你写了我，就永远不会被忘记。"
+        },
+        {
+          "speaker": "苏言",
+          "portrait": "suyan_smile",
+          "text": "这一程，有你们陪我看过星海，我已经很满足了。\n去吧，守夜人——替我们，记住这个世界。"
+        }
+      ],
+      "staff": [
+        "《星环遗章》",
+        "CLEngine2D 技术演示",
+        "",
+        "五章全流程 · 双结局",
+        "序章　失页之夜",
+        "第一章　灰雾森林",
+        "第二章　锈蚀之城",
+        "第三章　静默王座",
+        "终章　星环之上",
+        "",
+        "企划 · 脚本 · 程序",
+        "CLEngine2D Team",
+        "感谢游玩"
+      ]
+    },
+    "together": {
+      "title": "同行",
+      "extra_require": "aff_qixia>=5",
+      "extra_lines": [
+        {
+          "speaker": "栖霞",
+          "portrait": "qixia_proud",
+          "text": "备用心脏也会挑主人嘛。\n从今天起，这趟路，我们一起修。"
+        },
+        {
+          "speaker": "烬",
+          "portrait": "jin_serious",
+          "text": "走了。\n新的一程，还得有人开路。"
+        }
+      ],
+      "staff": [
+        "《星环遗章》",
+        "CLEngine2D 技术演示",
+        "",
+        "五章全流程 · 双结局",
+        "序章　失页之夜",
+        "第一章　灰雾森林",
+        "第二章　锈蚀之城",
+        "第三章　静默王座",
+        "终章　星环之上",
+        "",
+        "企划 · 脚本 · 程序",
+        "CLEngine2D Team",
+        "感谢游玩"
+      ]
+    }
+  }
+}

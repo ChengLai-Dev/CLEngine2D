@@ -1,0 +1,486 @@
+{
+  "file": "final",
+  "nodes": [
+    {
+      "id": "fin_title",
+      "text": "终章　星环之上",
+      "event": "chapter",
+      "event_param": "4",
+      "next": "fin_001"
+    },
+    {
+      "id": "fin_001",
+      "text": "第五页翻开的瞬间，星环的光暗了一度。\n我们站在一条极长的回廊里——两边是望不到头的书架，书脊密密地排着，像一座城。"
+    },
+    {
+      "id": "fin_002",
+      "speaker": "苏言",
+      "portrait": "suyan_serious",
+      "pose": "center",
+      "text": "书之回廊。\n所有书界的入口都从这里出发，也都在这里被蚀啃过。"
+    },
+    {
+      "id": "fin_003",
+      "text": "回廊被蚀咬得千疮百孔——有的书架只剩半截，有的书只剩封皮。"
+    },
+    {
+      "id": "fin_004",
+      "speaker": "烬",
+      "portrait": "jin_serious",
+      "pose": "right",
+      "text": "……等等。\n这一架。"
+    },
+    {
+      "id": "fin_005",
+      "text": "烬停在一架半塌的书架前，抽出一本书。\n封面烂了，扉页上却有一个烫金的字：《战争》。"
+    },
+    {
+      "id": "fin_006",
+      "speaker": "烬",
+      "portrait": "jin_serious",
+      "pose": "right",
+      "text": "是我的书。\n蚀吃掉的那三分之二……我一直以为它们彻底没了。"
+    },
+    {
+      "id": "fin_007",
+      "text": "他翻开书页。\n蚀斑之下，有一页是完整的——页面上画着一座城，城头上飘着旗。"
+    },
+    {
+      "id": "fin_008",
+      "speaker": "烬",
+      "portrait": "jin_serious",
+      "pose": "right",
+      "text": "这座城……我守过它。\n很多年前我还记得自己名字的时候，我替一座城守过三十天。城保住了，我却忘了它。"
+    },
+    {
+      "id": "fin_009",
+      "speaker": "苏言",
+      "portrait": "suyan_sad",
+      "pose": "center",
+      "text": "是「守护」这一页替你留住了最后一个字。\n你记得要杀「一种没有脸的东西」——因为你最后守护的，就是对抗遗忘。"
+    },
+    {
+      "id": "fin_010",
+      "speaker": "烬",
+      "portrait": "jin_serious",
+      "pose": "right",
+      "text": "呵。\n我以为我只会杀人。原来我还会守城。"
+    },
+    {
+      "id": "fin_011",
+      "text": "他盯着那页画看了很久，然后轻轻把书合上，放进怀里。"
+    },
+    {
+      "id": "fin_012",
+      "speaker": "栖霞",
+      "portrait": "qixia_normal",
+      "pose": "center",
+      "text": "……我的城呢？\n我的城，也会在这条回廊里吗？"
+    },
+    {
+      "id": "fin_013",
+      "text": "她一路跑过去，机械手在书架上划出一串火星。\n终于，在一排最旧的书架尽头，她停住了——那里立着一本画着锈城的书。"
+    },
+    {
+      "id": "fin_014",
+      "speaker": "栖霞",
+      "portrait": "qixia_sad",
+      "pose": "center",
+      "text": "城还在。\n蚀吃掉的是「结局」，城没丢……我的城，真的还在。"
+    },
+    {
+      "id": "fin_015",
+      "text": "她抱着那本书蹲了很久，没哭，只是把护目镜抬上去，用袖子擦了很久的镜片。"
+    },
+    {
+      "id": "fin_016",
+      "speaker": "尹川",
+      "portrait": "yinchuan_normal",
+      "pose": "right",
+      "text": "烬、栖霞。\n你们的书都在这里。你们……想回家吗？"
+    },
+    {
+      "id": "fin_017",
+      "text": "回廊里安静了一瞬。",
+      "options": [
+        { "text": "挽留：跟我走到最后，星环之上，还要你们。", "next": "fin_018a", "flag_set": "aff_jin=+2;aff_qixia=+2" },
+        { "text": "放手：回去吧，你们守过的城，在等你们。", "next": "fin_018b", "flag_set": "let_go=1" }
+      ]
+    },
+    {
+      "id": "fin_018a",
+      "speaker": "烬",
+      "portrait": "jin_serious",
+      "pose": "right",
+      "text": "烬沉默了一会儿，把刀推出来又推回去。\n「城会在书里等我。而你要去的地方，只有我能陪你劈开最后一扇门。」",
+      "next": "fin_019"
+    },
+    {
+      "id": "fin_018b",
+      "speaker": "烬",
+      "portrait": "jin_serious",
+      "pose": "right",
+      "text": "烬看了看怀里的书，又看了看我。\n他忽然把书塞回我手里：「城会等我，但我更想记住这一程。……继续走。」",
+      "next": "fin_019"
+    },
+    {
+      "id": "fin_019",
+      "speaker": "栖霞",
+      "portrait": "qixia_smile",
+      "pose": "center",
+      "text": "栖霞拍了拍书脊，把它放回架上：「书会替我回家。我嘛——备用心脏，得陪你们把这颗主心脏修好。」",
+      "next": "fin_020"
+    },
+    {
+      "id": "fin_020",
+      "text": "两人都没有走，只把书放回架上——不是放手，是让书先替他们回去。\n回廊尽头，一座巨大的门缓缓亮起。"
+    },
+    {
+      "id": "fin_021",
+      "text": "门后是轴心大厅——整个图书馆的脊柱。\n一根光柱从脚下贯到头顶，无数书页像鱼群一样缓缓上浮。"
+    },
+    {
+      "id": "fin_022",
+      "speaker": "苏言",
+      "portrait": "suyan_serious",
+      "pose": "center",
+      "text": "这些书页……是还没被写进书里的记忆。\n它们在往上飘。飘到最顶层，被《遗忘之书》吞掉。"
+    },
+    {
+      "id": "fin_023",
+      "text": "光柱的底部，立着一个老人。\n旧袍，圆眼镜，银发——他正把书页轻轻放回架上。"
+    },
+    {
+      "id": "fin_024",
+      "speaker": "尹川",
+      "portrait": "yinchuan_surprised",
+      "pose": "right",
+      "text": "馆长……？\n沈砚秋先生？"
+    },
+    {
+      "id": "fin_025",
+      "speaker": "沈砚秋",
+      "portrait": "shenyanqiu_normal",
+      "pose": "left",
+      "text": "又见面了，尹川——或者说是第一次见面，毕竟你已经不记得我了。"
+    },
+    {
+      "id": "fin_026",
+      "speaker": "尹川",
+      "portrait": "yinchuan_normal",
+      "pose": "right",
+      "text": "我……该记得您吗？"
+    },
+    {
+      "id": "fin_027",
+      "speaker": "沈砚秋",
+      "portrait": "shenyanqiu_serious",
+      "pose": "left",
+      "text": "你写过一本书，把最怕忘记的东西都藏了进去。\n你把书交给我时说：「如果有一天我忘了，请让书替我记住。」我答应了，你才安心地忘了。"
+    },
+    {
+      "id": "fin_028",
+      "speaker": "沈砚秋",
+      "portrait": "shenyanqiu_normal",
+      "pose": "left",
+      "text": "现在，那本书带着你走回了这里——你的记忆想要回家。"
+    },
+    {
+      "id": "fin_029",
+      "speaker": "苏言",
+      "portrait": "suyan_surprised",
+      "pose": "center",
+      "text": "您是说……失忆，是尹川自己选的？"
+    },
+    {
+      "id": "fin_030",
+      "speaker": "沈砚秋",
+      "portrait": "shenyanqiu_serious",
+      "pose": "left",
+      "text": "是，也不是。\n他被火呛晕之前，把自己对这本书的所有记忆亲手封了起来——只有忘记一切的人，才能读到最后一行字而不被吞噬。"
+    },
+    {
+      "id": "fin_031",
+      "speaker": "沈砚秋",
+      "portrait": "shenyanqiu_serious",
+      "pose": "left",
+      "text": "这是他自己设的保险。代价是——他不再记得你们。"
+    },
+    {
+      "id": "fin_033",
+      "speaker": "苏言",
+      "portrait": "suyan_tears",
+      "pose": "center",
+      "text": "你写我的时候就知道——你写了一本只有忘掉才能读完的书。\n你宁可自己忘了我们，也要我们活下去。"
+    },
+    {
+      "id": "fin_034",
+      "speaker": "尹川",
+      "portrait": "yinchuan_serious",
+      "pose": "right",
+      "text": "我还是想不起来。但苏言——我记得你叫我「守夜人」，这一定是很重要的事。"
+    },
+    {
+      "id": "fin_035",
+      "speaker": "沈砚秋",
+      "portrait": "shenyanqiu_smile",
+      "pose": "left",
+      "text": "去吧，最顶层在等你们。\n我守着这里——总要有个人，替回来的人留一盏灯。"
+    },
+    {
+      "id": "fin_036",
+      "text": "轴心大厅尽头，光柱直通穹顶。\n我们沿光柱上升——书页在耳边翻飞，像一场无声的雪。"
+    },
+    {
+      "id": "fin_037",
+      "text": "星环顶端，一个没有墙的房间，四面都是星海。"
+    },
+    {
+      "id": "fin_038",
+      "text": "房间中央立着一本书，黑色封皮，没有书名。\n封皮上趴着一团流动的墨，像活物一样缓缓呼吸。"
+    },
+    {
+      "id": "fin_039",
+      "speaker": "尹川",
+      "portrait": "yinchuan_surprised",
+      "pose": "right",
+      "text": "无面者……？"
+    },
+    {
+      "id": "fin_040",
+      "text": "墨团从书皮上站起来，凝成一个黑色的人形。\n它没有脸——脸上只有一片正在翻动的空白书页，一个字都没有。"
+    },
+    {
+      "id": "fin_041",
+      "speaker": "无面者",
+      "text": "你来了。写书的人。\n我等了很久——等你读完，等你亲手合上我。"
+    },
+    {
+      "id": "fin_042",
+      "speaker": "苏言",
+      "portrait": "suyan_serious",
+      "pose": "center",
+      "text": "它就是《遗忘之书》本身。蚀、无面者、被吃掉的字——全都是它，它是「遗忘」本身。"
+    },
+    {
+      "id": "fin_043",
+      "speaker": "无面者",
+      "text": "你们叫我「遗忘」。\n可遗忘错了吗？书会旧，人会走，字会淡——这是世界本来的样子。我只是让它发生得快了一点。"
+    },
+    {
+      "id": "fin_044",
+      "speaker": "无面者",
+      "text": "而你，写了一本和我作对的书——可你忘了，记住越多，遗忘就越重。"
+    },
+    {
+      "id": "fin_045",
+      "speaker": "尹川",
+      "portrait": "yinchuan_serious",
+      "pose": "right",
+      "text": "你说得对。\n可正因为遗忘那么重，记住才值得。"
+    },
+    {
+      "id": "fin_046",
+      "speaker": "无面者",
+      "text": "那就读完它吧——读完最后一行，决定这本书怎么合上。"
+    },
+    {
+      "id": "fin_047",
+      "text": "那片空白的书页上，忽然亮起一个字。\n那是《星环遗章》的第一行：「当你读到这句话时，你已经忘了写下它的人。」"
+    },
+    {
+      "id": "fin_048",
+      "speaker": "无面者",
+      "text": "你的保险，快到期了。\n读到最后一行的人，会想起一切——也会被「遗忘」的重量压垮。"
+    },
+    {
+      "id": "fin_049",
+      "speaker": "苏言",
+      "portrait": "suyan_tears",
+      "pose": "center",
+      "text": "尹川。最后一战了。\n别怕——你写了我们，我们就替你记住这一战。"
+    },
+    {
+      "id": "fin_050",
+      "text": "无面者的身影开始分裂。\n一道墨影扑向星海深处，化作另一个没有脸的影子。",
+      "event": "battle_start",
+      "event_param": "b7"
+    },
+    {
+      "id": "btl_b7_result",
+      "text": "墨影在最后一击里碎成漫天飞灰。\n可真正的《遗忘之书》，还立在那里——它缓缓翻开，露出最后几页空白。",
+      "event": "battle_end",
+      "next": "fin_051"
+    },
+    {
+      "id": "fin_051",
+      "speaker": "无面者",
+      "text": "影子碎了，躯壳还活着。\n你们以为那场大火烧掉的是书页吗？不——烧掉的是「书的记性」。现在，记性回来了。"
+    },
+    {
+      "id": "fin_052",
+      "text": "书页无风自动，哗啦啦地翻过。\n每翻一页，星环就暗一分，书里溢出的墨爬满整个房间的地面。"
+    },
+    {
+      "id": "fin_053",
+      "speaker": "苏言",
+      "portrait": "suyan_serious",
+      "pose": "center",
+      "text": "它在读我们！每翻一页，就吞掉一段记忆——\n快，在它读完之前，打断它！"
+    },
+    {
+      "id": "fin_054",
+      "speaker": "尹川",
+      "portrait": "yinchuan_serious",
+      "pose": "right",
+      "text": "烬、栖霞——守我两侧！\n苏言，等它翻开最后一页的时候……那就是我们的机会。"
+    },
+    {
+      "id": "fin_055",
+      "text": "《遗忘之书》翻开最后一页的瞬间，整座星环都亮了起来。\n那一页是空的，空得发白，像一片雪。雪落下的地方，是无面者真正的形。",
+      "event": "battle_start",
+      "event_param": "b8"
+    },
+    {
+      "id": "btl_b8_result",
+      "text": "最后一页从空中落下来。\n没有碎，没有燃——它只是落在我脚边，像一片被读完的叶子。",
+      "event": "battle_end",
+      "next": "fin_056"
+    },
+    {
+      "id": "fin_056",
+      "text": "无面者消失了，墨色的房间慢慢变亮。\n我们站在星环顶端，站在一本合不上的书面前。"
+    },
+    {
+      "id": "fin_057",
+      "speaker": "苏言",
+      "portrait": "suyan_tears",
+      "pose": "center",
+      "text": "结束了……？\n不。书还开着——它吃掉了太多记忆，现在，轮到它被决定了。"
+    },
+    {
+      "id": "fin_058",
+      "text": "我蹲下去，捡起那页空白的纸——纸很轻。\n纸的另一面有淡淡的字迹，那是我失忆前写给自己的话。"
+    },
+    {
+      "id": "fin_059",
+      "text": "「如果你读到这行字，说明你赢过了遗忘。\n现在选择你想要的结局——无论选哪一条，都记得：有人替你记住了。」"
+    },
+    {
+      "id": "fin_060",
+      "speaker": "尹川",
+      "portrait": "yinchuan_serious",
+      "pose": "right",
+      "text": "苏言……如果我合上书，我会想起一切，也会忘记这一程——忘记你们。\n这是你写下的「保险」吗？"
+    },
+    {
+      "id": "fin_061",
+      "speaker": "苏言",
+      "portrait": "suyan_tears",
+      "pose": "center",
+      "text": "是我写的。\n可写保险的人也留了后门：烧掉最后一页——书灵会得到肉身，和你一起走出图书馆。"
+    },
+    {
+      "id": "fin_062",
+      "speaker": "苏言",
+      "portrait": "suyan_tears",
+      "pose": "center",
+      "text": "代价是，你会永远失去记忆——忘了我，忘了烬，忘了栖霞，忘了这趟旅程。\n这一次，轮到你选了。"
+    },
+    {
+      "id": "fin_063",
+      "text": "星环在头顶缓缓转动。四个人，一本书，一个选择。",
+      "options": [
+        { "text": "合上书。让一切回到记忆里。", "next": "end_watch" },
+        { "text": "烧掉最后一页。让遗忘失去根源。", "next": "end_together" }
+      ]
+    },
+    {
+      "id": "end_watch",
+      "text": "我合上书。\n书页合拢的声音，轻得像一声叹息。整个星环，从最底层到最顶层，一寸一寸地亮起来。"
+    },
+    {
+      "id": "end_watch_b",
+      "text": "书界像潮水一样回归记忆之海。\n锈蚀的城、灰雾的森林、静默的王都——所有的记忆都找到了家。"
+    },
+    {
+      "id": "end_watch_c",
+      "text": "我站在原地看着这一切。\n记忆像潮水一样涌回来——馆长、大火、我写下的每一本书。我终于想起来了，可是……我好像也忘了什么。"
+    },
+    {
+      "id": "end_watch_d",
+      "speaker": "苏言",
+      "portrait": "suyan_smile",
+      "pose": "center",
+      "text": "你忘了书里的旅程，忘了我们。\n这是你自己设的保险——你早就知道了。"
+    },
+    {
+      "id": "end_watch_e",
+      "text": "苏言站在我面前，站在满室的光里。\n她伸手碰了碰我的额头，指尖有书页的墨香。"
+    },
+    {
+      "id": "end_watch_f",
+      "speaker": "苏言",
+      "portrait": "suyan_tears",
+      "pose": "center",
+      "text": "谢谢你写完我，带我走完这一程。\n从今往后，你替世界记住一切；而我们，替你记住这一程。"
+    },
+    {
+      "id": "end_watch_g",
+      "text": "她翻开书的最后一页，提笔写了一行字。\n字很轻，像怕吵醒谁：「替我们记住。」——苏言。"
+    },
+    {
+      "id": "end_watch_h",
+      "text": "图书馆恢复了安静。\n我坐在管理员的位置上，捧着一本读完的书——总觉得有一句话，还在等我读懂。",
+      "event": "ending",
+      "event_param": "watch"
+    },
+    {
+      "id": "end_together",
+      "text": "我把最后一页凑近灯焰。\n纸页卷曲、发亮、燃成一团暖金色的火。火焰很小，却把整间房间的墨色都照透了。"
+    },
+    {
+      "id": "end_together_b",
+      "text": "火灭的时候，星环轻轻震了一下。\n像什么东西的锁链，断了。"
+    },
+    {
+      "id": "end_together_c",
+      "text": "苏言低头看自己的手。\n指尖有了温度，不再是书页的凉。她抬起头，眼眶红了，却笑着。"
+    },
+    {
+      "id": "end_together_d",
+      "speaker": "苏言",
+      "portrait": "suyan_smile",
+      "pose": "center",
+      "text": "我……有体温了。\n尹川，你看——我可以站在阳光里了。"
+    },
+    {
+      "id": "end_together_e",
+      "text": "烬把刀收回鞘里，难得地笑了一下。\n栖霞蹲在地上拨着齿轮——她说，这是她第一次觉得「芯」在跳。"
+    },
+    {
+      "id": "end_together_f",
+      "text": "我们走出图书馆的大门，门外是人间——\n有风，有尘土，有晒得发烫的石头路。书灵们第一次被阳光晒到。"
+    },
+    {
+      "id": "end_together_g",
+      "speaker": "尹川",
+      "portrait": "yinchuan_normal",
+      "pose": "right",
+      "text": "走吧。\n我不记得你们是谁了——但你们说认识我，那就重新认识一遍。"
+    },
+    {
+      "id": "end_together_h",
+      "speaker": "苏言",
+      "portrait": "suyan_tears",
+      "pose": "center",
+      "text": "好。这一次，慢慢来。\n我有很长很长的时间，把这一程，讲给你听。"
+    },
+    {
+      "id": "end_together_i",
+      "text": "五个人影，走在一条很长的路上。\n没有人回头。身后，星环图书馆在星海里缓缓合拢——而书里的字，都还亮着。",
+      "event": "ending",
+      "event_param": "together"
+    }
+  ]
+}
