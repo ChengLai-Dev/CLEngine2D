@@ -12,11 +12,14 @@ DATA_DIR = "data"
 DIALOGUE_DIR = os.path.join(DATA_DIR, "dialogue")
 BATTLE_DIR = os.path.join(DATA_DIR, "battle")
 
-# 全量数据文件清单（阶段 2 契约 + 阶段 4 增补）
+# 全量数据文件清单（阶段 2 契约 + 阶段 4 增补 + 阶段 5 增补）
 DATA_FILES = [
     "data/dialogue/prologue.json",
     "data/dialogue/ch1.json",
     "data/dialogue/ch2.json",
+    "data/dialogue/ch3.json",
+    "data/dialogue/final.json",
+    "data/dialogue/ending.json",
     "data/battle/enemies.json",
     "data/battle/players.json",
     "data/battle/formations.json",
@@ -99,7 +102,16 @@ def get_dialogue_files():
         files.append("ch1")
     if os.path.isfile(os.path.join(DIALOGUE_DIR, "ch2.json")):
         files.append("ch2")
+    if os.path.isfile(os.path.join(DIALOGUE_DIR, "ch3.json")):
+        files.append("ch3")
+    if os.path.isfile(os.path.join(DIALOGUE_DIR, "final.json")):
+        files.append("final")
     return files
+
+
+def get_endings():
+    """结局差分表（data/dialogue/ending.json）：endings.{watch|together}。"""
+    return _get("endings", os.path.join(DIALOGUE_DIR, "ending.json"), fallback={})
 
 
 def find_node(file_name, node_id):
@@ -196,9 +208,8 @@ def validate_all(known_external=None):
     for f in get_dialogue_files():
         errors += validate_dialogue(f, known_external)
 
-    # 后续章节（阶段 5 未固化）的跨文件节点引用降级为 WARN，不阻断
-    pending_prefixes = ("ch3_", "ch4_", "fin_", "end_",
-                        "btl_b5_", "btl_b6_", "btl_b7_", "btl_b8_")
+    # 后续章节（尚未固化）的跨文件节点引用降级为 WARN，不阻断
+    pending_prefixes = ("ch4_",)
     kept_errors = []
     for e in errors:
         if " 指向不存在: " in e:
@@ -248,6 +259,24 @@ def validate_all(known_external=None):
         for il in f.get("interludes", []):
             if not isinstance(il, dict) or "round" not in il or "text" not in il:
                 errors.append("编成 {} interludes 项缺少 round/text".format(fid))
+
+    # 结局差分表（阶段 5 新增）
+    endings = get_endings()
+    endings_map = endings.get("endings", {})
+    if not endings_map:
+        errors.append("ending.json 缺少 endings 段")
+    for eid, ending in endings_map.items():
+        if not isinstance(ending, dict):
+            errors.append("结局 {} 不是对象".format(eid))
+            continue
+        for key in ("title", "extra_require", "extra_lines", "staff"):
+            if key not in ending:
+                errors.append("结局 {} 缺少字段 {}".format(eid, key))
+        if not ending.get("title") or not ending.get("staff"):
+            errors.append("结局 {} 缺少 title/staff 内容".format(eid))
+        for line in ending.get("extra_lines", []):
+            if not isinstance(line, dict) or not line.get("text"):
+                errors.append("结局 {} extra_lines 项缺少 text".format(eid))
 
     items = get_items()
     for iid, item in items.items():

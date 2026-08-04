@@ -221,8 +221,15 @@ class BattleEngine:
                     ai=enemy.get("ai", "simple")))
                 index += 1
 
-        for pid in self.game_state.party:
+        # 我方构建：尹川 + 苏言 固定，第三人按剧情出战位选择（策划案 §4.2 交替位）
+        fighter = self.game_state.get_active_fighter_id()
+        party_order = ["yinchuan", "suyan"]
+        if fighter is not None:
+            party_order.append(fighter)
+        for pid in party_order:
             member = self.game_state.get_member(pid)
+            if member is None:
+                continue          # 未入队（章节前）跳过，保持 2 人兼容前序章节
             stats = self.game_state.get_member_stats(pid)
             p = DataLoader.get_players().get(pid, {})
             uid = "p{}".format(len([u for u in self.units if u.side == "player"]))
@@ -277,11 +284,22 @@ class BattleEngine:
         return self.get_interlude(self.round)
 
     def get_interlude(self, round_number):
-        """第 round_number 回合开始时的插话（formations.interludes）；无则 None。"""
+        """第 round_number 回合开始时的插话（formations.interludes，可选 flag_require 过滤）；
+        同回合多条时 flag_require 差分版优先（如 B7 放手开场）；无则 None。"""
+        candidates = []
         for il in self.formation.get("interludes", []):
-            if il.get("round") == round_number and il.get("text"):
+            if il.get("round") != round_number or not il.get("text"):
+                continue
+            req = il.get("flag_require")
+            if req and not self.game_state.eval_flag_require(req):
+                continue
+            candidates.append(il)
+        if not candidates:
+            return None
+        for il in candidates:
+            if il.get("flag_require"):
                 return il
-        return None
+        return candidates[0]
 
     def is_over(self):
         """胜负判定：敌方全灭=胜利，我方全灭=失败。"""

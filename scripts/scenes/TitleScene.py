@@ -31,6 +31,7 @@ class TitleScene:
 
         root = self.ui_root
         self.btn_new_game = root.FindChild("BtnNewGame")
+        self.btn_settings = root.FindChild("BtnSettings")
         self.btn_quit = root.FindChild("BtnQuit")
         self.particle_nodes = [
             root.FindChild("PageParticle0"),
@@ -40,6 +41,8 @@ class TitleScene:
 
         if self.btn_new_game is not None:
             self.btn_new_game.OnClicked(lambda btn: self._on_new_game())
+        if self.btn_settings is not None:
+            self.btn_settings.OnClicked(lambda btn: self._on_settings())
         if self.btn_quit is not None:
             self.btn_quit.OnClicked(lambda btn: os._exit(0))
 
@@ -65,6 +68,9 @@ class TitleScene:
         GameState().reset_new_game()
         self.main_ref.switch_to("dialog", {"file": "prologue", "node": "pro_001"})
 
+    def _on_settings(self):
+        self.main_ref.push("settings", None)
+
     # ---------- 场景控制器协议 ----------
 
     def on_enter(self, params):
@@ -80,4 +86,5 @@ class TitleScene:
         self.tweener.clear()
         self.particle_nodes = []
         self.btn_new_game = None
+        self.btn_settings = None
         self.btn_quit = None

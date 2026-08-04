@@ -26,7 +26,6 @@ from game import DataLoader
 from game.BattleEngine import BattleEngine
 from game.GameState import GameState
 
-DIALOG_SPEED = 30.0
 DMG_POOL_SIZE = 10
 
 # 我方状态图标映射（StatusIcon{i}_{j} 按优先级显示，4 位最多同时 4 种）
@@ -759,7 +758,8 @@ class BattleScene:
             if tex is not None:
                 self.interlude_avatar.SetTexture(tex)
         if self.interlude_text is not None:
-            self.typewriter.start(il.get("text", ""), DIALOG_SPEED)
+            self.typewriter.start(il.get("text", ""),
+                                  self.game_state.get_text_speed())
 
     def _confirm_interlude(self):
         if self.state != "interlude":

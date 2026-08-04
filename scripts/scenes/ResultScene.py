@@ -13,8 +13,6 @@ from components.Tweener import Tweener
 from components.Typewriter import Typewriter
 from game.GameState import GameState
 
-DIALOG_SPEED = 30.0
-
 
 class ResultScene:
     """结算画面：读 GameState.battle_result 展示。"""
@@ -89,12 +87,13 @@ class ResultScene:
         if self.loot_label is None:
             return
         self.state = "typing"
-        self.loot_tw.start("\n".join(lines), DIALOG_SPEED,
+        self.loot_tw.start("\n".join(lines), self.game_state.get_text_speed(),
                            on_done=self._on_loot_done)
 
     def _on_loot_done(self):
         if self.level_up_label is not None and self.level_up_label.IsVisible():
-            self.level_tw.start(self.level_up_label.GetText(), DIALOG_SPEED)
+            self.level_tw.start(self.level_up_label.GetText(),
+                                self.game_state.get_text_speed())
         self.state = "waiting"
 
     def _write_level_up(self, lines):

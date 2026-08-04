@@ -29,7 +29,6 @@ from game.GameState import GameState
 # 选项按钮样式（对齐预置 Option0~3）
 OPTION_W = 480.0
 OPTION_H = 64.0
-DIALOG_SPEED = 30.0          # 缺省打字速度（Settings 档位中速，阶段 5 前固定）
 PORTRAIT_FADE = 0.35         # 立绘换图淡入时长（秒）
 
 _POSES = ("left", "center", "right")
@@ -163,9 +162,10 @@ class DialogScene:
             self._trigger_chapter(event_param)
             return
         if event == "ending":
-            # 阶段 5 实现结局演出；当前直接跳过节点
-            self.dialog.advance()
-            self._show_current()
+            # 结局演出：记录结局 ID（EndingScene 读取）→ push EndingScene
+            self.game_state.ending_id = event_param
+            self.state = "event"
+            self.main_ref.push("ending", {})
             return
         self.dialog.advance()
         self._show_current()
@@ -186,12 +186,8 @@ class DialogScene:
     def _apply_text(self, node):
         if self.dialogue_text is None:
             return
-        # 速度：节点 typewriter 显式优先（0 = 整句即时显示）；缺省用 Settings 档位（默认中速）
-        tw = node.get("typewriter")
-        if tw is None:
-            speed = self.game_state.settings.get("text_speed", DIALOG_SPEED)
-        else:
-            speed = tw
+        # 速度：节点 typewriter 显式优先；缺省用 Settings 档位（D-07 统一入口）
+        speed = self.game_state.get_text_speed(node)
         self.state = "typing"
         self.typewriter.start(node.get("text", ""), speed, on_done=self._on_typed_done)
         if self.arrow_next is not None:
@@ -328,11 +324,15 @@ class DialogScene:
         self.main_ref.push("explore", {"scene": scene_id})
 
     def _trigger_chapter(self, chapter_no):
-        """chapter：AddUI 叠加 ChapterTransition.cui，淡入淡出后继续。"""
+        """chapter：AddUI 叠加 ChapterTransition.cui，淡入淡出后继续；
+        章节图标/装饰 Sprite 上浮动效（策划案 §7.7）；顺带更新 GameState.chapter。"""
         node = self.dialog.get_node()
         if node is None:
             return
         self.state = "event"
+        # 章节进度（供结局差分与 Staff 使用）；仅接受纯数字参数
+        if isinstance(chapter_no, str) and chapter_no.isdigit():
+            self.game_state.chapter = int(chapter_no)
         overlay = self.scene.AddUI("assets/ui/ChapterTransition.cui")
         if overlay is None:
             self._on_advance_fallback()
@@ -342,6 +342,15 @@ class DialogScene:
         label = overlay.FindChild("ChapterLabel")
         if label is not None:
             label.SetText(node.get("text", ""))
+        # 章节图标动效：从下方上浮 + 透明度淡入（Tweener 位移动画）
+        icon = overlay.FindChild("ChapterIcon")
+        if icon is not None:
+            icon.SetOpacity(0.0)
+            icon.SetPosition(Vec3(0, 60, 0))
+            self.tweener.to(icon, "position", Vec3(0, 130, 0), dur=0.7,
+                            ease="quad_out", delay=0.15)
+            self.tweener.to(icon, "opacity", 0.9, dur=0.7, ease="quad_out",
+                            delay=0.15)
         overlay.SetOpacity(0.0)
         self.tweener.to(overlay, "opacity", 1.0, dur=0.5, ease="quad_out",
                         on_finish=self._chapter_hold)

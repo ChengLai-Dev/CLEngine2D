@@ -21,6 +21,13 @@ from game import Flags
 # 我方固定出战位（烬/栖霞按剧情解锁后替换 2 号位）
 FIXED_PARTY = ("yinchuan", "suyan")
 
+# 文字速度档位（D-07：慢/中/快 = 20/30/45 字/秒，作用于全部打字机）
+SPEED_PRESETS = {"slow": 20, "normal": 30, "fast": 45}
+
+# 出战位选择（策划案 §4.2 交替位）：party_choice flag 数值 → 角色 id
+FIGHTER_CHOICES = {1: "jin", 2: "qixia"}
+DEFAULT_FIGHTER = "jin"
+
 
 class GameState:
     _instance = None
@@ -44,6 +51,7 @@ class GameState:
         self.settings = {"text_speed": 30}   # 中速（D-07 档位：慢/中/快 = 20/30/45）
         self.chapter = 0
         self.formation_id = None         # 当前战斗编成 id（GameOver 重试用）
+        self.ending_id = None            # 结局 ID（watch/together，EndingScene 读取）
 
     # ---------- 初始化 / 重开 ----------
 
@@ -71,10 +79,36 @@ class GameState:
         self.battle_snapshot = None
         self.battle_result = None
         self.formation_id = None
+        self.ending_id = None
         self.chapter = 0
 
     def has_party(self):
         return bool(self.party)
+
+    # ---------- 设置 / 出战位 ----------
+
+    def get_text_speed(self, node=None):
+        """打字机速度（D-07 倍率统一入口）：节点 typewriter 显式优先；
+        缺省用 settings 档位（慢/中/快 = 20/30/45）。"""
+        if node is not None:
+            tw = node.get("typewriter")
+            if tw is not None:
+                return tw
+        return self.settings.get("text_speed", SPEED_PRESETS["normal"])
+
+    def set_text_speed(self, preset_name):
+        """设置文字速度档位（"slow"/"normal"/"fast"）。"""
+        if preset_name in SPEED_PRESETS:
+            self.settings["text_speed"] = SPEED_PRESETS[preset_name]
+
+    def get_active_fighter_id(self):
+        """当前出战第三人（策划案 §4.2 交替位）：party_choice=1 烬 / 2 栖霞；缺省烬。
+        未入队角色返回 None（由 BattleEngine 跳过）。"""
+        choice = self.get_flag("party_choice", 0)
+        pid = FIGHTER_CHOICES.get(choice, DEFAULT_FIGHTER)
+        if pid not in self.party:
+            return None
+        return pid
 
     # ---------- Flag 读写 ----------
 

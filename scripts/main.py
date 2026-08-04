@@ -28,6 +28,8 @@ from scenes.BattleScene import BattleScene
 from scenes.ResultScene import ResultScene
 from scenes.GameOverScene import GameOverScene
 from scenes.ExploreScene import ExploreScene
+from scenes.SettingsScene import SettingsScene
+from scenes.EndingScene import EndingScene
 
 # 场景注册表（name -> 控制器类）
 SCENE_REGISTRY = {
@@ -37,6 +39,8 @@ SCENE_REGISTRY = {
     "result": ResultScene,
     "gameover": GameOverScene,
     "explore": ExploreScene,
+    "settings": SettingsScene,
+    "ending": EndingScene,
 }
 
 _stack = []          # 控制器栈（与 SceneManager 栈一一对应）
