@@ -8,6 +8,7 @@
 #include <SceneGraph/Image.h>
 #include <SceneGraph/Button.h>
 #include <SceneGraph/Layout.h>
+#include <SceneGraph/CanvasPanel.h>
 #include <AssetManager.h>
 #include <Render/Texture.h>
 #include <algorithm>
@@ -48,6 +49,21 @@ inline int ParseInt(const std::string& s, int min, int max) {
 
 inline std::string GetName(Node* n) { return n->GetName(); }
 inline void SetName(Node* n, const std::string& v) { n->SetName(v); }
+
+// ======================================================================
+// Widget Type
+// ======================================================================
+
+inline std::string GetWidgetTypeName(Node* n) {
+    if (dynamic_cast<Button*>(n)) return "Button";
+    if (dynamic_cast<Label*>(n)) return "Label";
+    if (dynamic_cast<Layout*>(n)) return "Layout";
+    if (dynamic_cast<Image*>(n)) return "Image";
+    if (dynamic_cast<Sprite*>(n)) return "Sprite";
+    if (dynamic_cast<CanvasPanel*>(n)) return "Panel";
+    if (dynamic_cast<Widget*>(n)) return "Widget";
+    return "Node";
+}
 
 // ======================================================================
 // Transform

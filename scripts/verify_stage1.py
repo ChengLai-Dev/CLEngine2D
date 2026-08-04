@@ -1,4 +1,4 @@
-﻿"""阶段 1 验证脚本：E1 动态建 UI + E2 Label 折行。
+﻿"""阶段 1 验证脚本：E1 动态建 UI + E2 Label 折行 + 多 .cui 叠加。
 
 运行方式（工作目录 = 项目根）：
     out/build/default/src/py_sandbox/Debug/py_sandbox.exe --module verify_stage1
@@ -8,11 +8,14 @@
   2. 动态创建 Label 挂载到已有节点，显示正常（含生僻字）
   3. 580px 宽 / 字号 28 长文本自动折行 + '\\n' 分段 + 行距/左对齐（目测）
   4. push/pop 场景：动态节点随场景切换正常销毁（无崩溃）
+  5. 全部 10 个 .cui 可加载（UISerializer 兼容性）
+  6. 多 .cui 叠加：Scene.AddUI 叠加子树 / RemoveUI 摘除 / zOrder / 整树显隐
 """
 
 from CLEngine.SceneGraph import (
     Scene, SceneManager, UISystem,
     CreateButton, CreateLabel, CreateSprite,
+    LoadTexture,
     TextAlign, WrapText, MeasureText,
 )
 from CLEngine.Math import Vec2, Vec3
@@ -63,6 +66,10 @@ def on_init():
     dynamic_btn.SetContentSize(Vec2(480, 64))
     dynamic_btn.SetText("动态选项按钮")
     dynamic_btn.SetFontSize(24)
+    normal_tex = LoadTexture("assets/placeholder/ui/btn_main_normal.png")
+    pressed_tex = LoadTexture("assets/placeholder/ui/btn_main_pressed.png")
+    dynamic_btn.SetNormalImage(normal_tex)
+    dynamic_btn.SetPressedImage(pressed_tex)
     option_layout.DoLayout()
     pos = dynamic_btn.GetPosition()
     log(f"[verify] 1.1 动态 Button 挂入 Layout 并 DoLayout，位置=({pos.x:.1f}, {pos.y:.1f})")
@@ -100,8 +107,6 @@ def on_init():
     forced_break_ok = len(lines) == 3
     log(f"[verify] 3.3 WrapText(580, scale=2.0) -> {len(lines)} 行，各行宽度 {[round(w, 1) for w in widths]}")
     log(f"[verify] 3.4 每行不超宽: {'OK' if in_bounds else 'FAIL'}；\\n 分段(3行): {'OK' if forced_break_ok else 'FAIL'}")
-    log(f"[verify] 3.3b 各行宽度 {[round(w, 1) for w in widths]}")
-    log(f"[verify] 3.4 每行不超宽: {'OK' if in_bounds else 'FAIL'}；\\n 分段(3行): {'OK' if forced_break_ok else 'FAIL'}")
 
     # --- 验证点 4：动态节点随场景切换正常销毁 ---
     tmp_scene = Scene()
@@ -114,6 +119,9 @@ def on_init():
     log("[verify] 4.1 push/pop 临时场景完成：动态节点已随场景销毁（无崩溃）")
 
     # --- 回归检查：全部 10 个 .cui 可加载（UISerializer 兼容性）---
+    # 注意：每次加载临时场景后立即把 UIRoot 指回主场景树，
+    # 不能调 scene.LoadUI 恢复（那会销毁整棵旧树，连带动态元素一起消失）
+    main_ui_root = UISystem.GetInstance().GetUIRoot()
     cui_files = [
         "Title", "DialogScene", "BattleScene", "BattleResult", "GameOver",
         "ChapterTransition", "ExploreScene", "Settings", "Ending", "SaveLoad",
@@ -122,8 +130,34 @@ def on_init():
         tmp = Scene()
         ok = tmp.LoadUI(f"assets/ui/{name}.cui")
         log(f"[verify] 5.1 {name}.cui 加载: {'OK' if ok else 'FAIL'}")
-    scene.LoadUI("assets/ui/DialogScene.cui")
-    log("[verify] 5.2 主场景 UI 已恢复")
+        UISystem.GetInstance().SetUIRoot(main_ui_root)
+    log("[verify] 5.2 主场景 UI 引用已恢复（动态元素保留）")
+
+    # --- 验证点 6：多 .cui 叠加（Scene.AddUI / RemoveUI）---
+    ui_root = UISystem.GetInstance().GetUIRoot()
+    base_count = ui_root.GetChildCount()
+
+    overlay = scene.AddUI("assets/ui/Settings.cui")
+    log(f"[verify] 6.1 AddUI(Settings.cui): {'OK' if overlay is not None else 'FAIL'}，"
+        f"容器子节点 {base_count} -> {ui_root.GetChildCount()}")
+
+    back_btn = overlay.FindChild("BtnBack") if overlay else None
+    log(f"[verify] 6.2 叠加层 FindChild(BtnBack): {'OK' if back_btn is not None else 'FAIL'}")
+
+    overlay.SetZOrder(10)
+    log(f"[verify] 6.3 叠加层 SetZOrder(10) 层级控制: {'OK' if overlay.GetZOrder() == 10 else 'FAIL'}")
+
+    overlay.SetVisible(False)
+    hidden_ok = not overlay.IsVisible()
+    overlay.SetVisible(True)
+    log(f"[verify] 6.4 叠加层整树显隐(SetVisible): {'OK' if hidden_ok else 'FAIL'}")
+
+    removed = scene.RemoveUI(overlay)
+    restored_ok = ui_root.GetChildCount() == base_count
+    log(f"[verify] 6.5 RemoveUI(overlay): {'OK' if removed else 'FAIL'}，"
+        f"容器子节点 {ui_root.GetChildCount()} -> {base_count} 恢复: {'OK' if restored_ok else 'FAIL'}")
+
+    log("[verify] 6.6 叠加验证完成（AddUI/FindChild/zOrder/显隐/RemoveUI 全自动断言）")
 
     log("[verify] 全部就绪，等待点击验证...")
 

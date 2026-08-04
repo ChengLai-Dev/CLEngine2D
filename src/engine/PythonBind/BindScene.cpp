@@ -53,6 +53,16 @@ void RegisterSceneBindings(py::module_& m)
              py::return_value_policy::reference)
         .def("SetName", &Node::SetName)
         .def("GetName", [](const Node& n) { return n.GetName(); })
+        .def("SetZOrder", &Node::SetZOrder)
+        .def("GetZOrder", &Node::GetZOrder)
+        .def("SetAnchor", &Node::SetAnchor)
+        .def("GetAnchor", &Node::GetAnchor,
+             py::return_value_policy::reference)
+        .def("SetColor", &Node::SetColor)
+        .def("GetColor", &Node::GetColor,
+             py::return_value_policy::reference)
+        .def("GetParent", &Node::GetParent,
+             py::return_value_policy::reference)
         .def("AddChild", [](Node& self, Node* child) {
             Logger::Warn("Node.add_child: ownership transfer not supported from Python; "
                          "use Scene.create_sprite instead");
@@ -284,7 +294,13 @@ void RegisterSceneBindings(py::module_& m)
         .def("GetRoot", &Scene::GetRoot,
              py::return_value_policy::reference)
         .def("RemoveAllChildren", &Scene::RemoveAllChildren)
-        .def("LoadUI", &Scene::LoadUI);
+        .def("LoadUI", &Scene::LoadUI)
+        .def("AddUI", &Scene::AddUI,
+             py::return_value_policy::reference,
+             "Load a .cui and append it to the UI container (multi-.cui overlay); "
+             "returns the new subtree root (None on failure). Call SetZOrder on it to control stacking")
+        .def("RemoveUI", &Scene::RemoveUI,
+             "Detach a subtree from the UI container; the Python reference becomes dangling after this");
 
     py::class_<SceneManager>(m, "SceneManager")
         .def_static("GetInstance", &SceneManager::GetInstance,

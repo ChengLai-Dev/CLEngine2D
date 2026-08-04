@@ -49,21 +49,63 @@ void Scene::RemoveAllChildren() {
     }
 }
 
+// UI 容器（画布 1280x720，中心原点，与 .cui 根节点坐标模型一致）
+static constexpr float kUICanvasWidth = 1280.0f;
+static constexpr float kUICanvasHeight = 720.0f;
+
+void Scene::EnsureUIContainer() {
+    if (m_uiContainerReady) return;
+
+    auto container = std::make_unique<Widget>();
+    container->SetName("UIContainer");
+    container->SetContentSize(Vec2(kUICanvasWidth, kUICanvasHeight));
+    container->SetTouchEnabled(false);
+    m_uiRoot = std::move(container);
+    m_uiContainerReady = true;
+
+    UISystem::GetInstance().SetUIRoot(static_cast<Widget*>(m_uiRoot.get()));
+}
+
 bool Scene::LoadUI(const std::string& filepath) {
+    EnsureUIContainer();
+
     Node* uiRoot = UISerializer::LoadFromFile(filepath);
     if (!uiRoot) {
         Logger::Error("Scene::LoadUI: failed to load {}", filepath);
         return false;
     }
 
-    m_uiRoot.reset(uiRoot);
-
-    Widget* uiWidget = dynamic_cast<Widget*>(uiRoot);
-    if (uiWidget) {
-        UISystem::GetInstance().SetUIRoot(uiWidget);
+    // 替换语义：清空容器现有子树后挂入新树
+    while (m_uiRoot->GetChildCount() > 0) {
+        m_uiRoot->RemoveChild(m_uiRoot->GetChild(0));
     }
+    m_uiRoot->AddChild(std::unique_ptr<Node>(uiRoot));
 
     Logger::Info("Scene::LoadUI: loaded {}", filepath);
+    return true;
+}
+
+Node* Scene::AddUI(const std::string& filepath) {
+    EnsureUIContainer();
+
+    Node* uiRoot = UISerializer::LoadFromFile(filepath);
+    if (!uiRoot) {
+        Logger::Error("Scene::AddUI: failed to load {}", filepath);
+        return nullptr;
+    }
+
+    m_uiRoot->AddChild(std::unique_ptr<Node>(uiRoot));
+    Logger::Info("Scene::AddUI: loaded {} (container child count: {})",
+                 filepath, m_uiRoot->GetChildCount());
+    return uiRoot;
+}
+
+bool Scene::RemoveUI(Node* root) {
+    if (!m_uiRoot || !root) return false;
+    std::unique_ptr<Node> removed = m_uiRoot->RemoveChild(root);
+    if (!removed) return false;
+    Logger::Info("Scene::RemoveUI: removed subtree '{}' (container child count: {})",
+                 removed->GetName(), m_uiRoot->GetChildCount());
     return true;
 }
 

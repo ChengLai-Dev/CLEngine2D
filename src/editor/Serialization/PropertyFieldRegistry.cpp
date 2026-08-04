@@ -3,6 +3,12 @@
 
 static const std::vector<PropertySectionDef> s_sections = {
     {
+        "Type", nullptr,
+        {
+            { "Type", FieldType::String, GetWidgetTypeName, nullptr, 0.0f, 0.0f, {}, true },
+        }
+    },
+    {
         "Name", nullptr,
         {
             { "Name", FieldType::String, GetName, SetName },

@@ -66,10 +66,11 @@ float Label::GetLineSpacing() const {
 }
 
 void Label::OnDraw(Renderer& renderer, const Mat4& worldTransform, float worldOpacity) {
-    Color bgColor(m_color.x, m_color.y, m_color.z, m_color.w * worldOpacity);
-
-    renderer.DrawQuad(worldTransform, m_contentSize,
-                    bgColor, m_background.get());
+    // 无背景纹理时不画背景 quad（Label 默认透明；需要底色时用 SetBackground 提供纹理）
+    if (m_background) {
+        Color bgColor(m_color.x, m_color.y, m_color.z, m_color.w * worldOpacity);
+        renderer.DrawQuad(worldTransform, m_contentSize, bgColor, m_background.get());
+    }
 
     TextRenderer* tr = UISystem::GetInstance().GetFontRenderer();
     if (!tr || !tr->IsLoaded() || m_text.empty()) return;

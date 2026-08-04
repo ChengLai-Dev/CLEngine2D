@@ -80,8 +80,11 @@ void PropertyPanel::BuildFields() {
             info.minVal = field.minVal;
             info.maxVal = field.maxVal;
             info.options = field.options;
+            info.readOnly = field.readOnly;
             info.getter = [this, &field]() { return field.getter(m_target); };
-            info.setter = [this, &field](const std::string& v) { field.setter(m_target, v); };
+            if (field.setter) {
+                info.setter = [this, &field](const std::string& v) { field.setter(m_target, v); };
+            }
             m_fields.push_back(std::move(info));
             y += FIELD_HEIGHT;
         }
@@ -153,7 +156,18 @@ void PropertyPanel::DrawFields(Renderer& renderer) {
 
         DrawFieldLabel(renderer, field.label.c_str(), renderY);
 
-        if (isEnumType) {
+        if (field.readOnly) {
+            DrawFieldBackground(renderer, renderY, false, true);
+            std::string text = field.getter ? field.getter() : "";
+            if (!text.empty() && m_fontRenderer) {
+                float textH = m_fontRenderer->GetLineHeight(1.0f);
+                float base = m_fontRenderer->GetBaselineOffset(1.0f);
+                float centerY = renderY + (FIELD_HEIGHT - textH) * 0.5f + base;
+                float valColor[4] = { 0.55f, 0.55f, 0.58f, 1.0f };
+                m_fontRenderer->RenderString(renderer, text,
+                    VALUE_LEFT + VALUE_PADDING, centerY, 1.0f, valColor, TextRenderer::Align::Left);
+            }
+        } else if (isEnumType) {
             bool isOpen = (i == m_openEnumField);
             DrawFieldBackground(renderer, renderY, isOpen, true);
             std::string text = field.getter ? field.getter() : "";
@@ -329,6 +343,10 @@ bool PropertyPanel::OnMouseEvent(const MouseEvent& event) {
                 float fieldRenderY = m_fields[i].virtualY - m_scrollOffset;
                 if (localX >= LABEL_LEFT && localX <= VALUE_RIGHT &&
                     localY >= fieldRenderY && localY < fieldRenderY + FIELD_HEIGHT) {
+
+                    if (m_fields[i].readOnly) {
+                        return true;
+                    }
 
                     if (m_fields[i].type == FieldType::Bool) {
                         if (m_activeFieldIndex >= 0) CommitEdit();

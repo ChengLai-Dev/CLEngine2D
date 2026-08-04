@@ -16,6 +16,7 @@ struct PropertyFieldDef {
     float minVal = -10000.0f;
     float maxVal = 10000.0f;
     std::vector<std::string> options;
+    bool readOnly = false;
 };
 
 struct PropertySectionDef {

@@ -43,6 +43,7 @@ private:
         float minVal = 0.0f;
         float maxVal = 0.0f;
         bool isTextureAsset = false;
+        bool readOnly = false;
         std::vector<std::string> options;
         TextEditBox editBox;
     };
