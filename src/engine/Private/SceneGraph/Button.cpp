@@ -105,11 +105,20 @@ void Button::OnTouchStartedEvent(const Vec2& pos) {
 }
 
 void Button::OnTouchEndedEvent(const Vec2& pos) {
-    if (m_state == State::PRESSED) {
+    // 回调前置拷贝 + 回调后零 this 访问：点击回调（如场景切换 switch_to/pop）可能
+    // 在回调栈内销毁本按钮所在层（UISystem::RemoveUI → 本对象析构），
+    // 因此不得在回调后访问任何成员（原先回调后再调 Widget::OnTouchEndedEvent
+    // 会对已销毁的 this 做 typeid/成员访问 → Access violation - no RTTI data）。
+    bool wasPressed = (m_state == State::PRESSED);
+    if (wasPressed) {
         m_state = State::NORMAL;
-        if (m_onClicked) {
-            m_onClicked(this);
-        }
     }
-    Widget::OnTouchEndedEvent(pos);
+    ClickCallback clicked = wasPressed ? m_onClicked : ClickCallback();
+    TouchCallback ended = m_onTouchEnded;
+    if (clicked) {
+        clicked(this);
+    }
+    if (ended) {
+        ended(this, pos);
+    }
 }

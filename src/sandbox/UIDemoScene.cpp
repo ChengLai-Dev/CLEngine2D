@@ -49,7 +49,7 @@ void UIDemoScene::SetupUI() {
 
     SetRoot(std::move(canvas));
 
-    UISystem::GetInstance().SetUIRoot(m_canvas);
+    UISystem::GetInstance().AddLayer(m_canvas, 0);
 
     Logger::Info("UI Demo Scene initialized");
 }

@@ -32,9 +32,8 @@ class EndingScene:
     def __init__(self):
         self.name = "ending"
         self.scene = Scene()
-        self.scene.LoadUI("assets/ui/Ending.cui")
         SceneManager.GetInstance().PushScene(self.scene)
-        self.ui_root = UISystem.GetInstance().GetUIRoot()
+        self.ui_root = UISystem.GetInstance().AddUI("assets/ui/Ending.cui", 0)
         self.tweener = Tweener()
         self.game_state = GameState()
 
@@ -74,6 +73,9 @@ class EndingScene:
 
     def on_exit(self):
         self.tweener.clear()
+        if self.ui_root is not None:
+            UISystem.GetInstance().RemoveUI(self.ui_root)
+            self.ui_root = None
         self._extra_sprite = None
         self._extra_label = None
         self._extra_lines = []

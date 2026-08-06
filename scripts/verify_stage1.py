@@ -1,4 +1,4 @@
-﻿"""阶段 1 验证脚本：E1 动态建 UI + E2 Label 折行 + 多 .cui 叠加。
+﻿"""阶段 1 验证脚本：E1 动态建 UI + E2 Label 折行 + 多 .cui 叠加层。
 
 运行方式（工作目录 = 项目根）：
     out/build/default/src/py_sandbox/Debug/py_sandbox.exe --module verify_stage1
@@ -8,8 +8,8 @@
   2. 动态创建 Label 挂载到已有节点，显示正常（含生僻字）
   3. 580px 宽 / 字号 28 长文本自动折行 + '\\n' 分段 + 行距/左对齐（目测）
   4. push/pop 场景：动态节点随场景切换正常销毁（无崩溃）
-  5. 全部 10 个 .cui 可加载（UISerializer 兼容性）
-  6. 多 .cui 叠加：Scene.AddUI 叠加子树 / RemoveUI 摘除 / zOrder / 整树显隐
+  5. 全部 10 个 .cui 可加载（UISystem.AddUI 层挂载）
+  6. 多 .cui 叠加：UISystem.AddUI 叠加层 / RemoveUI 摘除 / zOrder / 整树显隐
 """
 
 from CLEngine.SceneGraph import (
@@ -37,13 +37,12 @@ def on_init():
 
     SetClearColor(0.1, 0.1, 0.2, 1.0)
     scene = Scene()
-    ok = scene.LoadUI("assets/ui/DialogScene.cui")
-    log(f"[verify] 1.1 DialogScene 加载: {ok}")
     SceneManager.GetInstance().PushScene(scene)
 
-    ui_root = UISystem.GetInstance().GetUIRoot()
+    ui_root = UISystem.GetInstance().AddUI("assets/ui/DialogScene.cui", 0)
+    log(f"[verify] 1.1 DialogScene 挂载为层: {'OK' if ui_root is not None else 'FAIL'}")
     if not ui_root:
-        log("[verify] FAIL: UIRoot 为空")
+        log("[verify] FAIL: UISystem.AddUI 返回空")
         return
 
     # --- 验证点 2：动态 Label 挂载到已有节点（DialogBox）---
@@ -118,46 +117,39 @@ def on_init():
     SceneManager.GetInstance().PopScene()
     log("[verify] 4.1 push/pop 临时场景完成：动态节点已随场景销毁（无崩溃）")
 
-    # --- 回归检查：全部 10 个 .cui 可加载（UISerializer 兼容性）---
-    # 注意：每次加载临时场景后立即把 UIRoot 指回主场景树，
-    # 不能调 scene.LoadUI 恢复（那会销毁整棵旧树，连带动态元素一起消失）
-    main_ui_root = UISystem.GetInstance().GetUIRoot()
+    # --- 回归检查：全部 10 个 .cui 可加载（UISystem.AddUI 层挂载）---
     cui_files = [
         "Title", "DialogScene", "BattleScene", "BattleResult", "GameOver",
         "ChapterTransition", "ExploreScene", "Settings", "Ending", "SaveLoad",
     ]
     for name in cui_files:
-        tmp = Scene()
-        ok = tmp.LoadUI(f"assets/ui/{name}.cui")
-        log(f"[verify] 5.1 {name}.cui 加载: {'OK' if ok else 'FAIL'}")
-        UISystem.GetInstance().SetUIRoot(main_ui_root)
-    log("[verify] 5.2 主场景 UI 引用已恢复（动态元素保留）")
+        layer = UISystem.GetInstance().AddUI(f"assets/ui/{name}.cui", 5)
+        ok = layer is not None
+        UISystem.GetInstance().RemoveUI(layer) if layer else None
+        log(f"[verify] 5.1 {name}.cui 挂载/摘除: {'OK' if ok else 'FAIL'}")
+    log("[verify] 5.2 全部 .cui 挂载-摘除完成（主层动态元素保留）")
 
-    # --- 验证点 6：多 .cui 叠加（Scene.AddUI / RemoveUI）---
-    ui_root = UISystem.GetInstance().GetUIRoot()
-    base_count = ui_root.GetChildCount()
+    # --- 验证点 6：多 .cui 叠加（UISystem.AddUI / RemoveUI）---
+    layer_count_before = len(UISystem.GetInstance().GetLayers())
 
-    overlay = scene.AddUI("assets/ui/Settings.cui")
-    log(f"[verify] 6.1 AddUI(Settings.cui): {'OK' if overlay is not None else 'FAIL'}，"
-        f"容器子节点 {base_count} -> {ui_root.GetChildCount()}")
+    overlay = UISystem.GetInstance().AddUI("assets/ui/Settings.cui", 10)
+    log(f"[verify] 6.1 AddUI(Settings.cui, zorder=10): {'OK' if overlay is not None else 'FAIL'}，"
+        f"层数 {layer_count_before} -> {len(UISystem.GetInstance().GetLayers())}")
 
     back_btn = overlay.FindChild("BtnBack") if overlay else None
     log(f"[verify] 6.2 叠加层 FindChild(BtnBack): {'OK' if back_btn is not None else 'FAIL'}")
 
-    overlay.SetZOrder(10)
-    log(f"[verify] 6.3 叠加层 SetZOrder(10) 层级控制: {'OK' if overlay.GetZOrder() == 10 else 'FAIL'}")
-
     overlay.SetVisible(False)
     hidden_ok = not overlay.IsVisible()
     overlay.SetVisible(True)
-    log(f"[verify] 6.4 叠加层整树显隐(SetVisible): {'OK' if hidden_ok else 'FAIL'}")
+    log(f"[verify] 6.3 叠加层整树显隐(SetVisible): {'OK' if hidden_ok else 'FAIL'}")
 
-    removed = scene.RemoveUI(overlay)
-    restored_ok = ui_root.GetChildCount() == base_count
-    log(f"[verify] 6.5 RemoveUI(overlay): {'OK' if removed else 'FAIL'}，"
-        f"容器子节点 {ui_root.GetChildCount()} -> {base_count} 恢复: {'OK' if restored_ok else 'FAIL'}")
+    removed = UISystem.GetInstance().RemoveUI(overlay)
+    restored_ok = len(UISystem.GetInstance().GetLayers()) == layer_count_before
+    log(f"[verify] 6.4 RemoveUI(overlay): {'OK' if removed else 'FAIL'}，"
+        f"层数 {len(UISystem.GetInstance().GetLayers())} -> {layer_count_before} 恢复: {'OK' if restored_ok else 'FAIL'}")
 
-    log("[verify] 6.6 叠加验证完成（AddUI/FindChild/zOrder/显隐/RemoveUI 全自动断言）")
+    log("[verify] 6.5 叠加验证完成（AddUI/FindChild/显隐/RemoveUI 全自动断言）")
 
     log("[verify] 全部就绪，等待点击验证...")
 

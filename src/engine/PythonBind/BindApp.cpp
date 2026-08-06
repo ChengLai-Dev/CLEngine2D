@@ -151,15 +151,14 @@ void PythonScriptApp::OnRender()
     m_renderer->BeginScene(*m_uiCamera);
 
     UISystem& ui = UISystem::GetInstance();
-    Widget* uiRoot = ui.GetUIRoot();
-    if (uiRoot) {
-        // UI 相机以 UI root 中心为原点、以画布尺寸为视口，与命中测试基准保持一致
-        float halfW = uiRoot->GetContentSize().x * 0.5f;
-        float halfH = uiRoot->GetContentSize().y * 0.5f;
-        m_uiCamera->SetProjection(-halfW, halfW, halfH, -halfH);
+    // UI 相机以画布中心为原点、以画布尺寸为视口，与命中测试基准保持一致
+    float halfW = kUICanvasWidth * 0.5f;
+    float halfH = kUICanvasHeight * 0.5f;
+    m_uiCamera->SetProjection(-halfW, halfW, halfH, -halfH);
 
-        Mat4 identity = Mat4::Identity();
-        static_cast<Node*>(uiRoot)->Visit(*m_renderer, identity, 1.0f);
+    Mat4 identity = Mat4::Identity();
+    for (Widget* layer : ui.GetLayers()) {
+        static_cast<Node*>(layer)->Visit(*m_renderer, identity, 1.0f);
     }
 
     m_renderer->EndScene();
@@ -172,6 +171,10 @@ void PythonScriptApp::OnWindowResize(int width, int height) {
 void PythonScriptApp::OnShutdown()
 {
     tryCall(m_pyOnShutdown);
+
+    // 清空 UI 层：必须在 Python 解释器存活时销毁（层内 Button 回调析构需要 GIL，
+    // UISystem 静态单例析构晚于解释器 finalize，此处不清理则退出时崩溃）
+    UISystem::GetInstance().ClearLayers();
 
     SceneManager::GetInstance().PopScene();
     InputSystem::GetInstance().Clear();

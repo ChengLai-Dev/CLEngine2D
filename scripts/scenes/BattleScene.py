@@ -55,9 +55,8 @@ class BattleScene:
     def __init__(self):
         self.name = "battle"
         self.scene = Scene()
-        self.scene.LoadUI("assets/ui/BattleScene.cui")
         SceneManager.GetInstance().PushScene(self.scene)
-        self.ui_root = UISystem.GetInstance().GetUIRoot()
+        self.ui_root = UISystem.GetInstance().AddUI("assets/ui/BattleScene.cui", 0)
         self.tweener = Tweener()
         self.engine = None
         self.game_state = GameState()
@@ -178,6 +177,9 @@ class BattleScene:
 
     def on_exit(self):
         self.tweener.clear()
+        if self.ui_root is not None:
+            UISystem.GetInstance().RemoveUI(self.ui_root)
+            self.ui_root = None
         self.state = "idle"
         self._pending_events = []
         self._tex_cache = {}

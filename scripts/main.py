@@ -4,10 +4,12 @@
 职责：
 - 初始化 GameState、注册场景控制器、F5 热重载、每帧调度
 - 控制器栈与 SceneManager 栈一一对应：push / pop / pop_until / switch_to
-- 关键：PopScene 后 UISystem 的 UI 树根需手动指回新栈顶场景
-  （UISystem 是全局单树，引擎不会自动恢复，否则旧场景销毁后悬垂）
+- 场景 UI 树挂摘：控制器构造时 UISystem.AddUI 挂树、on_exit 时 RemoveUI 摘树；
+  push 时隐藏旧栈顶场景 UI 树，pop/pop_until 恢复显示（UISystem 多树叠加，非栈顶不显示）
+- 弹窗（PopupManager）：覆盖页/浮层走 UISystem 层，不 push 场景；场景切换时
+  自动销毁从属弹窗
 - 全局输入（InputSystem）：Confirm（空格/回车）、Digit1~4（数字键选选项）、F5 热重载
-  边沿检测后以事件列表分发给栈顶控制器 on_input
+  边沿检测后以事件列表分发给栈顶控制器与弹窗管理器
 """
 
 import sys
@@ -28,10 +30,11 @@ from scenes.BattleScene import BattleScene
 from scenes.ResultScene import ResultScene
 from scenes.GameOverScene import GameOverScene
 from scenes.ExploreScene import ExploreScene
-from scenes.SettingsScene import SettingsScene
 from scenes.EndingScene import EndingScene
+from scenes.SettingsScene import SettingsPopup
+from game.PopupManager import PopupManager
 
-# 场景注册表（name -> 控制器类）
+# 场景注册表（name -> 控制器类）；覆盖页/浮层改走 PopupManager，不入注册表
 SCENE_REGISTRY = {
     "title": TitleScene,
     "dialog": DialogScene,
@@ -39,7 +42,6 @@ SCENE_REGISTRY = {
     "result": ResultScene,
     "gameover": GameOverScene,
     "explore": ExploreScene,
-    "settings": SettingsScene,
     "ending": EndingScene,
 }
 
@@ -76,27 +78,38 @@ def _setup_input():
 
 # ---------- 控制器栈 ----------
 
+def _set_scene_ui_visible(ctrl, visible):
+    """场景 UI 树显隐（UISystem 多树叠加：非栈顶场景的 UI 树不显示不命中）。"""
+    ui_root = getattr(ctrl, "ui_root", None)
+    if ui_root is not None:
+        ui_root.SetVisible(visible)
+
+
 def push(name, params=None):
-    """压入新场景：实例化控制器（构造内 LoadUI + PushScene）→ on_enter。"""
+    """压入新场景：实例化控制器（构造内 AddUI 挂树 + PushScene）→ 隐藏旧栈顶 UI → on_enter。"""
     cls = SCENE_REGISTRY[name]
     ctrl = cls()
     ctrl.main_ref = sys.modules[__name__]
+    if _stack:
+        _set_scene_ui_visible(_stack[-1], False)
     _stack.append(ctrl)
     ctrl.on_enter(params)
+    PopupManager.GetInstance().on_scene_changed(ctrl.name)
     return ctrl
 
 
 def pop(params=None):
-    """弹出栈顶场景；PopScene 后把 UISystem 根指回新栈顶（悬垂防护）。"""
+    """弹出栈顶场景；on_exit 摘除其 UI 树后，恢复新栈顶场景的 UI 树显示。"""
     if not _stack:
         return None
     ctrl = _stack.pop()
     ctrl.on_exit()
     SceneManager.GetInstance().PopScene()
     if _stack:
-        UISystem.GetInstance().SetUIRoot(_stack[-1].ui_root)
+        _set_scene_ui_visible(_stack[-1], True)
         if params is not None:
             _stack[-1].on_enter(params)
+        PopupManager.GetInstance().on_scene_changed(_stack[-1].name)
     return ctrl
 
 
@@ -108,9 +121,10 @@ def pop_until(name, params=None):
         SceneManager.GetInstance().PopScene()
     if not _stack:
         return None
-    UISystem.GetInstance().SetUIRoot(_stack[-1].ui_root)
+    _set_scene_ui_visible(_stack[-1], True)
     if params is not None:
         _stack[-1].on_enter(params)
+    PopupManager.GetInstance().on_scene_changed(_stack[-1].name)
     return _stack[-1]
 
 
@@ -145,6 +159,8 @@ def _collect_input_events():
 def on_init():
     SetClearColor(0.1, 0.1, 0.15, 1.0)
     _setup_input()
+    PopupManager.GetInstance().register("settings", "assets/ui/Settings.cui",
+                                        cls=SettingsPopup)
     push("title", None)
 
 
@@ -155,6 +171,9 @@ def on_update(dt):
         _stack[-1].on_update(dt)
         if events:
             _stack[-1].on_input(events)
+    PopupManager.GetInstance().update(dt)
+    if events:
+        PopupManager.GetInstance().on_input(events)
 
 
 def on_render():

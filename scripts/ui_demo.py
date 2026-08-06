@@ -25,8 +25,8 @@ def on_init():
     global scene
     SetClearColor(0.2, 0.2, 0.3, 1.0)
     scene = Scene()
-    scene.LoadUI("assets/ui/UIDemo.cui")
     SceneManager.GetInstance().PushScene(scene)
+    UISystem.GetInstance().AddUI("assets/ui/UIDemo.cui", 0)
     _setup_reload_trigger()
 
 def on_update(dt):

@@ -33,9 +33,8 @@ class ExploreScene:
     def __init__(self):
         self.name = "explore"
         self.scene = Scene()
-        self.scene.LoadUI("assets/ui/ExploreScene.cui")
         SceneManager.GetInstance().PushScene(self.scene)
-        self.ui_root = UISystem.GetInstance().GetUIRoot()
+        self.ui_root = UISystem.GetInstance().AddUI("assets/ui/ExploreScene.cui", 0)
         self.tweener = Tweener()
         self.game_state = GameState()
 
@@ -93,6 +92,9 @@ class ExploreScene:
 
     def on_exit(self):
         self.tweener.clear()
+        if self.ui_root is not None:
+            UISystem.GetInstance().RemoveUI(self.ui_root)
+            self.ui_root = None
         self._scene_id = None
         self._config = None
         self._tex_cache = {}

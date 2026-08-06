@@ -15,6 +15,7 @@ from CLEngine.SceneGraph import Scene, SceneManager, UISystem
 
 from components.Tweener import Tweener
 from game.GameState import GameState
+from game.PopupManager import PopupManager
 
 
 class TitleScene:
@@ -23,9 +24,8 @@ class TitleScene:
     def __init__(self):
         self.name = "title"
         self.scene = Scene()
-        self.scene.LoadUI("assets/ui/Title.cui")
         SceneManager.GetInstance().PushScene(self.scene)
-        self.ui_root = UISystem.GetInstance().GetUIRoot()
+        self.ui_root = UISystem.GetInstance().AddUI("assets/ui/Title.cui", 0)
         self.tweener = Tweener()
         self.particles = []
 
@@ -69,7 +69,7 @@ class TitleScene:
         self.main_ref.switch_to("dialog", {"file": "prologue", "node": "pro_001"})
 
     def _on_settings(self):
-        self.main_ref.push("settings", None)
+        PopupManager.GetInstance().open("settings")
 
     # ---------- 场景控制器协议 ----------
 
@@ -84,6 +84,9 @@ class TitleScene:
 
     def on_exit(self):
         self.tweener.clear()
+        if self.ui_root is not None:
+            UISystem.GetInstance().RemoveUI(self.ui_root)
+            self.ui_root = None
         self.particle_nodes = []
         self.btn_new_game = None
         self.btn_settings = None

@@ -19,9 +19,8 @@ class GameOverScene:
     def __init__(self):
         self.name = "gameover"
         self.scene = Scene()
-        self.scene.LoadUI("assets/ui/GameOver.cui")
         SceneManager.GetInstance().PushScene(self.scene)
-        self.ui_root = UISystem.GetInstance().GetUIRoot()
+        self.ui_root = UISystem.GetInstance().AddUI("assets/ui/GameOver.cui", 0)
         self.tweener = Tweener()
         self.game_state = GameState()
 
@@ -45,6 +44,9 @@ class GameOverScene:
 
     def on_exit(self):
         self.tweener.clear()
+        if self.ui_root is not None:
+            UISystem.GetInstance().RemoveUI(self.ui_root)
+            self.ui_root = None
 
     # ---------- 重试 ----------
 

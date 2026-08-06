@@ -20,9 +20,8 @@ class ResultScene:
     def __init__(self):
         self.name = "result"
         self.scene = Scene()
-        self.scene.LoadUI("assets/ui/BattleResult.cui")
         SceneManager.GetInstance().PushScene(self.scene)
-        self.ui_root = UISystem.GetInstance().GetUIRoot()
+        self.ui_root = UISystem.GetInstance().AddUI("assets/ui/BattleResult.cui", 0)
         self.tweener = Tweener()
         self.game_state = GameState()
 
@@ -79,6 +78,9 @@ class ResultScene:
 
     def on_exit(self):
         self.tweener.clear()
+        if self.ui_root is not None:
+            UISystem.GetInstance().RemoveUI(self.ui_root)
+            self.ui_root = None
         self._result = None
 
     # ---------- 展示 ----------

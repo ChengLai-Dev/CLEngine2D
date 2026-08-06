@@ -1,6 +1,7 @@
 #include <pybind11/pybind11.h>
 #include <Math/Vec2.h>
 #include <Math/Vec3.h>
+#include <Math/Vec4.h>
 #include <Math/Mat4.h>
 
 namespace py = pybind11;
@@ -49,6 +50,18 @@ void RegisterMathBindings(py::module_& m)
         .def("LengthSq", &Vec3::LengthSq)
         .def("Normalized", &Vec3::Normalized)
         .def("Normalize", &Vec3::Normalize);
+
+    py::class_<Vec4>(m, "Vec4")
+        .def(py::init<>())
+        .def(py::init<float, float, float, float>())
+        .def_readwrite("x", &Vec4::x)
+        .def_readwrite("y", &Vec4::y)
+        .def_readwrite("z", &Vec4::z)
+        .def_readwrite("w", &Vec4::w)
+        .def("__repr__", [](const Vec4& v) {
+            return "<Vec4(" + std::to_string(v.x) + ", " + std::to_string(v.y)
+                 + ", " + std::to_string(v.z) + ", " + std::to_string(v.w) + ")>";
+        });
 
     py::class_<Mat4>(m, "Mat4")
         .def_static("Identity", &Mat4::Identity)

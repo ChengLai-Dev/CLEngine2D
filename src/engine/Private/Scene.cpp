@@ -1,11 +1,8 @@
 #include "Scene.h"
 #include "SceneGraph/Node.h"
 #include "SceneGraph/Sprite.h"
-#include "SceneGraph/Widget.h"
-#include "SceneGraph/UISystem.h"
 #include "Render/Texture.h"
 #include "Render/Renderer.h"
-#include "UI/UISerializer.h"
 #include "Logger.h"
 
 
@@ -49,72 +46,9 @@ void Scene::RemoveAllChildren() {
     }
 }
 
-// UI 容器（画布 1280x720，中心原点，与 .cui 根节点坐标模型一致）
-static constexpr float kUICanvasWidth = 1280.0f;
-static constexpr float kUICanvasHeight = 720.0f;
-
-void Scene::EnsureUIContainer() {
-    if (m_uiContainerReady) return;
-
-    auto container = std::make_unique<Widget>();
-    container->SetName("UIContainer");
-    container->SetContentSize(Vec2(kUICanvasWidth, kUICanvasHeight));
-    container->SetTouchEnabled(false);
-    m_uiRoot = std::move(container);
-    m_uiContainerReady = true;
-
-    UISystem::GetInstance().SetUIRoot(static_cast<Widget*>(m_uiRoot.get()));
-}
-
-bool Scene::LoadUI(const std::string& filepath) {
-    EnsureUIContainer();
-
-    Node* uiRoot = UISerializer::LoadFromFile(filepath);
-    if (!uiRoot) {
-        Logger::Error("Scene::LoadUI: failed to load {}", filepath);
-        return false;
-    }
-
-    // 替换语义：清空容器现有子树后挂入新树
-    while (m_uiRoot->GetChildCount() > 0) {
-        m_uiRoot->RemoveChild(m_uiRoot->GetChild(0));
-    }
-    m_uiRoot->AddChild(std::unique_ptr<Node>(uiRoot));
-
-    Logger::Info("Scene::LoadUI: loaded {}", filepath);
-    return true;
-}
-
-Node* Scene::AddUI(const std::string& filepath) {
-    EnsureUIContainer();
-
-    Node* uiRoot = UISerializer::LoadFromFile(filepath);
-    if (!uiRoot) {
-        Logger::Error("Scene::AddUI: failed to load {}", filepath);
-        return nullptr;
-    }
-
-    m_uiRoot->AddChild(std::unique_ptr<Node>(uiRoot));
-    Logger::Info("Scene::AddUI: loaded {} (container child count: {})",
-                 filepath, m_uiRoot->GetChildCount());
-    return uiRoot;
-}
-
-bool Scene::RemoveUI(Node* root) {
-    if (!m_uiRoot || !root) return false;
-    std::unique_ptr<Node> removed = m_uiRoot->RemoveChild(root);
-    if (!removed) return false;
-    Logger::Info("Scene::RemoveUI: removed subtree '{}' (container child count: {})",
-                 removed->GetName(), m_uiRoot->GetChildCount());
-    return true;
-}
-
 void Scene::OnUpdate(float deltaTime) {
     if (m_root) {
         m_root->OnUpdate(deltaTime);
-    }
-    if (m_uiRoot) {
-        m_uiRoot->OnUpdate(deltaTime);
     }
 }
 
@@ -123,10 +57,6 @@ void Scene::OnRender(Renderer& renderer) {
         Mat4 identity = Mat4::Identity();
         m_root->Visit(renderer, identity, 1.0f);
     }
-}
-
-Node* Scene::GetUIRoot() const {
-    return m_uiRoot.get();
 }
 
 SceneManager& SceneManager::GetInstance() {

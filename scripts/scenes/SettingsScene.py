@@ -1,39 +1,46 @@
 # -*- coding: utf-8 -*-
-"""设置场景控制器（Settings.cui）。
+"""设置弹窗（Settings.cui，PopupManager 管理，不再 push 场景）。
 
 - 文字速度三档真实生效（D-07）：慢/中/快 = 20/30/45 字/秒，写入 GameState.settings，
   倍率作用于全部打字机（对话/战斗插话/结算明细统一走 GameState.get_text_speed）
 - 音量条灰置态：E3 音频未实施，BgmRow/SfxRow 降低透明度 + 文本标注「（未实装）」
   （Image 无 SetInteractable，用透明度+文案演示置灰；.cui 零改动）
-- 键盘导航（D7）：confirm → 返回标题
-- 接入：TitleScene BtnSettings → push；BtnBack → pop 回标题
+- 键盘导航（D7）：confirm → 关闭弹窗
+- 接入：TitleScene BtnSettings → PopupManager.open("settings")；BtnBack → close
+- 模态：UISystem 层 modal 机制阻断下层点击；面板不透明由动态纯色垫底
+  （SettingsBg，panel_9slice.png 中心透明，.cui 零改动）
 """
 
-from CLEngine.Math import Vec2
-from CLEngine.SceneGraph import Scene, SceneManager, UISystem
+from CLEngine.Math import Vec2, Vec4
+from CLEngine.SceneGraph import CreateImage
 
 from components.Tweener import Tweener
 from game.GameState import GameState, SPEED_PRESETS
+from game.PopupManager import Popup
 
 # 档位按钮（控件契约）：慢/中/快 = 20/30/45
 SPEED_BUTTONS = {"slow": "BtnSpeedSlow", "normal": "BtnSpeedNormal", "fast": "BtnSpeedFast"}
 GRAY_ALPHA = 0.15          # 音量条灰置透明度
 BAR_ALPHA = 0.4            # .cui 原始透明度
+PANEL_SIZE = (640.0, 420.0)          # SettingsPanel 尺寸
+PANEL_BG_COLOR = (0.08, 0.08, 0.12)  # 面板垫底色（不透明）
 
 
-class SettingsScene:
-    """设置画面：文字速度三档 + 音量条灰置演示。"""
+class SettingsPopup(Popup):
+    """设置弹窗：文字速度三档 + 音量条灰置演示。"""
 
-    def __init__(self):
-        self.name = "settings"
-        self.scene = Scene()
-        self.scene.LoadUI("assets/ui/Settings.cui")
-        SceneManager.GetInstance().PushScene(self.scene)
-        self.ui_root = UISystem.GetInstance().GetUIRoot()
+    def __init__(self, name, cui_path, zorder, modal):
+        super().__init__(name, cui_path, zorder, modal)
         self.tweener = Tweener()
         self.game_state = GameState()
 
         root = self.ui_root
+        # 面板垫底：panel_9slice.png 中心透明，先画不透明纯色底（zOrder 低于 .cui 树）
+        bg = CreateImage(root, "SettingsBg")
+        if bg is not None:
+            bg.SetContentSize(Vec2(PANEL_SIZE[0], PANEL_SIZE[1]))
+            bg.SetZOrder(-1)
+            bg.SetColor(Vec4(PANEL_BG_COLOR[0], PANEL_BG_COLOR[1], PANEL_BG_COLOR[2], 1.0))
         self.bgm_row = root.FindChild("BgmRow")
         self.bgm_label = root.FindChild("BgmLabel")
         self.bgm_bar_bg = root.FindChild("BgmBarBg")
@@ -50,28 +57,25 @@ class SettingsScene:
             self.speed_buttons[preset] = btn
         self.btn_back = root.FindChild("BtnBack")
         if self.btn_back is not None:
-            self.btn_back.OnClicked(lambda b: self._on_back())
+            self.btn_back.OnClicked(lambda b: self.close())
 
         self._apply_gray_volume()
         self._refresh_speed_buttons()
 
-    # ---------- 场景控制器协议 ----------
+    def close_now(self):
+        """实际销毁（PopupManager 帧末调用）：摘树 + 清理引用。"""
+        super().close_now()
+        self.tweener.clear()
+        self.speed_buttons = {}
+        self.btn_back = None
 
-    def on_enter(self, params):
-        self._refresh_speed_buttons()
-
-    def on_update(self, dt):
+    def update(self, dt):
         self.tweener.update(dt)
 
     def on_input(self, events):
         for kind, data in events:
             if kind == "confirm":
-                self._on_back()
-
-    def on_exit(self):
-        self.tweener.clear()
-        self.speed_buttons = {}
-        self.btn_back = None
+                self.close()
 
     # ---------- 音量条灰置态（E3 未实施） ----------
 
@@ -99,8 +103,3 @@ class SettingsScene:
                 continue
             value = SPEED_PRESETS.get(preset, 30)
             btn.SetOpacity(1.0 if value == current else 0.5)
-
-    # ---------- 返回 ----------
-
-    def _on_back(self):
-        self.main_ref.pop(None)

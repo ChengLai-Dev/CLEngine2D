@@ -40,9 +40,8 @@ class DialogScene:
     def __init__(self):
         self.name = "dialog"
         self.scene = Scene()
-        self.scene.LoadUI("assets/ui/DialogScene.cui")
         SceneManager.GetInstance().PushScene(self.scene)
-        self.ui_root = UISystem.GetInstance().GetUIRoot()
+        self.ui_root = UISystem.GetInstance().AddUI("assets/ui/DialogScene.cui", 0)
         self.tweener = Tweener()
         self.dialog = DialogueEngine(GameState())
         self.game_state = GameState()
@@ -131,6 +130,12 @@ class DialogScene:
 
     def on_exit(self):
         self.tweener.clear()
+        # 章节过渡层兜底摘除（正常流程 _chapter_done 已摘；退出时可能还在淡入淡出）
+        if self._chapter_overlay is not None:
+            UISystem.GetInstance().RemoveUI(self._chapter_overlay)
+        if self.ui_root is not None:
+            UISystem.GetInstance().RemoveUI(self.ui_root)
+            self.ui_root = None
         self._option_buttons = []
         self._chapter_overlay = None
         self.state = "idle"
@@ -324,8 +329,9 @@ class DialogScene:
         self.main_ref.push("explore", {"scene": scene_id})
 
     def _trigger_chapter(self, chapter_no):
-        """chapter：AddUI 叠加 ChapterTransition.cui，淡入淡出后继续；
-        章节图标/装饰 Sprite 上浮动效（策划案 §7.7）；顺带更新 GameState.chapter。"""
+        """chapter：UISystem.AddUI 叠加 ChapterTransition.cui（独立层 zorder=50），
+        淡入淡出后继续；章节图标/装饰 Sprite 上浮动效（策划案 §7.7）；
+        顺带更新 GameState.chapter。"""
         node = self.dialog.get_node()
         if node is None:
             return
@@ -333,12 +339,11 @@ class DialogScene:
         # 章节进度（供结局差分与 Staff 使用）；仅接受纯数字参数
         if isinstance(chapter_no, str) and chapter_no.isdigit():
             self.game_state.chapter = int(chapter_no)
-        overlay = self.scene.AddUI("assets/ui/ChapterTransition.cui")
+        overlay = UISystem.GetInstance().AddUI("assets/ui/ChapterTransition.cui", 50)
         if overlay is None:
             self._on_advance_fallback()
             return
         self._chapter_overlay = overlay
-        overlay.SetZOrder(50)
         label = overlay.FindChild("ChapterLabel")
         if label is not None:
             label.SetText(node.get("text", ""))
@@ -363,7 +368,7 @@ class DialogScene:
         overlay = self._chapter_overlay
         self._chapter_overlay = None
         if overlay is not None:
-            self.scene.RemoveUI(overlay)
+            UISystem.GetInstance().RemoveUI(overlay)
         self.state = "idle"
         self.dialog.advance()
         self._show_current()

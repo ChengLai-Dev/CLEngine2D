@@ -263,8 +263,15 @@ void RegisterSceneBindings(py::module_& m)
         .def_static("GetInstance", &UISystem::GetInstance,
                      py::return_value_policy::reference)
         .def("ProcessEvents", &UISystem::ProcessEvents)
-        .def("SetUIRoot", &UISystem::SetUIRoot)
-        .def("GetUIRoot", &UISystem::GetUIRoot,
+        .def("AddUI", &UISystem::AddUI,
+             py::arg("filepath"), py::arg("zorder") = 0, py::arg("modal") = false,
+             py::return_value_policy::reference,
+             "Load a .cui and mount it as an overlay layer (zorder ascending); "
+             "modal=true blocks hit-testing to lower layers when the layer misses. "
+             "Returns the layer container (None on failure)")
+        .def("RemoveUI", &UISystem::RemoveUI,
+             "Detach a layer; the Python reference becomes dangling after this")
+        .def("GetLayers", &UISystem::GetLayers,
              py::return_value_policy::reference)
         .def("GetPressedWidget", &UISystem::GetPressedWidget,
              py::return_value_policy::reference)
@@ -293,14 +300,7 @@ void RegisterSceneBindings(py::module_& m)
         .def("OnRender", &Scene::OnRender)
         .def("GetRoot", &Scene::GetRoot,
              py::return_value_policy::reference)
-        .def("RemoveAllChildren", &Scene::RemoveAllChildren)
-        .def("LoadUI", &Scene::LoadUI)
-        .def("AddUI", &Scene::AddUI,
-             py::return_value_policy::reference,
-             "Load a .cui and append it to the UI container (multi-.cui overlay); "
-             "returns the new subtree root (None on failure). Call SetZOrder on it to control stacking")
-        .def("RemoveUI", &Scene::RemoveUI,
-             "Detach a subtree from the UI container; the Python reference becomes dangling after this");
+        .def("RemoveAllChildren", &Scene::RemoveAllChildren);
 
     py::class_<SceneManager>(m, "SceneManager")
         .def_static("GetInstance", &SceneManager::GetInstance,

@@ -55,8 +55,8 @@ void Image::OnDraw(Renderer& renderer, const Mat4& worldTransform, float worldOp
     Slice slices[9];
     float srcRows[3] = { 0.0f, top, centerSrcH };
     float srcCols[3] = { 0.0f, left, centerSrcW };
-    float dstRows[3] = { -dstH * 0.5f, -dstH * 0.5f + top, centerDstH };
-    float dstCols[3] = { -dstW * 0.5f, -dstW * 0.5f + left, centerDstW };
+    float dstRows[3] = { -dstH * 0.5f, -dstH * 0.5f + top, -dstH * 0.5f + top + centerDstH };
+    float dstCols[3] = { -dstW * 0.5f, -dstW * 0.5f + left, -dstW * 0.5f + left + centerDstW };
 
     float srcWidths[3] = { left, centerSrcW, right };
     float srcHeights[3] = { top, centerSrcH, bottom };
